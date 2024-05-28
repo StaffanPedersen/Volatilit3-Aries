@@ -27,7 +27,7 @@ def parse_command(command):
 def main():
     exit_program = False
     while not exit_program:
-        user_input = input("Enter command (1: For quick default scan \n 2: idk, \n 3: \n exit: e): ")
+        user_input = input("Enter command (1: For quick default scan \n 2: idk, \n 3: \n 4: you'r OS\n exit: e): ")
         try:
             exit_program = parse_command(user_input)
         except SystemExit:
