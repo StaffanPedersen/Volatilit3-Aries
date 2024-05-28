@@ -1,10 +1,12 @@
 import sys
 import subprocess
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QPushButton, QLabel, QFileDialog, QWidget, \
-    QComboBox, QTableView, QLineEdit, QHeaderView, QAbstractItemView
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QVBoxLayout, QPushButton, QLabel,
+    QFileDialog, QWidget, QComboBox, QTableView, QLineEdit,
+    QHeaderView, QAbstractItemView
+)
 from PyQt5.QtCore import QThread, pyqtSignal, Qt, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
-
 
 class VolatilityThread(QThread):
     output_signal = pyqtSignal(list, list)
@@ -15,11 +17,13 @@ class VolatilityThread(QThread):
         self.plugin = plugin
 
     def run(self):
+        """Execute the Volatility plugin and parse the output."""
         output = self.run_volatility(self.memory_dump, self.plugin)
         headers, data = self.parse_output(output)
         self.output_signal.emit(headers, data)
 
     def run_volatility(self, memory_dump, plugin):
+        """Run the Volatility command and capture its output."""
         try:
             vol_path = r"C:\Users\frece\OneDrive\Skrivebord\Aries\Volatilit3-Aries\vol.py"  # Ensure the path is correct
             command = ['python', vol_path, '-f', memory_dump, plugin]
@@ -33,6 +37,7 @@ class VolatilityThread(QThread):
             return str(e)
 
     def parse_output(self, output):
+        """Parse the output from the Volatility command into headers and data."""
         lines = output.splitlines()
         if not lines:
             return [], []
@@ -42,10 +47,9 @@ class VolatilityThread(QThread):
 
         return headers, data
 
-
 def get_all_plugins():
+    """Return a list of available plugins for different operating systems."""
     try:
-        # Manually populate the list of unique plugins for each OS
         windows_plugins = [
             'windows.info', 'windows.pslist', 'windows.pstree', 'windows.dlldump', 'windows.cmdline',
             'windows.netscan', 'windows.network', 'windows.filescan', 'windows.vaddump', 'windows.malfind',
@@ -90,32 +94,25 @@ def get_all_plugins():
         print("Exception occurred while fetching plugins:", str(e))
         return []
 
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # Set window characteristics
         self.setWindowTitle("Memory Dump Browser")
         self.setGeometry(100, 100, 800, 600)
 
-        # Central widget
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
 
-        # Layout
         self.layout = QVBoxLayout(self.central_widget)
 
-        # Browse button
         self.browse_button = QPushButton("Browse for Memory Dump", self)
         self.browse_button.clicked.connect(self.browse_memory_dump)
         self.layout.addWidget(self.browse_button)
 
-        # Selected file label
         self.selected_file_label = QLabel("", self)
         self.layout.addWidget(self.selected_file_label)
 
-        # Plugin selection
         self.plugin_label = QLabel("Select Volatility Plugin:", self)
         self.layout.addWidget(self.plugin_label)
 
@@ -123,12 +120,10 @@ class MainWindow(QMainWindow):
         self.populate_plugin_combo()
         self.layout.addWidget(self.plugin_combo)
 
-        # Scan button
         self.scan_button = QPushButton("Scan", self)
         self.scan_button.clicked.connect(self.scan_memory_dump)
         self.layout.addWidget(self.scan_button)
 
-        # Output area
         self.output_area = QTableView(self)
         self.output_area.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.output_area.setSortingEnabled(True)
@@ -136,13 +131,13 @@ class MainWindow(QMainWindow):
         self.output_area.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.layout.addWidget(self.output_area)
 
-        # Filter input
         self.filter_input = QLineEdit(self)
         self.filter_input.setPlaceholderText("Filter results")
         self.filter_input.textChanged.connect(self.filter_results)
         self.layout.addWidget(self.filter_input)
 
     def populate_plugin_combo(self):
+        """Populate the plugin combo box with available plugins."""
         plugin_data = get_all_plugins()
         model = QStandardItemModel()
 
@@ -153,12 +148,13 @@ class MainWindow(QMainWindow):
             model.appendRow(os_item)
 
             for plugin in plugins:
-                plugin_item = QStandardItem(f"{plugin}")
+                plugin_item = QStandardItem(plugin)
                 model.appendRow(plugin_item)
 
         self.plugin_combo.setModel(model)
 
     def browse_memory_dump(self):
+        """Open a file dialog to select a memory dump file."""
         options = QFileDialog.Options()
         options |= QFileDialog.ReadOnly
         file_filter = "Memory Dumps (*.dmp *.mem *.img);;All Files (*)"
@@ -169,11 +165,11 @@ class MainWindow(QMainWindow):
             self.selected_file_label.setText("No file selected")
 
     def scan_memory_dump(self):
+        """Start the scanning process using the selected plugin."""
         memory_dump = self.selected_file_label.text().replace("Selected file: ", "")
         selected_plugin = self.plugin_combo.currentText()  # Extract the actual plugin name
 
         if memory_dump and selected_plugin and selected_plugin != "No plugins found":
-            # Extract the correct plugin path for the command
             plugin = selected_plugin.replace(":", "").strip()
             self.layout.addWidget(QLabel(f'Running {plugin} on {memory_dump}...'))
             self.thread = VolatilityThread(memory_dump, plugin)
@@ -183,6 +179,7 @@ class MainWindow(QMainWindow):
             self.layout.addWidget(QLabel('Please select a memory dump file and a valid plugin.'))
 
     def display_output(self, headers, data):
+        """Display the output from the Volatility plugin in the table view."""
         model = QStandardItemModel()
         model.setHorizontalHeaderLabels(headers)
 
@@ -196,22 +193,20 @@ class MainWindow(QMainWindow):
         self.output_area.setModel(self.proxy_model)
 
     def filter_results(self, text):
+        """Filter the results displayed in the table view based on the input text."""
         self.proxy_model.setFilterKeyColumn(-1)  # Search all columns
         self.proxy_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.proxy_model.setFilterFixedString(text)
 
-
 def main():
+    """Main entry point for the application."""
     try:
         app = QApplication(sys.argv)
-
         main_window = MainWindow()
         main_window.show()
-
         sys.exit(app.exec_())
     except Exception as e:
         print(f"An error occurred: {e}")
-
 
 if __name__ == "__main__":
     main()
