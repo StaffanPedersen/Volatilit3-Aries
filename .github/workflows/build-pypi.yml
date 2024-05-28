@@ -3,14 +3,11 @@ name: build-pypi
 on:
   push:
     branches:
-      - stable
-      - develop
-      - 'release/**'
+      - main
 
   pull_request:
     branches:
-      - stable
-      - 'release/**'
+      - main
 
 jobs:
 
