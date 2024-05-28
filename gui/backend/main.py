@@ -1,10 +1,17 @@
 import argparse
+import platform
 
+def get_os_info():
+    os_type = platform.system()
+    os_details = platform.version()
+    os_release = platform.release()
+    
+    return os_type, os_release, os_details
 
 
 def parse_command(command):
     parser = argparse.ArgumentParser(description="Run specific functions from the command line.")
-    parser.add_argument('command', choices=['1', '2', '3', 'exit'], help='The function to run')
+    parser.add_argument('command', choices=['1', '2', '3',  '4', 'exit'], help='The function to run')
     
     # Use the parser to parse the command provided
     args = parser.parse_args(command.split())
@@ -15,6 +22,11 @@ def parse_command(command):
         print("2")
     elif args.command == '3':
         print("3")
+    elif args.command == '4':
+        os_type, os_release, os_details = get_os_info()
+        print(f"Operativsystem: {os_type}")
+        print(f"Versjon: {os_release}")
+        print(f"Detaljer: {os_details}")
     elif args.command == 'e':
         return True  # Signal to exit the program
     return False
