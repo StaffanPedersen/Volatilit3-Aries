@@ -1,3 +1,4 @@
+import subprocess
 from PyQt5.QtWidgets import (
     QMainWindow, QVBoxLayout, QPushButton, QLabel,
     QFileDialog, QWidget, QComboBox, QTableView, QLineEdit,
@@ -9,8 +10,13 @@ from volatility_thread import VolatilityThread
 from plugins import get_all_plugins
 
 class MainWindow(QMainWindow):
+
+    file_name = ""
+
     def __init__(self):
         super().__init__()
+
+        self.memory_dump_file = None
 
         self.setWindowTitle("Memory Dump Browser")
         self.setGeometry(100, 100, 800, 600)
@@ -73,15 +79,22 @@ class MainWindow(QMainWindow):
         options |= QFileDialog.ReadOnly
         file_filter = "Memory Dumps (*.dmp *.mem *.img);;All Files (*)"
         file_name, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump", "", file_filter, options=options)
+        print(self.file_name)
         if file_name:
+            self.memory_dump_file = file_name
             self.selected_file_label.setText(f"Selected file: {file_name}")
         else:
+            self.memory_dump_file = None
             self.selected_file_label.setText("No file selected")
 
-    def scan_memory_dump(self):
+    def scan_memory_dump(self, memory_dump_file):
         """Start the scanning process using the selected plugin."""
         memory_dump = self.selected_file_label.text().replace("Selected file: ", "")
         selected_plugin = self.plugin_combo.currentText()  # Extract the actual plugin name
+
+        if self.memory_dump_file is None:
+            self.layout.addWidget(QLabel("Please select a memory dump file."))
+            return
 
         if memory_dump and selected_plugin and selected_plugin != "No plugins found":
             plugin = selected_plugin.replace(":", "").strip()
@@ -105,6 +118,7 @@ class MainWindow(QMainWindow):
         self.proxy_model = QSortFilterProxyModel()
         self.proxy_model.setSourceModel(model)
         self.output_area.setModel(self.proxy_model)
+        print("output done")
 
     def filter_results(self, text):
         """Filter the results displayed in the table view based on the input text."""
