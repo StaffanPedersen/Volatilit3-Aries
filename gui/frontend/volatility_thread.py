@@ -1,6 +1,9 @@
 import subprocess
-import os
+import csv
+from io import StringIO
 from PyQt5.QtCore import QThread, pyqtSignal
+from plugins import find_volatility_file
+import os
 
 class VolatilityThread(QThread):
     output_signal = pyqtSignal(list, list)
@@ -19,8 +22,11 @@ class VolatilityThread(QThread):
     def run_volatility(self, memory_dump, plugin):
         """Run the Volatility command and capture its output."""
         try:
-            vol_path = r"..\..\..\Volatilit3-Aries\vol.py"  # Ensure the path is correct
-            command = ['python', vol_path, '-f', memory_dump, plugin]
+            start_path = os.path.dirname(os.path.realpath(__file__))
+            volatility_file = find_volatility_file(start_path)
+            base_dir = os.path.join(os.path.dirname(volatility_file), "vol.py")
+            vol_path = base_dir
+            command = ['python', vol_path, '-f', memory_dump, '-r', 'csv', plugin]
             print(f"Running command: {' '.join(command)}")  # Debugging: Print the command
             result = subprocess.run(command, capture_output=True, text=True)
             if result.returncode == 0:
@@ -37,12 +43,15 @@ class VolatilityThread(QThread):
             return str(e)
 
     def parse_output(self, output):
-        """Parse the output from the Volatility command into headers and data."""
-        lines = output.splitlines()
-        if not lines:
-            return [], []
+        """Parse the CSV output from the Volatility command into headers and data."""
+        csv_reader = csv.reader(StringIO(output))
+        headers = next(csv_reader, None)
+        data = [row for row in csv_reader if row]
 
-        headers = lines[0].split()
-        data = [line.split() for line in lines[1:] if line.strip()]
+        if headers and "TreeDepth" in headers:
+            tree_depth_index = headers.index("TreeDepth")
+            headers.pop(tree_depth_index)
+            for row in data:
+                row.pop(tree_depth_index)
 
         return headers, data

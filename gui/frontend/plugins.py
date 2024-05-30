@@ -13,10 +13,8 @@ def find_volatility_file(start_path, max_attempts=5):
 
     return None
 
-
 start_path = os.path.dirname(os.path.realpath(__file__))
 volatility_file = find_volatility_file(start_path)
-
 
 def get_all_plugins():
     """Return a list of available plugins for different operating systems."""
