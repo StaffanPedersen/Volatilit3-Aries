@@ -9,28 +9,18 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from plugins import get_all_plugins
 
 
 class Ui_Form(object):
     def __init__(self):
-        self.pluginMenuLabelButton_2 = None
-        self.pluginSaveButton = None
+        self.pluginNames = []
 
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.resize(946, 780)
-        self.pluginButton = QtWidgets.QPushButton(Form)
-        self.pluginButton.setGeometry(QtCore.QRect(290, 50, 161, 51))
-        self.pluginButton.setMinimumSize(QtCore.QSize(1, 0))
-        font = QtGui.QFont()
-        font.setPointSize(16)
-        self.pluginButton.setFont(font)
-        self.pluginButton.setStyleSheet("background-color: rgb(255, 137, 86);\n"
-                                        "border-radius: 5px;\n"
-                                        "border: 1px solid black;")
-        self.pluginButton.setAutoRepeatDelay(300)
-        self.pluginButton.setDefault(False)
-        self.pluginButton.setObjectName("pluginButton")
+
+
         self.frame = QtWidgets.QFrame(Form)
         self.frame.setGeometry(QtCore.QRect(0, 0, 251, 781))
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -121,19 +111,12 @@ class Ui_Form(object):
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
-        # Define your array of plugin names
-        self.pluginNames = ["Plugin1", "Plugin2", "Plugin3", "Plugin4", "Plugin5", "Plugin1", "Plugin2", "Plugin3",
-                            "Plugin4", "Plugin5", "Plugin1", "Plugin2", "Plugin3", "Plugin4", "Plugin5", "Plugin1",
-                            "Plugin2", "Plugin3", "Plugin4", "Plugin5", "Plugin1", "Plugin2", "Plugin3",
-                            "Plugin4", "Plugin5", "Plugin1", "Plugin2", "Plugin3", "Plugin4", "Plugin5", "Plugin1",
-                            "Plugin2", "Plugin3", "Plugin4", "Plugin5", "Plugin1", "Plugin2", "Plugin3",
-                            "Plugin4", "Plugin5", "Plugin1", "Plugin2", "Plugin3", "Plugin4", "Plugin5", "Plugin1",
-                            "Plugin2", "Plugin3", "Plugin4", "Plugin5", "Plugin1", "Plugin2", "Plugin3",
-                            "Plugin4", "Plugin5", "Plugin1", "Plugin2", "Plugin3", "Plugin4", "Plugin5", "Plugin1",
-                            "Plugin2", "Plugin3", "Plugin4", "Plugin5", "Plugin1", "Plugin2", "Plugin3",
-                            "Plugin4", "Plugin5", "Plugin1", "Plugin2", "Plugin3", "Plugin4", "Plugin5", "Plugin1",
-                            "Plugin2", "Plugin3", "Plugin4", "Plugin5", "Plugin1", "Plugin2", "Plugin3",
-                            "Plugin4", "Plugin5", "Plugin1", "Plugin2", "Plugin3", "Plugin4", "Plugin5"]
+        # Get the list of plugins from plugins.py
+        plugin_data = get_all_plugins()
+        self.pluginNames = [f"{os_name}.{plugin}" for os_name, plugins in plugin_data for plugin in plugins]
+
+        # Call the function to create the widgets
+        self.createPluginWidgets(self.pluginScrollArea, self.pluginNames)
 
         # Call the function to create the widgets
         self.createPluginWidgets(self.pluginScrollArea, self.pluginNames)
@@ -202,7 +185,7 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
-        self.pluginButton.setText(_translate("Form", "Plugins"))
+
         self.pluginMenulabel.setText(_translate("Form", "  Plugins"))
         self.pluginMenuLabelButton.setText(_translate("Form", "X"))
         self.label.setText(_translate("Form", "Pluginname.PluginName"))
