@@ -9,6 +9,8 @@ from output_manager import OutputManager
 from volatility_thread import VolatilityThread
 from progress_manager import ProgressManager
 from plugins import get_all_plugins
+from os_detector import detect_os  # Import the new OS detection module
+import os
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -53,6 +55,8 @@ class MainWindow(QMainWindow):
         self.output_manager = OutputManager(self)
         self.main_layout.addWidget(self.output_manager)
 
+        self.valid_memory_dump_selected = False  # Flag to track if a valid memory dump is selected
+
     def populate_plugin_combo(self):
         """Populate the plugin combo box with available plugins."""
         try:
@@ -69,10 +73,9 @@ class MainWindow(QMainWindow):
             print(f"Error populating plugin combo: {e}")
 
     def update_scan_button_state(self):
-        """Enable the scan button only if both a memory dump and a plugin are selected."""
-        memory_dump_selected = bool(self.selected_file_label.text())
+        """Enable the scan button only if both a valid memory dump and a plugin are selected."""
         plugin_selected = self.plugin_combo.currentText() not in ["", "No plugins found", "Select Volatility Plugin:"]
-        self.scan_button.setEnabled(memory_dump_selected and plugin_selected)
+        self.scan_button.setEnabled(self.valid_memory_dump_selected and plugin_selected)
 
     def browse_memory_dump(self):
         """Open a file dialog to select a memory dump file."""
@@ -82,12 +85,25 @@ class MainWindow(QMainWindow):
             file_filter = "Memory Dumps (*.dmp *.mem *.img);;All Files (*)"
             file_name, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump", "", file_filter, options=options)
             if file_name:
-                self.selected_file_label.setText(f"Selected file: {file_name}")
+                if self.is_valid_memory_dump(file_name):
+                    self.selected_file_label.setText(f"Selected file: {file_name}")
+                    self.valid_memory_dump_selected = True
+                else:
+                    QMessageBox.warning(self, "Invalid File", "The selected file is not a valid memory dump.")
+                    self.selected_file_label.setText("No file selected")
+                    self.valid_memory_dump_selected = False
             else:
                 self.selected_file_label.setText("No file selected")
+                self.valid_memory_dump_selected = False
             self.update_scan_button_state()
         except Exception as e:
             print(f"Error browsing memory dump: {e}")
+
+    def is_valid_memory_dump(self, file_path):
+        """Check if the selected file is a valid memory dump based on its extension."""
+        valid_extensions = {".dmp", ".mem", ".img"}
+        _, file_extension = os.path.splitext(file_path)
+        return file_extension.lower() in valid_extensions
 
     def scan_memory_dump(self):
         """Start the scanning process using the selected plugin."""
@@ -96,6 +112,15 @@ class MainWindow(QMainWindow):
             selected_plugin = self.plugin_combo.currentText()  # Extract the actual plugin name
 
             if memory_dump and selected_plugin and selected_plugin != "No plugins found":
+                memory_dump_os = detect_os(memory_dump)
+                if not memory_dump_os:
+                    QMessageBox.warning(self, "OS Detection Error", "Could not determine the OS of the memory dump.")
+                    return
+
+                if not selected_plugin.startswith(memory_dump_os):
+                    QMessageBox.warning(self, "Plugin Compatibility Error", f"The selected plugin '{selected_plugin}' is not compatible with the detected OS '{memory_dump_os}'.")
+                    return
+
                 plugin = selected_plugin.strip()
                 print(f"Starting scan: Running {plugin} on {memory_dump}...")
                 self.thread = VolatilityThread(memory_dump, plugin)
