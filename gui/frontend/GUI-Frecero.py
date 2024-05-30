@@ -1,9 +1,10 @@
 import sys
 import subprocess
+import os
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QPushButton, QLabel,
     QFileDialog, QWidget, QComboBox, QTableView, QLineEdit,
-    QHeaderView, QAbstractItemView
+    QHeaderView, QAbstractItemView, QMessageBox
 )
 from PyQt5.QtCore import QThread, pyqtSignal, Qt, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
@@ -25,15 +26,21 @@ class VolatilityThread(QThread):
     def run_volatility(self, memory_dump, plugin):
         """Run the Volatility command and capture its output."""
         try:
-            vol_path = r"C:\Users\frece\OneDrive\Skrivebord\Aries\Volatilit3-Aries\vol.py"  # Ensure the path is correct
+            vol_path = r"C:\Users\frece\Desktop\Aries\Volatilit3-Aries\vol.py"  # Ensure the path is correct
             command = ['python', vol_path, '-f', memory_dump, plugin]
             print(f"Running command: {' '.join(command)}")  # Debugging: Print the command
             result = subprocess.run(command, capture_output=True, text=True)
             if result.returncode == 0:
+                print("Command output:")
+                print(result.stdout)  # Print the command output to the terminal
                 return result.stdout
             else:
+                print("Command error:")
+                print(result.stderr)  # Print the command error to the terminal
                 return result.stderr
         except Exception as e:
+            print("Exception occurred while running Volatility:")
+            print(str(e))
             return str(e)
 
     def parse_output(self, output):
@@ -50,44 +57,23 @@ class VolatilityThread(QThread):
 def get_all_plugins():
     """Return a list of available plugins for different operating systems."""
     try:
-        windows_plugins = [
-            'windows.info', 'windows.pslist', 'windows.pstree', 'windows.dlldump', 'windows.cmdline',
-            'windows.netscan', 'windows.network', 'windows.filescan', 'windows.vaddump', 'windows.malfind',
-            'windows.modules', 'windows.registry', 'windows.svcscan', 'windows.callbacks', 'windows.mutantscan',
-            'windows.devicetree', 'windows.handles', 'windows.driverirp', 'windows.threads', 'windows.processes',
-            'windows.apihooks', 'windows.privs', 'windows.procdump', 'windows.getsids', 'windows.sessions',
-            'windows.envars', 'windows.hashdump', 'windows.userassist', 'windows.shellbags', 'windows.mftparser',
-            'windows.psxview', 'windows.sockscan', 'windows.idt', 'windows.gdt', 'windows.timers',
-            'windows.poolscanner', 'windows.bigpools', 'windows.dumpfiles', 'windows.virtmap', 'windows.kdbgscan',
-            'windows.verinfo', 'windows.machoinfo', 'windows.shimcache', 'windows.lsadump', 'windows.dumptimers',
-            'windows.threads', 'windows.psscan', 'windows.mbrparser', 'windows.driftdetect', 'windows.malwarebytes'
-        ]
-        linux_plugins = [
-            'linux.info', 'linux.pslist', 'linux.pstree', 'linux.bash', 'linux.lsof',
-            'linux.arp', 'linux.arp_cache', 'linux.iptables', 'linux.ifconfig', 'linux.netstat',
-            'linux.route', 'linux.pidhashtable', 'linux.dmesg', 'linux.pstree', 'linux.sockstat',
-            'linux.process_maps', 'linux.psxview', 'linux.shmodules', 'linux.check_modules', 'linux.cpuinfo',
-            'linux.linux_kmsg', 'linux.linux_psaux', 'linux.memmap', 'linux.bash_history', 'linux.check_afinfo',
-            'linux.list_afinfo', 'linux.mmap', 'linux.get_current', 'linux.get_system', 'linux.ioports',
-            'linux.kconfig', 'linux.kptr_restrict', 'linux.load_modules', 'linux.lsmod', 'linux.mount',
-            'linux.net', 'linux.psxview', 'linux.scan_afinfo', 'linux.slabinfo', 'linux.sockets',
-            'linux.systemd', 'linux.timers', 'linux.umh', 'linux.unix_sockstat', 'linux.vmstat',
-            'linux.mount_cache', 'linux.syscall', 'linux.kallsyms', 'linux.check_syscall'
-        ]
-        mac_plugins = [
-            'mac.info', 'mac.pslist', 'mac.pstree', 'mac.check_syscall', 'mac.bash',
-            'mac.lsof', 'mac.check_afinfo', 'mac.check_modules', 'mac.check_ifconfig', 'mac.check_route',
-            'mac.check_arp', 'mac.check_netstat', 'mac.get_system', 'mac.get_current', 'mac.load_modules',
-            'mac.mount', 'mac.net', 'mac.scan_afinfo', 'mac.slabinfo', 'mac.sockets',
-            'mac.systemd', 'mac.timers', 'mac.umh', 'mac.unix_sockstat', 'mac.vmstat',
-            'mac.mount_cache', 'mac.syscall', 'mac.kallsyms', 'mac.machoinfo', 'mac.processes',
-            'mac.apihooks', 'mac.privs', 'mac.procdump', 'mac.getsids', 'mac.sessions',
-            'mac.envars', 'mac.hashdump', 'mac.userassist', 'mac.shellbags', 'mac.mftparser',
-            'mac.psxview', 'mac.sockscan', 'mac.idt', 'mac.gdt', 'mac.kdbgscan',
-            'mac.verinfo', 'mac.shimcache', 'mac.lsadump', 'mac.dumptimers', 'mac.apihooks'
-        ]
+        # Explicitly set the base directory to the correct path
+        base_dir = r'C:\Users\frece\Desktop\Aries\Volatilit3-Aries'
 
-        plugin_list = [('Windows', windows_plugins), ('Linux', linux_plugins), ('Mac', mac_plugins)]
+        plugin_directories = {
+            'Windows': os.path.join(base_dir, 'volatility3', 'framework', 'plugins', 'windows'),
+            'Linux': os.path.join(base_dir, 'volatility3', 'framework', 'plugins', 'linux'),
+            'Mac': os.path.join(base_dir, 'volatility3', 'framework', 'plugins', 'mac')
+        }
+
+        plugin_list = []
+
+        for os_name, dir_path in plugin_directories.items():
+            if os.path.exists(dir_path) and os.path.isdir(dir_path):
+                plugins = [f"{os_name.lower()}.{os.path.splitext(f)[0]}" for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f)) and f.endswith('.py')]
+                plugin_list.append((os_name, plugins))
+            else:
+                print(f"Directory {dir_path} does not exist or is not a directory.")
 
         return plugin_list
     except Exception as e:
@@ -170,13 +156,13 @@ class MainWindow(QMainWindow):
         selected_plugin = self.plugin_combo.currentText()  # Extract the actual plugin name
 
         if memory_dump and selected_plugin and selected_plugin != "No plugins found":
-            plugin = selected_plugin.replace(":", "").strip()
-            self.layout.addWidget(QLabel(f'Running {plugin} on {memory_dump}...'))
+            plugin = selected_plugin.strip()
+            print(f"Starting scan: Running {plugin} on {memory_dump}...")
             self.thread = VolatilityThread(memory_dump, plugin)
             self.thread.output_signal.connect(self.display_output)
             self.thread.start()
         else:
-            self.layout.addWidget(QLabel('Please select a memory dump file and a valid plugin.'))
+            QMessageBox.warning(self, "Input Error", "Please select a memory dump file and a valid plugin.")
 
     def display_output(self, headers, data):
         """Display the output from the Volatility plugin in the table view."""
@@ -187,7 +173,6 @@ class MainWindow(QMainWindow):
             items = [QStandardItem(field) for field in row_data]
             model.appendRow(items)
 
-        self.output_area.setModel(model)
         self.proxy_model = QSortFilterProxyModel()
         self.proxy_model.setSourceModel(model)
         self.output_area.setModel(self.proxy_model)
