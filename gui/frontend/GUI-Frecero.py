@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import QThread, pyqtSignal, Qt, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
 
+
 class VolatilityThread(QThread):
     output_signal = pyqtSignal(list, list)
 
@@ -26,7 +27,7 @@ class VolatilityThread(QThread):
     def run_volatility(self, memory_dump, plugin):
         """Run the Volatility command and capture its output."""
         try:
-            vol_path = r"C:\Users\frece\Desktop\Aries\Volatilit3-Aries\vol.py"  # Ensure the path is correct
+            vol_path = r"..\..\..\Volatilit3-Aries\vol.py"  # Ensure the path is correct
             command = ['python', vol_path, '-f', memory_dump, plugin]
             print(f"Running command: {' '.join(command)}")  # Debugging: Print the command
             result = subprocess.run(command, capture_output=True, text=True)
@@ -54,11 +55,12 @@ class VolatilityThread(QThread):
 
         return headers, data
 
+
 def get_all_plugins():
     """Return a list of available plugins for different operating systems."""
     try:
         # Explicitly set the base directory to the correct path
-        base_dir = r'C:\Users\frece\Desktop\Aries\Volatilit3-Aries'
+        base_dir = r"../../../Volatilit3-Aries"
 
         plugin_directories = {
             'Windows': os.path.join(base_dir, 'volatility3', 'framework', 'plugins', 'windows'),
@@ -70,7 +72,8 @@ def get_all_plugins():
 
         for os_name, dir_path in plugin_directories.items():
             if os.path.exists(dir_path) and os.path.isdir(dir_path):
-                plugins = [f"{os_name.lower()}.{os.path.splitext(f)[0]}" for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f)) and f.endswith('.py')]
+                plugins = [f"{os_name.lower()}.{os.path.splitext(f)[0]}" for f in os.listdir(dir_path) if
+                           os.path.isfile(os.path.join(dir_path, f)) and f.endswith('.py')]
                 plugin_list.append((os_name, plugins))
             else:
                 print(f"Directory {dir_path} does not exist or is not a directory.")
@@ -79,6 +82,7 @@ def get_all_plugins():
     except Exception as e:
         print("Exception occurred while fetching plugins:", str(e))
         return []
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -183,6 +187,7 @@ class MainWindow(QMainWindow):
         self.proxy_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.proxy_model.setFilterFixedString(text)
 
+
 def main():
     """Main entry point for the application."""
     try:
@@ -192,6 +197,7 @@ def main():
         sys.exit(app.exec_())
     except Exception as e:
         print(f"An error occurred: {e}")
+
 
 if __name__ == "__main__":
     main()
