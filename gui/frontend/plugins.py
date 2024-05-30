@@ -1,10 +1,28 @@
 import os
 
+def find_volatility_file(start_path, max_attempts=5):
+    current_path = start_path
+    attempts = 0
+
+    while attempts < max_attempts:
+        if 'vol.py' in os.listdir(current_path):
+            return os.path.join(current_path, 'vol.py')
+
+        current_path = os.path.dirname(current_path)
+        attempts += 1
+
+    return None
+
+
+start_path = os.path.dirname(os.path.realpath(__file__))
+volatility_file = find_volatility_file(start_path)
+
+
 def get_all_plugins():
     """Return a list of available plugins for different operating systems."""
     try:
         # Explicitly set the base directory to the correct path
-        base_dir = r"../../../Volatilit3-Aries"
+        base_dir = os.path.dirname(volatility_file)
 
         plugin_directories = {
             'Windows': os.path.join(base_dir, 'volatility3', 'framework', 'plugins', 'windows'),
