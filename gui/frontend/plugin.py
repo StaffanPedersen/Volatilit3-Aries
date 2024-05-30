@@ -13,6 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_Form(object):
     def __init__(self):
+        self.pluginMenuLabelButton_2 = None
         self.pluginSaveButton = None
 
     def setupUi(self, Form):
@@ -83,7 +84,7 @@ class Ui_Form(object):
         self.label = QtWidgets.QLabel(self.pluginSelectframe)
         self.label.setGeometry(QtCore.QRect(17, 5, 161, 21))
         self.label.setObjectName("label")
-        self.pluginMenuLabelButton_2 = QtWidgets.QPushButton(self.pluginSelectframe)
+        self.pluginMenuLabelButton_2 = QtWidgets.QPushButton(self.scrollAreaWidgetContents_2)
         self.pluginMenuLabelButton_2.setGeometry(QtCore.QRect(106, 5, 35, 20))
         font = QtGui.QFont()
         font.setFamily("Arial")
@@ -95,8 +96,8 @@ class Ui_Form(object):
         self.pluginMenuLabelButton_2.setFlat(True)
         self.pluginMenuLabelButton_2.setObjectName("pluginMenuLabelButton_2")
         self.pluginScrollArea.setWidget(self.scrollAreaWidgetContents_2)
-        self.pluginSaveButton = QtWidgets.QPushButton(self.frame)
-        self.pluginSaveButton.setGeometry(QtCore.QRect(160, 740, 75, 31))
+        self.pluginSaveButton = QtWidgets.QPushButton(self.pluginSelectframe)
+        self.pluginSaveButton.setGeometry(QtCore.QRect(120, 740, 75, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.pluginSaveButton.setFont(font)
