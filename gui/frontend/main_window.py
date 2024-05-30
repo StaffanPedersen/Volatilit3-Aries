@@ -1,88 +1,13 @@
-import sys
-import subprocess
-import os
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QVBoxLayout, QPushButton, QLabel,
+    QMainWindow, QVBoxLayout, QPushButton, QLabel,
     QFileDialog, QWidget, QComboBox, QTableView, QLineEdit,
     QHeaderView, QAbstractItemView, QMessageBox
 )
-from PyQt5.QtCore import QThread, pyqtSignal, Qt, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
+from PyQt5.QtCore import Qt, QSortFilterProxyModel
 
-
-class VolatilityThread(QThread):
-    output_signal = pyqtSignal(list, list)
-
-    def __init__(self, memory_dump, plugin, parent=None):
-        super().__init__(parent)
-        self.memory_dump = memory_dump
-        self.plugin = plugin
-
-    def run(self):
-        """Execute the Volatility plugin and parse the output."""
-        output = self.run_volatility(self.memory_dump, self.plugin)
-        headers, data = self.parse_output(output)
-        self.output_signal.emit(headers, data)
-
-    def run_volatility(self, memory_dump, plugin):
-        """Run the Volatility command and capture its output."""
-        try:
-            vol_path = r"..\..\..\Volatilit3-Aries\vol.py"  # Ensure the path is correct
-            command = ['python', vol_path, '-f', memory_dump, plugin]
-            print(f"Running command: {' '.join(command)}")  # Debugging: Print the command
-            result = subprocess.run(command, capture_output=True, text=True)
-            if result.returncode == 0:
-                print("Command output:")
-                print(result.stdout)  # Print the command output to the terminal
-                return result.stdout
-            else:
-                print("Command error:")
-                print(result.stderr)  # Print the command error to the terminal
-                return result.stderr
-        except Exception as e:
-            print("Exception occurred while running Volatility:")
-            print(str(e))
-            return str(e)
-
-    def parse_output(self, output):
-        """Parse the output from the Volatility command into headers and data."""
-        lines = output.splitlines()
-        if not lines:
-            return [], []
-
-        headers = lines[0].split()
-        data = [line.split() for line in lines[1:] if line.strip()]
-
-        return headers, data
-
-
-def get_all_plugins():
-    """Return a list of available plugins for different operating systems."""
-    try:
-        # Explicitly set the base directory to the correct path
-        base_dir = r"../../../Volatilit3-Aries"
-
-        plugin_directories = {
-            'Windows': os.path.join(base_dir, 'volatility3', 'framework', 'plugins', 'windows'),
-            'Linux': os.path.join(base_dir, 'volatility3', 'framework', 'plugins', 'linux'),
-            'Mac': os.path.join(base_dir, 'volatility3', 'framework', 'plugins', 'mac')
-        }
-
-        plugin_list = []
-
-        for os_name, dir_path in plugin_directories.items():
-            if os.path.exists(dir_path) and os.path.isdir(dir_path):
-                plugins = [f"{os_name.lower()}.{os.path.splitext(f)[0]}" for f in os.listdir(dir_path) if
-                           os.path.isfile(os.path.join(dir_path, f)) and f.endswith('.py')]
-                plugin_list.append((os_name, plugins))
-            else:
-                print(f"Directory {dir_path} does not exist or is not a directory.")
-
-        return plugin_list
-    except Exception as e:
-        print("Exception occurred while fetching plugins:", str(e))
-        return []
-
+from volatility_thread import VolatilityThread
+from plugins import get_all_plugins
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -186,18 +111,3 @@ class MainWindow(QMainWindow):
         self.proxy_model.setFilterKeyColumn(-1)  # Search all columns
         self.proxy_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.proxy_model.setFilterFixedString(text)
-
-
-def main():
-    """Main entry point for the application."""
-    try:
-        app = QApplication(sys.argv)
-        main_window = MainWindow()
-        main_window.show()
-        sys.exit(app.exec_())
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-
-if __name__ == "__main__":
-    main()
