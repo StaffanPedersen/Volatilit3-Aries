@@ -4,9 +4,10 @@ from PyQt5.QtWidgets import (
     QHeaderView, QAbstractItemView, QMessageBox
 )
 from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
-from PyQt5.QtCore import Qt, QSortFilterProxyModel
-
+from PyQt5.QtCore import Qt, pyqtSlot
+from output_manager import OutputManager
 from volatility_thread import VolatilityThread
+from progress_manager import ProgressManager
 from plugins import get_all_plugins
 
 class MainWindow(QMainWindow):
@@ -14,100 +15,110 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Memory Dump Browser")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 1000, 600)
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
 
-        self.layout = QVBoxLayout(self.central_widget)
+        self.main_layout = QVBoxLayout(self.central_widget)
 
         self.browse_button = QPushButton("Browse for Memory Dump", self)
         self.browse_button.clicked.connect(self.browse_memory_dump)
-        self.layout.addWidget(self.browse_button)
+        self.main_layout.addWidget(self.browse_button)
 
         self.selected_file_label = QLabel("", self)
-        self.layout.addWidget(self.selected_file_label)
+        self.main_layout.addWidget(self.selected_file_label)
 
         self.plugin_label = QLabel("Select Volatility Plugin:", self)
-        self.layout.addWidget(self.plugin_label)
+        self.main_layout.addWidget(self.plugin_label)
 
         self.plugin_combo = QComboBox(self)
         self.populate_plugin_combo()
-        self.layout.addWidget(self.plugin_combo)
+        self.plugin_combo.currentIndexChanged.connect(self.update_scan_button_state)
+        self.main_layout.addWidget(self.plugin_combo)
 
         self.scan_button = QPushButton("Scan", self)
+        self.scan_button.setEnabled(False)  # Initially disabled
         self.scan_button.clicked.connect(self.scan_memory_dump)
-        self.layout.addWidget(self.scan_button)
+        self.main_layout.addWidget(self.scan_button)
 
-        self.output_area = QTableView(self)
-        self.output_area.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.output_area.setSortingEnabled(True)
-        self.output_area.horizontalHeader().setStretchLastSection(True)
-        self.output_area.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.layout.addWidget(self.output_area)
+        self.progress_manager = ProgressManager(self)
+        self.main_layout.addWidget(self.progress_manager)
 
         self.filter_input = QLineEdit(self)
         self.filter_input.setPlaceholderText("Filter results")
         self.filter_input.textChanged.connect(self.filter_results)
-        self.layout.addWidget(self.filter_input)
+        self.main_layout.addWidget(self.filter_input)
+
+        self.output_manager = OutputManager(self)
+        self.main_layout.addWidget(self.output_manager)
 
     def populate_plugin_combo(self):
         """Populate the plugin combo box with available plugins."""
-        plugin_data = get_all_plugins()
-        model = QStandardItemModel()
+        try:
+            self.all_plugins = get_all_plugins()  # Store all plugins
+            self.plugin_combo.clear()
+            self.plugin_combo.addItem("")  # Empty item for initial state
 
-        for os_name, plugins in plugin_data:
-            os_item = QStandardItem(f"{os_name}:")
-            os_item.setFlags(os_item.flags() & ~Qt.ItemIsSelectable)
-            os_item.setFont(QFont("Arial", weight=QFont.Bold))
-            model.appendRow(os_item)
+            for os_name, plugins in self.all_plugins:
+                self.plugin_combo.addItem(f"{os_name}:")
+                for plugin in plugins:
+                    self.plugin_combo.addItem(plugin)
 
-            for plugin in plugins:
-                plugin_item = QStandardItem(plugin)
-                model.appendRow(plugin_item)
+        except Exception as e:
+            print(f"Error populating plugin combo: {e}")
 
-        self.plugin_combo.setModel(model)
+    def update_scan_button_state(self):
+        """Enable the scan button only if both a memory dump and a plugin are selected."""
+        memory_dump_selected = bool(self.selected_file_label.text())
+        plugin_selected = self.plugin_combo.currentText() not in ["", "No plugins found", "Select Volatility Plugin:"]
+        self.scan_button.setEnabled(memory_dump_selected and plugin_selected)
 
     def browse_memory_dump(self):
         """Open a file dialog to select a memory dump file."""
-        options = QFileDialog.Options()
-        options |= QFileDialog.ReadOnly
-        file_filter = "Memory Dumps (*.dmp *.mem *.img);;All Files (*)"
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump", "", file_filter, options=options)
-        if file_name:
-            self.selected_file_label.setText(f"Selected file: {file_name}")
-        else:
-            self.selected_file_label.setText("No file selected")
+        try:
+            options = QFileDialog.Options()
+            options |= QFileDialog.ReadOnly
+            file_filter = "Memory Dumps (*.dmp *.mem *.img);;All Files (*)"
+            file_name, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump", "", file_filter, options=options)
+            if file_name:
+                self.selected_file_label.setText(f"Selected file: {file_name}")
+            else:
+                self.selected_file_label.setText("No file selected")
+            self.update_scan_button_state()
+        except Exception as e:
+            print(f"Error browsing memory dump: {e}")
 
     def scan_memory_dump(self):
         """Start the scanning process using the selected plugin."""
-        memory_dump = self.selected_file_label.text().replace("Selected file: ", "")
-        selected_plugin = self.plugin_combo.currentText()  # Extract the actual plugin name
+        try:
+            memory_dump = self.selected_file_label.text().replace("Selected file: ", "")
+            selected_plugin = self.plugin_combo.currentText()  # Extract the actual plugin name
 
-        if memory_dump and selected_plugin and selected_plugin != "No plugins found":
-            plugin = selected_plugin.strip()
-            print(f"Starting scan: Running {plugin} on {memory_dump}...")
-            self.thread = VolatilityThread(memory_dump, plugin)
-            self.thread.output_signal.connect(self.display_output)
-            self.thread.start()
-        else:
-            QMessageBox.warning(self, "Input Error", "Please select a memory dump file and a valid plugin.")
+            if memory_dump and selected_plugin and selected_plugin != "No plugins found":
+                plugin = selected_plugin.strip()
+                print(f"Starting scan: Running {plugin} on {memory_dump}...")
+                self.thread = VolatilityThread(memory_dump, plugin)
+                self.thread.output_signal.connect(self.display_output)
+                self.thread.progress_signal.connect(self.progress_manager.set_progress)  # Connect progress signal
+                self.thread.start()
+                self.progress_manager.reset_progress()  # Reset and show progress bar at the start
+            else:
+                QMessageBox.warning(self, "Input Error", "Please select a memory dump file and a valid plugin.")
+        except Exception as e:
+            print(f"Error starting memory dump scan: {e}")
 
+    @pyqtSlot(list, list)
     def display_output(self, headers, data):
         """Display the output from the Volatility plugin in the table view."""
-        model = QStandardItemModel()
-        model.setHorizontalHeaderLabels(headers)
-
-        for row_data in data:
-            items = [QStandardItem(field) for field in row_data]
-            model.appendRow(items)
-
-        self.proxy_model = QSortFilterProxyModel()
-        self.proxy_model.setSourceModel(model)
-        self.output_area.setModel(self.proxy_model)
+        try:
+            self.output_manager.set_data(headers, data)
+        except Exception as e:
+            print(f"Error displaying output: {e}")
 
     def filter_results(self, text):
         """Filter the results displayed in the table view based on the input text."""
-        self.proxy_model.setFilterKeyColumn(-1)  # Search all columns
-        self.proxy_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
-        self.proxy_model.setFilterFixedString(text)
+        try:
+            self.output_manager.filter_results(text)
+        except Exception as e:
+            print(f"Error filtering results: {e}")
