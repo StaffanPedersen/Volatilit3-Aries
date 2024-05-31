@@ -82,7 +82,10 @@ class MainWindow(QMainWindow):
         try:
             options = QFileDialog.Options()
             options |= QFileDialog.ReadOnly
-            file_filter = "Memory Dumps (*.dmp *.mem *.img);;All Files (*)"
+            file_filter = (
+                "Memory Dumps (*.dmp *.mem *.img *.lime *.raw *.vmem *.vmsn *.vmss *.hpak *.crash *.hiberfil *.core *.ewf *.firewire);;"
+                "All Files (*)"
+            )
             file_name, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump", "", file_filter, options=options)
             if file_name:
                 if self.is_valid_memory_dump(file_name):
@@ -101,7 +104,7 @@ class MainWindow(QMainWindow):
 
     def is_valid_memory_dump(self, file_path):
         """Check if the selected file is a valid memory dump based on its extension."""
-        valid_extensions = {".dmp", ".mem", ".img"}
+        valid_extensions = {".dmp", ".mem", ".img", ".lime", ".raw", ".vmem", ".vmsn", ".vmss", ".hpak", ".crash", ".hiberfil", ".core", ".ewf", ".firewire"}
         _, file_extension = os.path.splitext(file_path)
         return file_extension.lower() in valid_extensions
 
