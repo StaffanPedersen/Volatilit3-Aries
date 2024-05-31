@@ -1,6 +1,9 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
 from plugins import get_all_plugins  # Import the function
 
+from PyQt5 import QtWidgets, QtCore, QtGui
+from plugins import get_all_plugins  # Import the function
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -12,6 +15,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setMinimumSize(400, 800)
         self.setMaximumSize(400, 800)
 
+        # Initialize the buttonGroup attribute
+        self.buttonGroup = QtWidgets.QButtonGroup()
+        self.buttonGroup.setExclusive(True)
         # Sidebar
         self.sidebar = QtWidgets.QWidget()
         self.sidebarLayout = QtWidgets.QVBoxLayout()
@@ -66,6 +72,7 @@ class MainWindow(QtWidgets.QMainWindow):
             checkbox.setStyleSheet("background-color: #555; color: #fff;")  # Add styling options here
             checkbox.setMinimumSize(220, 20)  # Set minimum size
             checkbox.setMaximumSize(280, 20)  # Set maximum size
+            self.buttonGroup.addButton(checkbox)  # Add the checkbox to the QButtonGroup
             button = QtWidgets.QPushButton("X")
             button.setStyleSheet("background-color: #555; color: #fff;")  # Add styling options here
             button.setFixedSize(20, 20)
