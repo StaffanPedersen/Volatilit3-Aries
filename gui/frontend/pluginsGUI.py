@@ -9,17 +9,19 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QWidget
 from plugins import get_all_plugins
 
 
-class Ui_Form(object):
+class Ui_Form(QWidget):  # Change inheritance to QWidget
     def __init__(self):
+        super().__init__()  # Call the QWidget constructor
         self.pluginNames = []
+        self.setupUi(self)  # Call setupUi with self as argument
 
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.resize(946, 780)
-
 
         self.frame = QtWidgets.QFrame(Form)
         self.frame.setGeometry(QtCore.QRect(0, 0, 251, 781))
