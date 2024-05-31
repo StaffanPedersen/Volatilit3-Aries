@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-from frontend.main_window import MainWindow
+from main_window import MainWindow
 
 def main():
     """Main entry point for the application."""
