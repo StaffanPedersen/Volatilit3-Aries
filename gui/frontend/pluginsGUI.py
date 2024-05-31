@@ -9,27 +9,29 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import QRect, Qt
+from PyQt5.QtWidgets import QWidget, QPushButton
 from plugins import get_all_plugins
 
 
 class Ui_Form(QWidget):  # Change inheritance to QWidget
     def __init__(self):
         super().__init__()  # Call the QWidget constructor
+        self.scrollAreaWidgetContents_2 = None
         self.pluginNames = []
         self.setupUi(self)  # Call setupUi with self as argument
 
     def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(946, 780)
+        Form.setObjectName("Plugins")
+        Form.resize(320, 780)
 
         self.frame = QtWidgets.QFrame(Form)
-        self.frame.setGeometry(QtCore.QRect(0, 0, 251, 781))
+        self.frame.setGeometry(QtCore.QRect(0, 0, 320, 781))
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
         self.pluginMenulabel = QtWidgets.QLabel(self.frame)
-        self.pluginMenulabel.setGeometry(QtCore.QRect(0, 0, 251, 41))
+        self.pluginMenulabel.setGeometry(QtCore.QRect(0, 0, 320, 41))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.pluginMenulabel.setFont(font)
@@ -39,7 +41,7 @@ class Ui_Form(QWidget):  # Change inheritance to QWidget
         self.pluginMenulabel.setScaledContents(False)
         self.pluginMenulabel.setObjectName("pluginMenulabel")
         self.pluginMenuLabelButton = QtWidgets.QPushButton(self.frame)
-        self.pluginMenuLabelButton.setGeometry(QtCore.QRect(210, 10, 31, 21))
+        self.pluginMenuLabelButton.setGeometry(QtCore.QRect(280, 10, 31, 21))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(14)
@@ -50,12 +52,13 @@ class Ui_Form(QWidget):  # Change inheritance to QWidget
         self.pluginMenuLabelButton.setDefault(False)
         self.pluginMenuLabelButton.setFlat(True)
         self.pluginMenuLabelButton.setObjectName("pluginMenuLabelButton")
+        self.pluginMenuLabelButton.clicked.connect(Form.close)
         self.pluginListWidget = QtWidgets.QListWidget(self.frame)
-        self.pluginListWidget.setGeometry(QtCore.QRect(0, 40, 251, 741))
+        self.pluginListWidget.setGeometry(QtCore.QRect(0, 40, 320, 741))
         self.pluginListWidget.setMidLineWidth(-1)
         self.pluginListWidget.setObjectName("pluginListWidget")
         self.pluginScrollArea = QtWidgets.QScrollArea(self.frame)
-        self.pluginScrollArea.setGeometry(QtCore.QRect(10, 60, 231, 651))
+        self.pluginScrollArea.setGeometry(QtCore.QRect(10, 60, 300, 651))
         self.pluginScrollArea.setStyleSheet("background-color: rgb(255, 255, 255);\n"
                                             "border: none;")
         self.pluginScrollArea.setWidgetResizable(True)
@@ -68,25 +71,15 @@ class Ui_Form(QWidget):  # Change inheritance to QWidget
         self.pluginSelectframe.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.pluginSelectframe.setFrameShadow(QtWidgets.QFrame.Raised)
         self.pluginSelectframe.setObjectName("pluginSelectframe")
-        self.pluginCheckBox = QtWidgets.QCheckBox(self.pluginSelectframe)
-        self.pluginCheckBox.setGeometry(QtCore.QRect(2, 4, 14, 23))
-        self.pluginCheckBox.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
-        self.pluginCheckBox.setText("")
-        self.pluginCheckBox.setObjectName("pluginCheckBox")
+
         self.label = QtWidgets.QLabel(self.pluginSelectframe)
-        self.label.setGeometry(QtCore.QRect(17, 5, 161, 21))
-        self.label.setObjectName("label")
-        self.pluginMenuLabelButton_2 = QtWidgets.QPushButton(self.scrollAreaWidgetContents_2)
-        self.pluginMenuLabelButton_2.setGeometry(QtCore.QRect(106, 5, 35, 20))
+
+        self.pluginMenuLabelButton_2 = QtWidgets.QPushButton(self.pluginSelectframe)
+        self.pluginMenuLabelButton_2.setGeometry(QtCore.QRect(60, 5, 35, 20))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(14)
-        self.pluginMenuLabelButton_2.setFont(font)
-        self.pluginMenuLabelButton_2.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.pluginMenuLabelButton_2.setStyleSheet("color: rgb(255, 0, 0);")
-        self.pluginMenuLabelButton_2.setDefault(False)
-        self.pluginMenuLabelButton_2.setFlat(True)
-        self.pluginMenuLabelButton_2.setObjectName("pluginMenuLabelButton_2")
+
         self.pluginScrollArea.setWidget(self.scrollAreaWidgetContents_2)
         self.pluginSaveButton = QtWidgets.QPushButton(self.pluginSelectframe)
         self.pluginSaveButton.setGeometry(QtCore.QRect(120, 740, 75, 31))
@@ -151,7 +144,7 @@ class Ui_Form(QWidget):  # Change inheritance to QWidget
             # Create a new label for each plugin
             label = QtWidgets.QLabel(pluginSelectframe)
             label.setObjectName(name + "Label")
-            label.setText(_translate("Form", name))
+            label.setText(_translate("Plugins", name))
 
             # Create a close button for each plugin
             pluginMenuLabelButton_2 = QtWidgets.QPushButton(pluginSelectframe)
@@ -159,9 +152,9 @@ class Ui_Form(QWidget):  # Change inheritance to QWidget
             font.setFamily("Arial")
             font.setPointSize(10)  # Reduce the font size
             pluginMenuLabelButton_2.setFont(font)
-            pluginMenuLabelButton_2.setFocusPolicy(QtCore.Qt.NoFocus)
+            # pluginMenuLabelButton_2.setFocusPolicy(QtCore.Qt.NoFocus)
             pluginMenuLabelButton_2.setStyleSheet("color: rgb(255, 137, 86);\n"
-                                                  "font: solid;")
+                                                  )
             pluginMenuLabelButton_2.setDefault(False)
             pluginMenuLabelButton_2.setFlat(True)
             pluginMenuLabelButton_2.setObjectName(name + "MenuLabelButton_2")
@@ -186,14 +179,14 @@ class Ui_Form(QWidget):  # Change inheritance to QWidget
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
+        Form.setWindowTitle(_translate("Plugins", "Plugins"))
 
-        self.pluginMenulabel.setText(_translate("Form", "  Plugins"))
-        self.pluginMenuLabelButton.setText(_translate("Form", "X"))
-        self.label.setText(_translate("Form", "Pluginname.PluginName"))
-        self.pluginMenuLabelButton_2.setText(_translate("Form", "X"))
-        self.pluginSaveButton.setText(_translate("Form", "Save"))
-        self.pluginAddButton.setText(_translate("Form", "+"))
+        self.pluginMenulabel.setText(_translate("Plugins", "  Plugins"))
+        self.pluginMenuLabelButton.setText(_translate("Plugins", "X"))
+        self.label.setText(_translate("Plugins", "Pluginname.PluginName"))
+        self.pluginMenuLabelButton_2.setText(_translate("Plugins", "X"))
+        self.pluginSaveButton.setText(_translate("Plugins", "Save"))
+        self.pluginAddButton.setText(_translate("Plugins", "+"))
 
 
 if __name__ == "__main__":
