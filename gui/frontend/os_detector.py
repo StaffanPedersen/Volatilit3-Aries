@@ -1,6 +1,7 @@
 import subprocess
 import os
 
+
 def find_volatility_file(start_path, max_attempts=5):
     """Find the vol.py file used to run Volatility."""
     current_path = start_path
@@ -14,6 +15,7 @@ def find_volatility_file(start_path, max_attempts=5):
         attempts += 1
 
     return None
+
 
 def detect_os(memory_dump):
     """Detect the OS of the memory dump by running specific Volatility plugins."""
