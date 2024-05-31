@@ -24,9 +24,10 @@ def create_control_panel(main_window):
     main_window.scan_button.clicked.connect(main_window.scan_memory_dump)
     control_layout.addWidget(main_window.scan_button)
 
-    main_window.theme_toggle_button = QPushButton("Toggle Theme", main_window)
-    main_window.theme_toggle_button.clicked.connect(main_window.toggle_theme)
-    control_layout.addWidget(main_window.theme_toggle_button)
+    main_window.theme_dropdown = QComboBox(main_window)
+    main_window.theme_dropdown.addItems(["Light", "Dark", "Hacker", "Colorblind", "Midnight", "Summer Day", "LSD Trip", "Mnemonic"])
+    main_window.theme_dropdown.currentIndexChanged.connect(main_window.change_theme)
+    control_layout.addWidget(main_window.theme_dropdown)
 
     main_window.terminal_toggle_button = QPushButton("Toggle Terminal", main_window)
     main_window.terminal_toggle_button.clicked.connect(main_window.toggle_terminal)

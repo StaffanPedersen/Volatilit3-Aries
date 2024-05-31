@@ -2,11 +2,11 @@ from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QHBoxLayout
 from PyQt5.QtCore import pyqtSlot
 from output_manager import OutputManager
 from progress_manager import ProgressManager
-from themes import toggle_theme, apply_dark_theme
+from themes import apply_theme, apply_dark_theme
 from terminal_widget import TerminalWidget
 from control_panel import create_control_panel, create_filter_input
-from plugins import get_all_plugins  # Ensure this import is included
-from error_handler import show_error_message  # Ensure this import is included
+from plugins import get_all_plugins
+from error_handler import show_error_message
 import signal_handlers as sh
 
 
@@ -48,10 +48,19 @@ class MainWindow(QMainWindow):
         self.populate_plugin_combo()
 
         self.current_theme = "dark"
-        apply_dark_theme(self)
+        self.theme_dropdown.setCurrentText("Dark")
+        self.apply_initial_theme()
 
-    def toggle_theme(self):
-        toggle_theme(self)
+    def apply_initial_theme(self):
+        apply_dark_theme(self)
+        print("Initial theme set to Dark")
+        self.update()
+        self.repaint()
+
+    def change_theme(self):
+        selected_theme = self.theme_dropdown.currentText()
+        print(f"Selected theme from dropdown: {selected_theme}")
+        apply_theme(self, selected_theme)
 
     def toggle_terminal(self):
         if self.terminal_widget.isVisible():
