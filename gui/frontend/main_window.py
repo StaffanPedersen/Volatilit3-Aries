@@ -1,16 +1,16 @@
 from PyQt5.QtWidgets import (
     QMainWindow, QVBoxLayout, QPushButton, QLabel,
-    QFileDialog, QWidget, QComboBox, QTableView, QLineEdit,
-    QHeaderView, QAbstractItemView, QMessageBox
+    QFileDialog, QWidget, QComboBox, QLineEdit
 )
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
 from PyQt5.QtCore import Qt, pyqtSlot
 from output_manager import OutputManager
 from volatility_thread import VolatilityThread
 from progress_manager import ProgressManager
 from plugins import get_all_plugins
-from os_detector import detect_os  # Import the new OS detection module
+from os_detector import detect_os
+from error_handler import show_error_message
 import os
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -35,7 +35,6 @@ class MainWindow(QMainWindow):
         self.main_layout.addWidget(self.plugin_label)
 
         self.plugin_combo = QComboBox(self)
-        self.populate_plugin_combo()
         self.plugin_combo.currentIndexChanged.connect(self.update_scan_button_state)
         self.main_layout.addWidget(self.plugin_combo)
 
@@ -56,6 +55,10 @@ class MainWindow(QMainWindow):
         self.main_layout.addWidget(self.output_manager)
 
         self.valid_memory_dump_selected = False  # Flag to track if a valid memory dump is selected
+        self.all_plugins = None  # Initialize here
+        self.thread = None  # Initialize here
+
+        self.populate_plugin_combo()
 
     def populate_plugin_combo(self):
         """Populate the plugin combo box with available plugins."""
@@ -70,7 +73,7 @@ class MainWindow(QMainWindow):
                     self.plugin_combo.addItem(plugin)
 
         except Exception as e:
-            print(f"Error populating plugin combo: {e}")
+            show_error_message(self, "Error", f"Error populating plugin combo: {e}")
 
     def update_scan_button_state(self):
         """Enable the scan button only if both a valid memory dump and a plugin are selected."""
@@ -83,8 +86,8 @@ class MainWindow(QMainWindow):
             options = QFileDialog.Options()
             options |= QFileDialog.ReadOnly
             file_filter = (
-                "Memory Dumps (*.dmp *.mem *.img *.lime *.raw *.vmem *.vmsn *.vmss *.hpak *.crash *.hiberfil *.core *.ewf *.firewire);;"
-                "All Files (*)"
+                "Memory Dumps (*.dmp *.mem *.img *.lime *.raw *.vmem *.vmsn *.vmss *.hpak *.crash *.hiberfil *.core "
+                "*.ewf *.firewire);;All Files (*)"
             )
             file_name, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump", "", file_filter, options=options)
             if file_name:
@@ -92,7 +95,7 @@ class MainWindow(QMainWindow):
                     self.selected_file_label.setText(f"Selected file: {file_name}")
                     self.valid_memory_dump_selected = True
                 else:
-                    QMessageBox.warning(self, "Invalid File", "The selected file is not a valid memory dump.")
+                    show_error_message(self, "Invalid File", "The selected file is not a valid memory dump.")
                     self.selected_file_label.setText("No file selected")
                     self.valid_memory_dump_selected = False
             else:
@@ -100,11 +103,15 @@ class MainWindow(QMainWindow):
                 self.valid_memory_dump_selected = False
             self.update_scan_button_state()
         except Exception as e:
-            print(f"Error browsing memory dump: {e}")
+            show_error_message(self, "Error", f"Error browsing memory dump: {e}")
 
-    def is_valid_memory_dump(self, file_path):
+    @staticmethod
+    def is_valid_memory_dump(file_path):
         """Check if the selected file is a valid memory dump based on its extension."""
-        valid_extensions = {".dmp", ".mem", ".img", ".lime", ".raw", ".vmem", ".vmsn", ".vmss", ".hpak", ".crash", ".hiberfil", ".core", ".ewf", ".firewire"}
+        valid_extensions = {
+            ".dmp", ".mem", ".img", ".lime", ".raw", ".vmem", ".vmsn", ".vmss", ".hpak", ".crash", ".hiberfil", ".core",
+            ".ewf", ".firewire"
+        }
         _, file_extension = os.path.splitext(file_path)
         return file_extension.lower() in valid_extensions
 
@@ -117,11 +124,11 @@ class MainWindow(QMainWindow):
             if memory_dump and selected_plugin and selected_plugin != "No plugins found":
                 memory_dump_os = detect_os(memory_dump)
                 if not memory_dump_os:
-                    QMessageBox.warning(self, "OS Detection Error", "Could not determine the OS of the memory dump.")
+                    show_error_message(self, "OS Detection Error", "Could not determine the OS of the memory dump.")
                     return
 
                 if not selected_plugin.startswith(memory_dump_os):
-                    QMessageBox.warning(self, "Plugin Compatibility Error", f"The selected plugin '{selected_plugin}' is not compatible with the detected OS '{memory_dump_os}'.")
+                    show_error_message(self, "Plugin Compatibility Error", f"The selected plugin '{selected_plugin}' is not compatible with the detected OS '{memory_dump_os}'.")
                     return
 
                 plugin = selected_plugin.strip()
@@ -129,12 +136,13 @@ class MainWindow(QMainWindow):
                 self.thread = VolatilityThread(memory_dump, plugin)
                 self.thread.output_signal.connect(self.display_output)
                 self.thread.progress_signal.connect(self.progress_manager.set_progress)  # Connect progress signal
-                self.thread.start()
                 self.progress_manager.reset_progress()  # Reset and show progress bar at the start
+                self.progress_manager.show_progress()  # Ensure the progress bar is visible
+                self.thread.start()
             else:
-                QMessageBox.warning(self, "Input Error", "Please select a memory dump file and a valid plugin.")
+                show_error_message(self, "Input Error", "Please select a memory dump file and a valid plugin.")
         except Exception as e:
-            print(f"Error starting memory dump scan: {e}")
+            show_error_message(self, "Error", f"Error starting memory dump scan: {e}")
 
     @pyqtSlot(list, list)
     def display_output(self, headers, data):
@@ -142,11 +150,11 @@ class MainWindow(QMainWindow):
         try:
             self.output_manager.set_data(headers, data)
         except Exception as e:
-            print(f"Error displaying output: {e}")
+            show_error_message(self, "Error", f"Error displaying output: {e}")
 
     def filter_results(self, text):
         """Filter the results displayed in the table view based on the input text."""
         try:
             self.output_manager.filter_results(text)
         except Exception as e:
-            print(f"Error filtering results: {e}")
+            show_error_message(self, "Error", f"Error filtering results: {e}")
