@@ -10,6 +10,7 @@ def get_memory_dump_metadata(dump_file_path):
     # This uses the 'imageinfo' plugin which is useful for gathering metadata about the memory image
     command = ['python', 'vol.py', '-f', dump_file_path, 'imageinfo']
 
+
     print("Running command:", ' '.join(command))
     try:
         # Execute the command using subprocess.run
@@ -20,8 +21,13 @@ def get_memory_dump_metadata(dump_file_path):
         print(result.stdout)
     except subprocess.CalledProcessError as e:
         # Handle errors in the subprocess
-        print("Failed to extract metadata:")
-        print(e.output)
+        print("Error: Failed to extract metadata. The command returned a non-zero exit status.")
+        print(f"Command output:\n{e.output}")
+    except FileNotFoundError:
+        print("Error: The 'vol.py' script was not found. Please ensure it is in the correct path.")
+    except Exception as e:
+        # Handle any other exceptions
+        print(f"An unexpected error occurred: {str(e)}")
 
 # Example usage:
 dump_file_path = '/path/to/memory.dmp'  # Replace this with the path to your dump file

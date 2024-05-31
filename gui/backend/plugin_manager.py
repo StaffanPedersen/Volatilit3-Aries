@@ -54,7 +54,20 @@ def get_plugins(path_entry, plugin_entry, option_entry):
         command.append(option)
 
     print("Running command:", command)
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    try:
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        if result.returncode == 0:
+            print(f"Command executed successfully:\n{result.stdout}")
+        else:
+            print(f"Volatility command failed with return code {result.returncode}\n"
+                  f"Standard Output:\n{result.stdout}\n"
+                  f"Standard Error:\n{result.stderr}")
+    except FileNotFoundError:
+        print(f"File not found: Ensure 'vol.py' is in the correct path.")
+    except subprocess.CalledProcessError as e:
+        print(f"Command '{' '.join(command)}' returned non-zero exit status {e.returncode}.\nOutput: {e.output}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {str(e)}")
 
 def get_plugins_from_file(path):
     print("hi")

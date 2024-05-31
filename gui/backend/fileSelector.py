@@ -11,6 +11,7 @@ class FileSelector(QWidget):
         # code for layout here
         self.setLayout(self.layout)
         self.memory_dump_file = None
+        
 
     def selectFile(self):
         # Open fileDialog to select a memory dump
@@ -19,4 +20,6 @@ class FileSelector(QWidget):
         if file_path:
             self.memory_dump_file = file_path
             self.file_label.setText(f"Memory Dump File: {file_path}")
+        else:
+            self.file_label.setText("No file selected or an error occurred.")
 

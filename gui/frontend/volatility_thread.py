@@ -19,22 +19,23 @@ class VolatilityThread(QThread):
     def run_volatility(self, memory_dump, plugin):
         """Run the Volatility command and capture its output."""
         try:
-            vol_path = r"..\..\..\Volatilit3-Aries\vol.py"  # Ensure the path is correct
+            vol_path = r"C:\Users\hamme\Desktop\Volatilit3-Aries\vol.py"  # Ensure the path is correct
             command = ['python', vol_path, '-f', memory_dump, plugin]
             print(f"Running command: {' '.join(command)}")  # Debugging: Print the command
-            result = subprocess.run(command, capture_output=True, text=True)
+            result = subprocess.run(command, capture_output=True, text=True, errors='ignore')
             if result.returncode == 0:
-                print("Command output:")
-                print(result.stdout)  # Print the command output to the terminal
                 return result.stdout
             else:
-                print("Command error:")
-                print(result.stderr)  # Print the command error to the terminal
-                return result.stderr
+                error_message = f"Volatility command failed with return code {result.returncode}\n"
+                error_message += f"Standard Output:\n{result.stdout}\n"
+                error_message += f"Standard Error:\n{result.stderr}"
+                return error_message
+        except FileNotFoundError:
+            return f"File not found: {vol_path}. Ensure the path to Volatility is correct."
+        except subprocess.CalledProcessError as e:
+            return f"Command '{' '.join(command)}' returned non-zero exit status {e.returncode}.\nOutput: {e.output}"
         except Exception as e:
-            print("Exception occurred while running Volatility:")
-            print(str(e))
-            return str(e)
+            return f"An unexpected error occurred: {str(e)}"   
 
     def parse_output(self, output):
         """Parse the output from the Volatility command into headers and data."""
