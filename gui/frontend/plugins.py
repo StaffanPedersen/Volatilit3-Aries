@@ -13,14 +13,12 @@ def find_volatility_file(start_path, max_attempts=5):
 
     return None
 
-
-start_path = os.path.dirname(os.path.realpath(__file__))
-volatility_file = find_volatility_file(start_path)
-
-
 def get_all_plugins():
     """Return a list of available plugins for different operating systems."""
     try:
+        start_path = os.path.dirname(os.path.realpath(__file__))
+        volatility_file = find_volatility_file(start_path)
+
         # Explicitly set the base directory to the correct path
         base_dir = os.path.dirname(volatility_file)
 
