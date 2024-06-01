@@ -1,5 +1,3 @@
-# themes.py
-
 def apply_light_theme(widget):
     """Apply light theme."""
     light_stylesheet = """
@@ -200,6 +198,106 @@ def apply_mnemonic_theme(widget):
     widget.repaint()
     print("Mnemonic theme applied")
 
+def apply_blue_light_theme(widget):
+    """Apply blue light theme."""
+    blue_light_stylesheet = """
+    QWidget {
+        background-color: #f0f8f8;
+        color: #3db7b8;
+    }
+    QComboBox, QPushButton, QLineEdit {
+        background-color: #3db7b8;
+        color: #f0f8f8;
+    }
+    QHeaderView::section {
+        background-color: #3db7b8;
+        color: #f0f8f8;
+    }
+    QTableView {
+        gridline-color: #3db7b8;
+    }
+    """
+    widget.setStyleSheet(blue_light_stylesheet)
+    widget.current_theme = "blue_light"
+    widget.update()
+    widget.repaint()
+    print("Blue Light theme applied")
+
+def apply_blue_dark_theme(widget):
+    """Apply blue dark theme."""
+    blue_dark_stylesheet = """
+    QWidget {
+        background-color: #262626;
+        color: #3db2b6;
+    }
+    QComboBox, QPushButton, QLineEdit {
+        background-color: #3db2b6;
+        color: #262626;
+    }
+    QHeaderView::section {
+        background-color: #3db2b6;
+        color: #262626;
+    }
+    QTableView {
+        gridline-color: #3db2b6;
+    }
+    """
+    widget.setStyleSheet(blue_dark_stylesheet)
+    widget.current_theme = "blue_dark"
+    widget.update()
+    widget.repaint()
+    print("Blue Dark theme applied")
+
+def apply_light_orange_theme(widget):
+    """Apply light orange theme."""
+    light_orange_stylesheet = """
+    QWidget {
+        background-color: #f1eae7;
+        color: #f4751b;
+    }
+    QComboBox, QPushButton, QLineEdit {
+        background-color: #f4751b;
+        color: #f1eae7;
+    }
+    QHeaderView::section {
+        background-color: #f4751b;
+        color: #f1eae7;
+    }
+    QTableView {
+        gridline-color: #f4751b;
+    }
+    """
+    widget.setStyleSheet(light_orange_stylesheet)
+    widget.current_theme = "light_orange"
+    widget.update()
+    widget.repaint()
+    print("Light Orange theme applied")
+
+def apply_dark_orange_theme(widget):
+    """Apply dark orange theme."""
+    dark_orange_stylesheet = """
+    QWidget {
+        background-color: #262626;
+        color: #fe8957;
+    }
+    QComboBox, QPushButton, QLineEdit {
+        background-color: #fe8957;
+        color: #fefaf9;
+    }
+    QHeaderView::section {
+        background-color: #fe8957;
+        color: #fefaf9;
+    }
+    QTableView {
+        gridline-color: #fe8957;
+    }
+    """
+    widget.setStyleSheet(dark_orange_stylesheet)
+    widget.current_theme = "dark_orange"
+    widget.update()
+    widget.repaint()
+    print("Dark Orange theme applied")
+
 def apply_theme(widget, theme_name):
     print(f"Applying theme: {theme_name}")
     if theme_name == "Light":
@@ -218,5 +316,13 @@ def apply_theme(widget, theme_name):
         apply_lsd_trip_theme(widget)
     elif theme_name == "Mnemonic":
         apply_mnemonic_theme(widget)
+    elif theme_name == "Blue Light":
+        apply_blue_light_theme(widget)
+    elif theme_name == "Blue Dark":
+        apply_blue_dark_theme(widget)
+    elif theme_name == "Light Orange":
+        apply_light_orange_theme(widget)
+    elif theme_name == "Dark Orange":
+        apply_dark_orange_theme(widget)
     widget.update()
     widget.repaint()

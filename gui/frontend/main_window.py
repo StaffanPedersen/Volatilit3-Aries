@@ -1,3 +1,4 @@
+# main_window.py
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QLineEdit, QComboBox, QPushButton, QLabel, QFileDialog
 from PyQt5.QtCore import pyqtSlot
 from output_manager import OutputManager
@@ -49,6 +50,12 @@ class MainWindow(QMainWindow):
         self.plugin_search_bar.setPlaceholderText("Search for plugins...")
         self.plugin_search_bar.textChanged.connect(self.filter_plugins)
         self.control_layout.insertWidget(4, self.plugin_search_bar)  # Add it before the plugin combo box
+
+        # Populate theme dropdown with additional themes
+        self.theme_dropdown.addItems([
+            "Light", "Dark", "Hacker", "Colorblind", "Midnight", "Summer Day",
+            "LSD Trip", "Mnemonic", "Blue Light", "Blue Dark", "Light Orange", "Dark Orange"
+        ])
 
         self.populate_plugin_combo()
 

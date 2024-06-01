@@ -1,3 +1,4 @@
+# control_panel.py
 from PyQt5.QtWidgets import QHBoxLayout, QPushButton, QLabel, QComboBox, QLineEdit
 
 def create_control_panel(main_window):
@@ -23,7 +24,6 @@ def create_control_panel(main_window):
     control_layout.addWidget(main_window.scan_button)
 
     main_window.theme_dropdown = QComboBox(main_window)
-    main_window.theme_dropdown.addItems(["Light", "Dark", "Hacker", "Colorblind", "Midnight", "Summer Day", "LSD Trip", "Mnemonic"])
     main_window.theme_dropdown.currentIndexChanged.connect(main_window.change_theme)
     control_layout.addWidget(main_window.theme_dropdown)
 
