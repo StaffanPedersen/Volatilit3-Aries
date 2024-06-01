@@ -1,5 +1,3 @@
-# control_panel.py
-
 from PyQt5.QtWidgets import QHBoxLayout, QPushButton, QLabel, QComboBox, QLineEdit
 
 def create_control_panel(main_window):

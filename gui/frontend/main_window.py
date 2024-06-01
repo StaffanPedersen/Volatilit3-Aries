@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QHBoxLayout
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QLineEdit, QComboBox, QPushButton, QLabel, QFileDialog
 from PyQt5.QtCore import pyqtSlot
 from output_manager import OutputManager
 from progress_manager import ProgressManager
@@ -8,7 +8,6 @@ from control_panel import create_control_panel, create_filter_input
 from plugins import get_all_plugins
 from error_handler import show_error_message
 import signal_handlers as sh
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -44,6 +43,12 @@ class MainWindow(QMainWindow):
         self.valid_memory_dump_selected = False
         self.all_plugins = None
         self.thread = None
+
+        # Add search bar for plugins
+        self.plugin_search_bar = QLineEdit(self)
+        self.plugin_search_bar.setPlaceholderText("Search for plugins...")
+        self.plugin_search_bar.textChanged.connect(self.filter_plugins)
+        self.control_layout.insertWidget(4, self.plugin_search_bar)  # Add it before the plugin combo box
 
         self.populate_plugin_combo()
 
@@ -82,6 +87,18 @@ class MainWindow(QMainWindow):
                     self.plugin_combo.addItem(plugin)
         except Exception as e:
             show_error_message(self, "Error", f"Error populating plugin combo: {e}")
+
+    def filter_plugins(self):
+        search_text = self.plugin_search_bar.text().lower()
+        self.plugin_combo.clear()
+        self.plugin_combo.addItem("")
+        for os_name, plugins in self.all_plugins:
+            matching_plugins = [plugin for plugin in plugins if search_text in plugin.lower()]
+            if matching_plugins:
+                self.plugin_combo.addItem(f"{os_name}:")
+                for plugin in matching_plugins:
+                    self.plugin_combo.addItem(plugin)
+        self.update_scan_button_state()
 
     @pyqtSlot(list, list)
     def display_output(self, headers, data):

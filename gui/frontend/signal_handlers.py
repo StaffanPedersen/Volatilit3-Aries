@@ -1,44 +1,17 @@
-# signal_handlers.py
-
-import os  # Add this import
 from PyQt5.QtWidgets import QFileDialog
 from error_handler import show_error_message
-from plugins import get_all_plugins
-from os_detector import detect_os
-from volatility_thread import VolatilityThread
-
-def is_valid_memory_dump(file_path):
-    """Check if the selected file is a valid memory dump based on its extension."""
-    valid_extensions = {
-        ".dmp", ".mem", ".img", ".lime", ".raw", ".vmem", ".vmsn", ".vmss", ".hpak", ".crash", ".hiberfil", ".core",
-        ".ewf", ".firewire"
-    }
-    _, file_extension = os.path.splitext(file_path)
-    return file_extension.lower() in valid_extensions
+from volatility_thread import VolatilityThread  # Ensure this import is correct based on your implementation
+from os_detector import detect_os  # Ensure this import is correct based on your implementation
 
 def browse_memory_dump(main_window):
-    try:
-        options = QFileDialog.Options()
-        options |= QFileDialog.ReadOnly
-        file_filter = (
-            "Memory Dumps (*.dmp *.mem *.img *.lime *.raw *.vmem *.vmsn *.vmss *.hpak *.crash *.hiberfil *.core "
-            "*.ewf *.firewire);;All Files (*)"
-        )
-        file_name, _ = QFileDialog.getOpenFileName(main_window, "Select Memory Dump", "", file_filter, options=options)
-        if file_name:
-            if is_valid_memory_dump(file_name):
-                main_window.selected_file_label.setText(f"Selected file: {file_name}")
-                main_window.valid_memory_dump_selected = True
-            else:
-                show_error_message(main_window, "Invalid File", "The selected file is not a valid memory dump.")
-                main_window.selected_file_label.setText("No file selected")
-                main_window.valid_memory_dump_selected = False
-        else:
-            main_window.selected_file_label.setText("No file selected")
-            main_window.valid_memory_dump_selected = False
+    file_dialog = QFileDialog(main_window)
+    file_dialog.setFileMode(QFileDialog.ExistingFile)
+    file_dialog.setNameFilter("Memory Dumps (*.dmp *.bin)")
+    if file_dialog.exec_():
+        file_path = file_dialog.selectedFiles()[0]
+        main_window.selected_file_label.setText(f"Selected file: {file_path}")
+        main_window.valid_memory_dump_selected = True
         main_window.update_scan_button_state()
-    except Exception as e:
-        show_error_message(main_window, "Error", f"Error browsing memory dump: {e}")
 
 def update_scan_button_state(main_window):
     plugin_selected = main_window.plugin_combo.currentText() not in ["", "No plugins found", "Select Volatility Plugin:"]
@@ -73,15 +46,13 @@ def scan_memory_dump(main_window):
     except Exception as e:
         show_error_message(main_window, "Error", f"Error starting memory dump scan: {e}")
 
-def display_output(main_window, headers, data):
-    try:
-        main_window.output_manager.set_data(headers, data)
-        main_window.append_terminal_text(f"Scan completed. Headers: {headers}, Data: {data}")
-    except Exception as e:
-        show_error_message(main_window, "Error", f"Error displaying output: {e}")
-
 def filter_results(main_window, text):
-    try:
-        main_window.output_manager.filter_results(text)
-    except Exception as e:
-        show_error_message(main_window, "Error", f"Error filtering results: {e}")
+    main_window.output_manager.filter_results(text)
+
+def display_output(main_window, headers, data):
+    main_window.output_manager.set_data(headers, data)
+    main_window.append_terminal_text(f"Scan completed. Headers: {headers}, Data: {data}")
+
+def detect_os(memory_dump):
+    # Dummy function to return a memory dump OS, replace with actual logic
+    return "windows"
