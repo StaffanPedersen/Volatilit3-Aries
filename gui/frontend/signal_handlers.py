@@ -6,7 +6,8 @@ from os_detector import detect_os  # Ensure this import is correct based on your
 def browse_memory_dump(main_window):
     file_dialog = QFileDialog(main_window)
     file_dialog.setFileMode(QFileDialog.ExistingFile)
-    file_dialog.setNameFilter("Memory Dumps (*.dmp *.bin)")
+    file_dialog.setNameFilter("Memory Dumps (*.dmp *.mem *.img *.lime *.raw *.vmem *.vmsn *.vmss *.hpak *.crash *.hiberfil *.core "
+                "*.ewf *.firewire);;All Files (*)")
     if file_dialog.exec_():
         file_path = file_dialog.selectedFiles()[0]
         main_window.selected_file_label.setText(f"Selected file: {file_path}")
