@@ -2,11 +2,11 @@ from PyQt5.QtWidgets import (
     QMainWindow, QVBoxLayout, QPushButton, QLabel,
     QFileDialog, QWidget, QComboBox, QLineEdit
 )
-from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtCore import pyqtSlot
 from output_manager import OutputManager
 from volatility_thread import VolatilityThread
 from progress_manager import ProgressManager
-from plugins import get_all_plugins
+from gui.backend.plugins_manager import get_all_plugins
 from os_detector import detect_os
 from error_handler import show_error_message
 from pluginAsideGUI import MainWindow as PluginAsideWindow

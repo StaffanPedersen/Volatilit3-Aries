@@ -2,7 +2,7 @@ import subprocess
 import csv
 from io import StringIO
 from PyQt5.QtCore import QThread, pyqtSignal
-from plugins import find_volatility_file  # Import the function from plugins.py
+from gui.backend.plugins_manager import find_volatility_file  # Import the function from plugins_manager.py
 import os
 
 

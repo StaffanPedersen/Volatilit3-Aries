@@ -1,5 +1,5 @@
-from PyQt5 import QtWidgets, QtCore, QtGui
-from plugins import get_all_plugins
+from PyQt5 import QtWidgets, QtCore
+from gui.backend.plugins_manager import get_all_plugins
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -67,7 +67,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.scrollLayout = QtWidgets.QVBoxLayout()
         self.scrollWidget.setLayout(self.scrollLayout)
 
-        # Get the list of plugins from plugins.py
+        # Get the list of plugins from plugins_manager.py
         plugin_data = get_all_plugins()
         self.pluginNames = [f"{os_name}.{plugin}" for os_name, plugins in plugin_data for plugin in plugins]
 
