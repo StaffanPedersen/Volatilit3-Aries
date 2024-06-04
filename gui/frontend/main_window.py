@@ -42,6 +42,13 @@ class MainWindow(QMainWindow):
         self.plugins_button.clicked.connect(self.open_plugins_gui)
         self.main_layout.addWidget(self.plugins_button)
 
+        # Create a new QLabel to display the selected plugin
+        self.plugins_label = QLabel("", self)
+        self.main_layout.addWidget(self.plugins_label)
+
+        # Connect the plugin_stored signal to the update_plugins_button slot
+        self.pluginAsideWindow.plugin_stored.connect(self.update_plugins_button)
+
         self.plugin_combo = QComboBox(self)
         self.plugin_combo.currentIndexChanged.connect(self.update_scan_button_state)
         self.main_layout.addWidget(self.plugin_combo)
@@ -67,6 +74,10 @@ class MainWindow(QMainWindow):
         self.thread = None  # Initialize here
 
         self.populate_plugin_combo()
+
+    def update_plugins_button(self, plugin):
+        """Update the text of the plugins_label with the selected plugin."""
+        self.plugins_label.setText(f"Selected Plugin: {plugin}")
 
     def open_plugins_gui(self):
         """Open the plugins GUI when the button is clicked."""

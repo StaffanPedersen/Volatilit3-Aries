@@ -3,20 +3,19 @@ from plugins import get_all_plugins  # Import the function
 
 
 class MainWindow(QtWidgets.QMainWindow):
+    # Define a new signal that carries a string
+    plugin_stored = QtCore.pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
 
         # Initialize the selected_plugin attribute
 
-
         # "Save" button
         self.selected_plugin = None
         self.saveButton = QtWidgets.QPushButton("Save", self)
         self.saveButton.setStyleSheet("background-color: #555; color: #fff;")  # Add styling options here
         self.saveButton.setGeometry(QtCore.QRect(210, 250, 50, 50))  # Set position and size
-
-
 
         # Main window settings
         self.checked_plugins = None
@@ -113,7 +112,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.saveButton.setStyleSheet("background-color: #555; color: #fff;")  # Add styling options here
         self.saveButton.setGeometry(QtCore.QRect(210, 250, 50, 50))  # Set position and size
 
-
         #   Create a QVBoxLayout for the "+" button
         addButtonLayout = QtWidgets.QVBoxLayout()
         # addButtonLayout.addWidget(QtWidgets.QWidget(), 1)  # Empty widget at top
@@ -142,6 +140,8 @@ class MainWindow(QtWidgets.QMainWindow):
         """Store the selected plugin and print a message."""
         self.selected_plugin = self.checked_plugins
         print(f"Selected plugin '{self.selected_plugin}' has been stored.")
+        # Emit the plugin_stored signal with the selected plugin as a string
+        self.plugin_stored.emit(self.selected_plugin)
 
     def update_checked_plugins(self, state):
         """Update the list of checked plugins."""
@@ -151,6 +151,7 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.checked_plugins = None  # Set to None if the checkbox is unchecked
         print(f"Checked plugin: {self.checked_plugins}")  # Debug print
+
 
 if __name__ == "__main__":
     import sys
