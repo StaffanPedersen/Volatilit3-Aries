@@ -9,7 +9,7 @@ from progress_manager import ProgressManager
 from plugins import get_all_plugins
 from os_detector import detect_os
 from error_handler import show_error_message
-from pluginsGUI import Ui_Form
+from pluginAsideGUI import MainWindow as PluginAsideWindow
 
 import os
 
@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
         # self.plugin_label = QLabel("Select Volatility Plugin:", self)
         # self.main_layout.addWidget(self.plugin_label)
 
-        self.plugins_gui = Ui_Form()  # Create an instance of Ui_Form
+        self.pluginAsideWindow = PluginAsideWindow()
 
         self.plugins_button = QPushButton("Open Plugins GUI", self)
         self.plugins_button.clicked.connect(self.open_plugins_gui)
@@ -70,7 +70,7 @@ class MainWindow(QMainWindow):
 
     def open_plugins_gui(self):
         """Open the plugins GUI when the button is clicked."""
-        self.plugins_gui.show()  # Show the plugins GUI
+        self.pluginAsideWindow.show()
 
     def populate_plugin_combo(self):
         """Populate the plugin combo box with available plugins."""

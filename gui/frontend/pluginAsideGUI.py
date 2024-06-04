@@ -1,15 +1,16 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
 from plugins import get_all_plugins  # Import the function
 
-from PyQt5 import QtWidgets, QtCore, QtGui
-from plugins import get_all_plugins  # Import the function
-
 
 class MainWindow(QtWidgets.QMainWindow):
+
+
+
     def __init__(self):
         super().__init__()
 
         # Main window settings
+        self.checked_plugins = None
         self.setWindowTitle("plugins Window")
         self.setGeometry(100, 100, 400, 800)
         self.setMinimumSize(400, 800)
@@ -42,6 +43,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.bannerButton.setFlat(True)
         self.bannerLayout.addWidget(self.bannerButton)
 
+        # Connect the clicked signal of the bannerButton to the close slot of the MainWindow
+        self.bannerButton.clicked.connect(self.close)
+
         # Set the style sheet on the banner widget
         self.banner.setStyleSheet("background-color: #555; color: #fff;\n"
                                   "font-size: 24px;\n"
@@ -63,7 +67,6 @@ class MainWindow(QtWidgets.QMainWindow):
         print(f"Plugin data: {plugin_data}")  # Debug print
         self.pluginNames = [f"{os_name}.{plugin}" for os_name, plugins in plugin_data for plugin in plugins]
 
-        # Add dynamic elements
         for name in self.pluginNames:
             element = QtWidgets.QWidget()
             elementLayout = QtWidgets.QHBoxLayout()
@@ -73,16 +76,16 @@ class MainWindow(QtWidgets.QMainWindow):
             checkbox.setMinimumSize(220, 20)  # Set minimum size
             checkbox.setMaximumSize(280, 20)  # Set maximum size
             self.buttonGroup.addButton(checkbox)  # Add the checkbox to the QButtonGroup
+            checkbox.stateChanged.connect(
+                self.update_checked_plugins)  # Connect the stateChanged signal to the custom slot
             button = QtWidgets.QPushButton("X")
             button.setStyleSheet("background-color: #555; color: #fff;")  # Add styling options here
             button.setFixedSize(20, 20)
             elementLayout.addWidget(checkbox)
             elementLayout.addWidget(button)
             self.scrollLayout.addWidget(element)
-
         # Set the container widget as the widget for the scroll area
         self.scrollArea.setWidget(self.scrollWidget)
-
         self.sidebarLayout.addWidget(self.scrollArea)
 
         # Create a new QWidget for the buttons
@@ -93,15 +96,15 @@ class MainWindow(QtWidgets.QMainWindow):
         # "+" button
         self.addButton = QtWidgets.QPushButton("+", self)
         self.addButton.setStyleSheet("background-color: #555; color: #fff;\n"
-                                     "font-size: 24px;")  # Add styling options here
+                                 "font-size: 24px;")  # Add styling options here
         self.addButton.setGeometry(QtCore.QRect(270, 200, 30, 30))  # Set position and size
 
-        # "Save" button
+    # "Save" button
         self.saveButton = QtWidgets.QPushButton("Save", self)
         self.saveButton.setStyleSheet("background-color: #555; color: #fff;")  # Add styling options here
         self.saveButton.setGeometry(QtCore.QRect(210, 250, 50, 50))  # Set position and size
 
-        # Create a QVBoxLayout for the "+" button
+        #   Create a QVBoxLayout for the "+" button
         addButtonLayout = QtWidgets.QVBoxLayout()
         # addButtonLayout.addWidget(QtWidgets.QWidget(), 1)  # Empty widget at top
         addButtonLayout.addWidget(self.addButton)  # "+" button in the middle
@@ -122,10 +125,16 @@ class MainWindow(QtWidgets.QMainWindow):
         # Set sidebar as central widget
         self.setCentralWidget(self.sidebar)
 
+    def update_checked_plugins(self, state):
+        """Update the list of checked plugins."""
+        if state == QtCore.Qt.Checked:
+            checkbox = self.sender()  # Get the checkbox that emitted the signal
+            self.checked_plugins = checkbox.text()  # Store the text of the checked checkbox
+            print(f"Checked plugin: {self.checked_plugins}")  # Debug print
+
 
 if __name__ == "__main__":
     import sys
-
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
     window.show()
