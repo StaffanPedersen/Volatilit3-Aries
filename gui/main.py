@@ -1,18 +1,38 @@
+from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget
 import sys
-from PyQt5.QtWidgets import QApplication
-from main_window import MainWindow
+from frontend.home_screen import HomeScreen
+from frontend.scan_screen import ScanScreen
 
+class Main(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Volatility GUI")
+        self.setGeometry(100, 100, 1024, 768)
+
+        self.stacked_widget = QStackedWidget()
+        self.setCentralWidget(self.stacked_widget)
+
+        # Set up different screens
+        self.home_screen = HomeScreen(self.show_scan_screen)
+        self.scan_screen = ScanScreen()
+
+        # Her skal vi ha "home knapp"
+        self.scan_screen.exportButton.clicked.connect(self.show_home_screen)
+
+        self.stacked_widget.addWidget(self.home_screen)
+        self.stacked_widget.addWidget(self.scan_screen)
+
+    def show_home_screen(self):
+        self.stacked_widget.setCurrentWidget(self.home_screen)
+
+    def show_scan_screen(self):
+        self.stacked_widget.setCurrentWidget(self.scan_screen)
 
 def main():
-    """Main entry point for the application."""
-    try:
-        app = QApplication(sys.argv)
-        main_window = MainWindow()
-        main_window.show()
-        sys.exit(app.exec_())
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
+    app = QApplication(sys.argv)
+    main_window = Main()
+    main_window.show()
+    sys.exit(app.exec_())
 
 if __name__ == "__main__":
     main()

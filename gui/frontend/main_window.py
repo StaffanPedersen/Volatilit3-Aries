@@ -3,13 +3,13 @@ from PyQt5.QtWidgets import (
     QFileDialog, QWidget, QComboBox, QLineEdit
 )
 from PyQt5.QtCore import pyqtSlot
-from output_manager import OutputManager
+from gui.frontend.output_manager import OutputManager
 from gui.backend.volatility_thread import VolatilityThread
-from progress_manager import ProgressManager
+from gui.frontend.progress_manager import ProgressManager
 from gui.backend.plugins_manager import get_all_plugins
 from gui.backend.os_detector import detect_os
-from error_handler_GUI import show_error_message
-from pluginAsideGUI import MainWindow as PluginAsideWindow
+from gui.frontend.error_handler_GUI import show_error_message
+from gui.frontend.pluginAsideGUI import MainWindow as PluginAsideWindow
 
 import os
 
