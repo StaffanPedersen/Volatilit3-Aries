@@ -3,8 +3,8 @@ from PyQt5.QtWidgets import (
     QFileDialog, QWidget, QComboBox, QLineEdit
 )
 from PyQt5.QtCore import pyqtSlot
-from gui.frontend.output_manager import OutputManager
-from gui.backend.volatility_thread import VolatilityThread
+from gui.frontend.output_manager_GUI import OutputManager
+from gui.frontend.volatility_thread_GUI import VolatilityThread
 from gui.frontend.progress_manager import ProgressManager
 from gui.backend.plugins_manager import get_all_plugins
 from gui.backend.os_detector import detect_os
