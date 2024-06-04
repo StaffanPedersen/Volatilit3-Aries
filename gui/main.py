@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget
 import sys
-from frontend.home_screen import HomeScreen
+from frontend.home_screen_GUI import HomeScreen
 from frontend.scan_screen import ScanScreen
 
 class Main(QMainWindow):
