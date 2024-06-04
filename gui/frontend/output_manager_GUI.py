@@ -1,4 +1,5 @@
-from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtCore import Qt, QSortFilterProxyModel
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QCheckBox, QTableView, QAbstractItemView, QHeaderView
 from gui.backend.output_manager import OutputManagerBackend  # Import the backend class
 
@@ -9,8 +10,11 @@ class OutputManager(QWidget):
         self.backend = OutputManagerBackend()  # Use the backend class
 
         # Table View
+        self.original_model = QStandardItemModel()
+        self.table_proxy_model = QSortFilterProxyModel()
+        self.table_proxy_model.setSourceModel(self.original_model)
         self.table_view = QTableView(self)
-        self.table_view.setModel(self.backend.table_proxy_model)
+        self.table_view.setModel(self.table_proxy_model)
         self.table_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table_view.setSortingEnabled(True)
         self.table_view.horizontalHeader().setStretchLastSection(True)
@@ -27,7 +31,18 @@ class OutputManager(QWidget):
     def set_data(self, headers, data):
         """Set the headers and data for the table view."""
         self.backend.set_data(headers, data)
+        self.update_table()
         self._create_checkboxes(headers)
+
+    def update_table(self):
+        """Update the table view with headers and data from backend."""
+        headers, data = self.backend.get_data()
+        self.original_model.clear()
+        self.original_model.setHorizontalHeaderLabels(headers)
+
+        for row_data in data:
+            items = [QStandardItem(field) for field in row_data]
+            self.original_model.appendRow(items)
 
     def _create_checkboxes(self, headers):
         """Create checkboxes for each column header."""
@@ -63,7 +78,7 @@ class OutputManager(QWidget):
             header = checkbox.text()
             if header in ["All", "None"]:
                 return  # Skip special checkboxes
-            column_index = self.backend.current_headers.index(header)
+            column_index = self.backend.headers.index(header)
             self.table_view.setColumnHidden(column_index, state != Qt.Checked)
 
             # Update "All" and "None" checkboxes state
@@ -95,7 +110,7 @@ class OutputManager(QWidget):
                     checkbox.setChecked(True)
                     checkbox.blockSignals(False)
                     header = checkbox.text()
-                    column_index = self.backend.current_headers.index(header)
+                    column_index = self.backend.headers.index(header)
                     self.table_view.setColumnHidden(column_index, False)
 
     def _toggle_none_columns(self, state):
@@ -110,11 +125,11 @@ class OutputManager(QWidget):
                     checkbox.setChecked(False)
                     checkbox.blockSignals(False)
                     header = checkbox.text()
-                    column_index = self.backend.current_headers.index(header)
+                    column_index = self.backend.headers.index(header)
                     self.table_view.setColumnHidden(column_index, True)
 
     def filter_results(self, text):
         """Filter the results displayed in the table view based on the input text."""
-        self.backend.table_proxy_model.setFilterKeyColumn(-1)  # Search all columns
-        self.backend.table_proxy_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
-        self.backend.table_proxy_model.setFilterFixedString(text)
+        self.table_proxy_model.setFilterKeyColumn(-1)  # Search all columns
+        self.table_proxy_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
+        self.table_proxy_model.setFilterFixedString(text)
