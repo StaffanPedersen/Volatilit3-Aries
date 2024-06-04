@@ -9,6 +9,8 @@ from progress_manager import ProgressManager
 from plugins import get_all_plugins
 from os_detector import detect_os
 from error_handler import show_error_message
+from pluginAsideGUI import MainWindow as PluginAsideWindow
+
 import os
 
 
@@ -31,8 +33,21 @@ class MainWindow(QMainWindow):
         self.selected_file_label = QLabel("", self)
         self.main_layout.addWidget(self.selected_file_label)
 
-        self.plugin_label = QLabel("Select Volatility Plugin:", self)
-        self.main_layout.addWidget(self.plugin_label)
+        # self.plugin_label = QLabel("Select Volatility Plugin:", self)
+        # self.main_layout.addWidget(self.plugin_label)
+
+        self.pluginAsideWindow = PluginAsideWindow()
+
+        self.plugins_button = QPushButton("Open Plugins GUI", self)
+        self.plugins_button.clicked.connect(self.open_plugins_gui)
+        self.main_layout.addWidget(self.plugins_button)
+
+        # Create a new QLabel to display the selected plugin
+        self.plugins_label = QLabel("", self)
+        self.main_layout.addWidget(self.plugins_label)
+
+        # Connect the plugin_stored signal to the update_plugins_button slot
+        self.pluginAsideWindow.plugin_stored.connect(self.update_plugins_button)
 
         self.plugin_combo = QComboBox(self)
         self.plugin_combo.currentIndexChanged.connect(self.update_scan_button_state)
@@ -59,6 +74,14 @@ class MainWindow(QMainWindow):
         self.thread = None  # Initialize here
 
         self.populate_plugin_combo()
+
+    def update_plugins_button(self, selected_plugin_in_gui):
+        """Update the text of the plugins_label with the selected plugin."""
+        self.plugins_label.setText(f"Selected Plugin: {selected_plugin_in_gui}")
+
+    def open_plugins_gui(self):
+        """Open the plugins GUI when the button is clicked."""
+        self.pluginAsideWindow.show()
 
     def populate_plugin_combo(self):
         """Populate the plugin combo box with available plugins."""
@@ -128,7 +151,8 @@ class MainWindow(QMainWindow):
                     return
 
                 if not selected_plugin.startswith(memory_dump_os):
-                    show_error_message(self, "Plugin Compatibility Error", f"The selected plugin '{selected_plugin}' is not compatible with the detected OS '{memory_dump_os}'.")
+                    show_error_message(self, "Plugin Compatibility Error",
+                                       f"The selected plugin '{selected_plugin}' is not compatible with the detected OS '{memory_dump_os}'.")
                     return
 
                 plugin = selected_plugin.strip()

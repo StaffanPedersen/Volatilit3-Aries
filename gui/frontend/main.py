@@ -2,6 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication
 from main_window import MainWindow
 
+
 def main():
     """Main entry point for the application."""
     try:
@@ -11,6 +12,7 @@ def main():
         sys.exit(app.exec_())
     except Exception as e:
         print(f"An error occurred: {e}")
+
 
 if __name__ == "__main__":
     main()
