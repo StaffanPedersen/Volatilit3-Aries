@@ -75,9 +75,9 @@ class MainWindow(QMainWindow):
 
         self.populate_plugin_combo()
 
-    def update_plugins_button(self, plugin):
+    def update_plugins_button(self, selected_plugin_in_gui):
         """Update the text of the plugins_label with the selected plugin."""
-        self.plugins_label.setText(f"Selected Plugin: {plugin}")
+        self.plugins_label.setText(f"Selected Plugin: {selected_plugin_in_gui}")
 
     def open_plugins_gui(self):
         """Open the plugins GUI when the button is clicked."""

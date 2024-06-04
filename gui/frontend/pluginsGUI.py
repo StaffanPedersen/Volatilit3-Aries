@@ -14,22 +14,32 @@ from PyQt5.QtWidgets import QWidget, QPushButton
 from plugins import get_all_plugins
 
 
-class Ui_Form(QWidget):  # Change inheritance to QWidget
+class Ui_Form(QWidget):
     def __init__(self):
-        super().__init__()  # Call the QWidget constructor
+        super().__init__()
         self.scrollAreaWidgetContents_2 = None
         self.pluginNames = []
-        self.setupUi(self)  # Call setupUi with self as argument
+        self.setupUi(self)
 
     def setupUi(self, Form):
-        Form.setObjectName("Plugins")
-        Form.resize(320, 780)
+        self.setupFrame(Form)
+        self.setupPluginMenuLabel()
+        self.setupPluginMenuLabelButton(Form)
+        self.setupPluginListWidget()
+        self.setupPluginScrollArea()
+        self.setupScrollAreaWidgetContents()
+        self.setupPluginSelectFrame()
+        self.setupLabel()
+        self.setupPluginMenuLabelButton_2()
 
+    def setupFrame(self, Form):
         self.frame = QtWidgets.QFrame(Form)
         self.frame.setGeometry(QtCore.QRect(0, 0, 320, 781))
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
+
+    def setupPluginMenuLabel(self):
         self.pluginMenulabel = QtWidgets.QLabel(self.frame)
         self.pluginMenulabel.setGeometry(QtCore.QRect(0, 0, 320, 41))
         font = QtGui.QFont()
@@ -40,6 +50,8 @@ class Ui_Form(QWidget):  # Change inheritance to QWidget
         self.pluginMenulabel.setStyleSheet("background-color: rgb(255, 137, 86);")
         self.pluginMenulabel.setScaledContents(False)
         self.pluginMenulabel.setObjectName("pluginMenulabel")
+
+    def setupPluginMenuLabelButton(self, Form):
         self.pluginMenuLabelButton = QtWidgets.QPushButton(self.frame)
         self.pluginMenuLabelButton.setGeometry(QtCore.QRect(280, 10, 31, 21))
         font = QtGui.QFont()
@@ -53,32 +65,43 @@ class Ui_Form(QWidget):  # Change inheritance to QWidget
         self.pluginMenuLabelButton.setFlat(True)
         self.pluginMenuLabelButton.setObjectName("pluginMenuLabelButton")
         self.pluginMenuLabelButton.clicked.connect(Form.close)
+
+    def setupPluginListWidget(self):
         self.pluginListWidget = QtWidgets.QListWidget(self.frame)
         self.pluginListWidget.setGeometry(QtCore.QRect(0, 40, 320, 741))
         self.pluginListWidget.setMidLineWidth(-1)
         self.pluginListWidget.setObjectName("pluginListWidget")
+
+    def setupPluginScrollArea(self):
         self.pluginScrollArea = QtWidgets.QScrollArea(self.frame)
         self.pluginScrollArea.setGeometry(QtCore.QRect(10, 60, 300, 651))
         self.pluginScrollArea.setStyleSheet("background-color: rgb(255, 255, 255);\n"
                                             "border: none;")
         self.pluginScrollArea.setWidgetResizable(True)
         self.pluginScrollArea.setObjectName("pluginScrollArea")
+
+    def setupScrollAreaWidgetContents(self):
         self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
         self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 231, 651))
         self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
+
+    def setupPluginSelectFrame(self):
         self.pluginSelectframe = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
         self.pluginSelectframe.setGeometry(QtCore.QRect(0, 10, 231, 31))
         self.pluginSelectframe.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.pluginSelectframe.setFrameShadow(QtWidgets.QFrame.Raised)
         self.pluginSelectframe.setObjectName("pluginSelectframe")
 
+    def setupLabel(self):
         self.label = QtWidgets.QLabel(self.pluginSelectframe)
 
+    def setupPluginMenuLabelButton_2(self):
         self.pluginMenuLabelButton_2 = QtWidgets.QPushButton(self.pluginSelectframe)
         self.pluginMenuLabelButton_2.setGeometry(QtCore.QRect(60, 5, 35, 20))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(14)
+        self.pluginMenuLabelButton_2.setFont(font)
 
         self.pluginScrollArea.setWidget(self.scrollAreaWidgetContents_2)
         self.pluginSaveButton = QtWidgets.QPushButton(self.pluginSelectframe)
