@@ -14,6 +14,12 @@ class VolatilityThread(QThread):
     def run(self):
         """Execute the Volatility plugin and parse the output."""
         output = VolatilityBackend.run_volatility(self.memory_dump, self.plugin)
-        headers, data = VolatilityBackend.parse_output(output)
-        self.output_signal.emit(headers, data)
-        self.progress_signal.emit(100)  # Emit 100% progress on completion
+        if output:
+            headers, data = VolatilityBackend.parse_output(output)
+            if headers is not None and data is not None:
+                self.output_signal.emit(headers, data)
+                self.progress_signal.emit(100)  # Emit 100% progress on completion
+            else:
+                print("Error: Failed to parse output")
+        else:
+            print("Error: Failed to run volatility")

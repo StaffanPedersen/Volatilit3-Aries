@@ -4,6 +4,7 @@ from io import StringIO
 from gui.backend.plugins_manager import find_volatility_file  # Adjusted the import to a relative import
 import os
 
+
 class VolatilityBackend:
     @staticmethod
     def run_volatility(memory_dump, plugin):

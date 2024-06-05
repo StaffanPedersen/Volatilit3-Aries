@@ -11,6 +11,8 @@ from gui.backend.memdump_manager import MemDumpManager
 
 import os
 
+from gui.frontend.volatility_thread_GUI import VolatilityThread
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -76,6 +78,8 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot(list, list)
     def display_output(self, headers, data):
+        print(f"Headers: {headers}")
+        print(f"Data: {data}")
         try:
             self.output_manager.set_data(headers, data)
         except Exception as e:
@@ -91,11 +95,20 @@ class MainWindow(QMainWindow):
         self.scan_button.setEnabled(self.memdump_manager.valid_memory_dump_selected)
 
     def scan(self):
-        print("Instance 11111")
         # Get the currently selected plugin
         selected_plugin = self.pluginAsideWindow.get_selected_plugin()
 
-        # Use the selected plugin to perform the scan
-        # The actual scanning code will depend on how your plugins are designed to work
-        # Here is a placeholder for the scanning code
-        print(f"Scanning with plugin: {selected_plugin}")
+        # Get the memory dump file
+        memory_dump = self.selected_file_label.text().replace("Selected file: ", "")
+
+        # Create a new VolatilityThread instance
+        self.thread = VolatilityThread(memory_dump, selected_plugin)
+
+        # Connect the output_signal to the display_output slot
+        self.thread.output_signal.connect(self.display_output)
+
+        # Connect the progress_signal to the set_progress slot of the progress_manager
+        self.thread.progress_signal.connect(self.progress_manager.set_progress)
+
+        # Start the thread
+        self.thread.start()
