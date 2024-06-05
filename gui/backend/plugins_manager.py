@@ -1,13 +1,12 @@
 import os
-from volatility_finder import find_volatility_file
-
+from .volatility_finder import find_volatility_file
 
 
 def get_all_plugins(filepath=None, os_name=None):
     try:
         start_path = os.path.dirname(os.path.realpath(__file__))
         volatility_file = find_volatility_file(start_path) if filepath is None else filepath
-        
+
         if volatility_file is None:
             print("Volatility file not found.")
             return []

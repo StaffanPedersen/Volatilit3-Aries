@@ -1,8 +1,6 @@
 import subprocess
 import os
-    attempts = 0
-from volatility_finder import find_volatility_file
-
+from .volatility_finder import find_volatility_file
 
 def detect_os(memory_dump):
     """Detect the OS of the memory dump by running specific Volatility plugins."""

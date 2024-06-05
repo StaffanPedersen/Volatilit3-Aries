@@ -1,9 +1,8 @@
 import subprocess
 import csv
 from io import StringIO
-from gui.backend.plugins_manager import find_volatility_file  # Import the function from plugins_manager.py
+from .plugins_manager import find_volatility_file  # Adjusted the import to a relative import
 import os
-
 
 class VolatilityBackend:
     @staticmethod
