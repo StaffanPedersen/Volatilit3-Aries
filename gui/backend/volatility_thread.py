@@ -1,28 +1,13 @@
 import subprocess
 import csv
 from io import StringIO
-from PyQt5.QtCore import QThread, pyqtSignal
 from gui.backend.plugins_manager import find_volatility_file  # Import the function from plugins_manager.py
 import os
 
 
-class VolatilityThread(QThread):
-    output_signal = pyqtSignal(list, list)
-    progress_signal = pyqtSignal(int)  # Signal for progress updates
-
-    def __init__(self, memory_dump, plugin, parent=None):
-        super().__init__(parent)
-        self.memory_dump = memory_dump
-        self.plugin = plugin
-
-    def run(self):
-        """Execute the Volatility plugin and parse the output."""
-        output = self.run_volatility(self.memory_dump, self.plugin)
-        headers, data = self.parse_output(output)
-        self.output_signal.emit(headers, data)
-        self.progress_signal.emit(100)  # Emit 100% progress on completion
-
-    def run_volatility(self, memory_dump, plugin):
+class VolatilityBackend:
+    @staticmethod
+    def run_volatility(memory_dump, plugin):
         """Run the Volatility command and capture its output."""
         try:
             start_path = os.path.dirname(os.path.realpath(__file__))
@@ -38,8 +23,6 @@ class VolatilityThread(QThread):
             for line in iter(process.stdout.readline, ''):
                 output_lines.append(line)
                 total_lines += 1
-                # Emit progress update based on the number of lines read
-                self.progress_signal.emit(min(int(total_lines * 100 / 1000), 100))  # Example progress calculation
 
             process.stdout.close()
             process.wait()
