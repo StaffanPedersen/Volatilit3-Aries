@@ -1,13 +1,10 @@
 from PyQt5.QtWidgets import (
     QMainWindow, QVBoxLayout, QPushButton, QLabel,
-    QFileDialog, QWidget, QComboBox, QLineEdit, QMessageBox
+    QWidget, QLineEdit
 )
 from PyQt5.QtCore import pyqtSlot
 from gui.frontend.output_manager_GUI import OutputManager
-from gui.frontend.volatility_thread_GUI import VolatilityThread
 from gui.frontend.progress_manager_GUI import ProgressManager
-from gui.backend.plugins_manager import get_all_plugins
-from gui.backend.os_detector import detect_os
 from gui.frontend.error_handler_GUI import show_error_message
 from gui.frontend.pluginAsideGUI import MainWindow as PluginAsideWindow
 from gui.backend.memdump_manager import MemDumpManager
@@ -45,6 +42,12 @@ class MainWindow(QMainWindow):
         self.plugins_button.clicked.connect(self.open_plugins_gui)
         self.main_layout.addWidget(self.plugins_button)
 
+        # Add the scan button under the Open Plugins GUI button
+        self.main_layout.addWidget(self.scan_button)
+
+        # Connect the scan button's click event to the scan method
+        self.scan_button.clicked.connect(self.scan)
+
         self.plugins_label = QLabel("", self)
         self.main_layout.addWidget(self.plugins_label)
 
@@ -65,14 +68,11 @@ class MainWindow(QMainWindow):
         self.all_plugins = None
         self.thread = None
 
-        self.populate_plugin_combo()
-
     def update_plugins_button(self, selected_plugin_in_gui):
         self.plugins_label.setText(f"Selected Plugin: {selected_plugin_in_gui}")
 
     def open_plugins_gui(self):
         self.pluginAsideWindow.show()
-
 
     @pyqtSlot(list, list)
     def display_output(self, headers, data):
@@ -88,5 +88,14 @@ class MainWindow(QMainWindow):
             show_error_message(self, "Error", f"Error filtering results: {e}")
 
     def update_scan_button_state(self):
-        self.scan_button.setEnabled(
-            bool(self.plugin_combo.currentText() and self.memdump_manager.valid_memory_dump_selected))
+        self.scan_button.setEnabled(self.memdump_manager.valid_memory_dump_selected)
+
+    def scan(self):
+        print("Instance 11111")
+        # Get the currently selected plugin
+        selected_plugin = self.pluginAsideWindow.get_selected_plugin()
+
+        # Use the selected plugin to perform the scan
+        # The actual scanning code will depend on how your plugins are designed to work
+        # Here is a placeholder for the scanning code
+        print(f"Scanning with plugin: {selected_plugin}")

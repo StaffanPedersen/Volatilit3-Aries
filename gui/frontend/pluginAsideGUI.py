@@ -2,8 +2,14 @@ from PyQt5 import QtWidgets, QtCore
 from gui.backend.plugins_manager import get_all_plugins
 
 
-class MainWindow(QtWidgets.QMainWindow):
+def get_selected_plugin():
+    # Return the currently selected plugin
+    # The actual code will depend on how you are storing the selected plugin
+    # Here is a placeholder for the code
+    return "selected_plugin"
 
+
+class MainWindow(QtWidgets.QMainWindow):
     plugin_stored = QtCore.pyqtSignal(str)
 
     def __init__(self):
@@ -144,6 +150,11 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.checked_plugins = None  # Set to None if the checkbox is unchecked
         print(f"Checked plugin: {self.checked_plugins}")  # Debug print
+
+    def get_selected_plugin(self):
+        if self.selected_plugin is None:
+            raise Exception("No plugin selected")
+        return self.selected_plugin
 
 
 if __name__ == "__main__":
