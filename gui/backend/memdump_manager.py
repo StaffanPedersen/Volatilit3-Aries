@@ -46,29 +46,5 @@ class MemDumpManager:
         _, file_extension = os.path.splitext(file_path)
         return file_extension.lower() in valid_extensions
 
-    def scan_memory_dump(self):
-        try:
-            memory_dump = self.selected_file_label.text().replace("Selected file: ", "")
-
-            if memory_dump:
-                memory_dump_os = detect_os(memory_dump)
-                if not memory_dump_os:
-                    show_error_message(self.window, "OS Detection Error",
-                                       "Could not determine the OS of the memory dump.")
-                    return
-
-                plugin = "some_default_plugin"  # This should be defined or selected in your logic
-                print(f"Starting scan: Running {plugin} on {memory_dump}...")
-                self.thread = VolatilityThread(memory_dump, plugin)
-                self.thread.output_signal.connect(self.window.display_output)
-                self.thread.progress_signal.connect(self.window.progress_manager.set_progress)
-                self.window.progress_manager.reset_progress()
-                self.window.progress_manager.show_progress()
-                self.thread.start()
-            else:
-                show_error_message(self.window, "Input Error", "Please select a memory dump file.")
-        except Exception as e:
-            QMessageBox.critical(self.window, "Error", f"Error scanning memory dump: {e}")
-
     def update_scan_button_state(self):
         self.window.scan_button.setEnabled(self.valid_memory_dump_selected)
