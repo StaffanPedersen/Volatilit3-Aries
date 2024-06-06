@@ -2,14 +2,7 @@ from PyQt5 import QtWidgets, QtCore
 from gui.backend.plugins_manager import get_all_plugins
 
 
-def get_selected_plugin():
-    # Return the currently selected plugin
-    # The actual code will depend on how you are storing the selected plugin
-    # Here is a placeholder for the code
-    return "selected_plugin"
-
-
-class MainWindow(QtWidgets.QMainWindow):
+class PluginAsideWindow(QtWidgets.QMainWindow):
     plugin_stored = QtCore.pyqtSignal(str)
 
     def __init__(self):
@@ -163,12 +156,3 @@ class MainWindow(QtWidgets.QMainWindow):
         plugin_parts = self.selected_plugin.split('.')
         plugin_name = '.'.join(plugin_parts[1:])
         return plugin_name
-
-
-if __name__ == "__main__":
-    import sys
-
-    app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec_())
