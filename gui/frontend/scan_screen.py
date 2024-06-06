@@ -1,14 +1,29 @@
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QLabel, \
-    QSizePolicy, QSpacerItem
+    QSizePolicy, QSpacerItem, QFileDialog
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, QTextEdit, QPushButton
 
+from gui.frontend.error_handler_GUI import show_error_message
+from gui.frontend.pluginAsideGUI import PluginAsideWindow
+from gui.frontend.volatility_thread_GUI import VolatilityThread
+
+
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit, QGroupBox, QSpacerItem, QFileDialog, QPushButton, QSizePolicy
+from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtCore import Qt, pyqtSignal
+import sys
 
 class ScanScreen(QWidget):
+    plugin_stored = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
         self.init_ui()
+
+        # Initialize the plugin aside window
+        self.pluginAsideWindow = PluginAsideWindow()
+        self.pluginAsideWindow.plugin_stored.connect(self.update_selected_plugin)
 
     def init_ui(self):
         self.setObjectName("ScanScreen")
@@ -24,8 +39,7 @@ class ScanScreen(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-
-# Left group box (20% width)
+        # Left group box (20% width)
         self.groupBox_left = QGroupBox(self)
         self.groupBox_left.setObjectName("groupBox_left")
         self.groupBox_left.setStyleSheet("QWidget { background-color: #353535; }")
@@ -37,8 +51,7 @@ class ScanScreen(QWidget):
         left_layout.setSpacing(10)
         self.setup_left_group_box(left_layout)
 
-
-# Right group box (80% width)
+        # Right group box (80% width)
         self.groupBox_right = QGroupBox(self)
         self.groupBox_right.setObjectName("groupBox_right")
         self.groupBox_right.setStyleSheet("QWidget { background-color: #262626; }")
@@ -57,8 +70,6 @@ class ScanScreen(QWidget):
         main_layout.setStretch(0, 2)
         main_layout.setStretch(1, 8)
 
-
-# ITEMS IN LEFT GROUP BOX
     def setup_left_group_box(self, layout):
         font1 = QFont()
         font1.setFamily("Inter_FXH")
@@ -69,24 +80,25 @@ class ScanScreen(QWidget):
         button_size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         button_size_policy.setHorizontalStretch(9)
 
-# SPACE OVER SELECT FILE BUTTON
+        # SPACE OVER SELECT FILE BUTTON
         spacer_above_file_button = QWidget()
         spacer_above_file_button.setFixedHeight(int(self.height() * 0.05))
         layout.addWidget(spacer_above_file_button)
 
-# Left and right space for selectFileButton
+        # Left and right space for selectFileButton
         file_button_layout = QHBoxLayout()
         file_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         self.selectFileButton = self.create_transparent_button(self.groupBox_left, "frontend/images/filmappe.png")
         self.selectFileButton.setText("    Select file")
         self.selectFileButton.setSizePolicy(button_size_policy)
+        self.selectFileButton.clicked.connect(self.select_file)  # Connect the button to open file dialog
 
         file_button_layout.addWidget(self.selectFileButton)
         file_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         layout.addLayout(file_button_layout)
 
-# Space between selectFileButton and the plugin selector
+        # Space between selectFileButton and the plugin selector
         spacer_above_plugin = QWidget()
         spacer_above_plugin.setFixedHeight(int(self.height() * 0.05))
         layout.addWidget(spacer_above_plugin)
@@ -110,12 +122,10 @@ class ScanScreen(QWidget):
             font-weight: 500;
         }
 
-
         QPushButton:pressed {
             background-color: #F66600; 
             border: 2px solid #F66600;
         }
-        
 
         QPushButton:flat {
             border: none;
@@ -123,6 +133,7 @@ class ScanScreen(QWidget):
         """)
         self.selectPluginButton.setText("Select plugin...")
         self.selectPluginButton.setSizePolicy(button_size_policy)
+        self.selectPluginButton.clicked.connect(self.open_plugins_gui)
         select_plugin_layout.addWidget(self.selectPluginButton)
         select_plugin_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         plugin_layout.addLayout(select_plugin_layout)
@@ -156,8 +167,7 @@ class ScanScreen(QWidget):
         plugin_layout.addLayout(selected_plugin_text_layout)
         layout.addLayout(plugin_layout)
 
-
-# RUN BUTTON
+        # RUN BUTTON
         run_button_layout = QHBoxLayout()
         run_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.runButton = QPushButton(self.groupBox_left)
@@ -186,6 +196,7 @@ class ScanScreen(QWidget):
         self.runButton.setMaximumSize(200, 50)
         self.runButton.setMinimumSize(150, 50)
         self.runButton.setSizePolicy(button_size_policy)
+        self.runButton.clicked.connect(self.scan)
         run_button_layout.addWidget(self.runButton, alignment=Qt.AlignRight)
         run_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         layout.addLayout(run_button_layout)
@@ -193,8 +204,7 @@ class ScanScreen(QWidget):
         spacer_item.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         layout.addWidget(spacer_item)
 
-
-# META DATA WINDOW
+        # META DATA WINDOW
         metadata_layout = QHBoxLayout()
         metadata_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.metaDataWindow = QTextEdit(self.groupBox_left)
@@ -220,9 +230,7 @@ class ScanScreen(QWidget):
 
         self.metaDataWindow.setSizePolicy(button_size_policy)
 
-
-
-# CLEAR BUTTON
+        # CLEAR BUTTON
 
         space_above_clear_button = QWidget()
         space_above_clear_button.setFixedHeight(int(self.height() * 0.05))
@@ -261,7 +269,6 @@ class ScanScreen(QWidget):
         space_under_clear_button = QWidget()
         space_under_clear_button.setFixedHeight(int(self.height() * 0.01))
         layout.addWidget(space_under_clear_button)
-
 
     def setup_right_group_box(self, layout):
         buttonHolder = QWidget(self.groupBox_right)
@@ -404,3 +411,47 @@ class ScanScreen(QWidget):
         button.setIconSize(QSize(100, 100))
         button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         return button
+
+    def select_file(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.ReadOnly
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump File", "",
+                                                   "All Files (*);;Memory Files (*.mem)", options=options)
+        if file_name:
+            short_file_name = file_name.split('/')[-1]
+            self.selectFileButton.setText(f"    {short_file_name}")
+
+    def update_selected_plugin(self, plugin_name):
+        self.selected_plugin = plugin_name
+        self.selectedPluginTextBox.setText(plugin_name)
+        print(f"Updated selected plugin: {self.selected_plugin}")
+
+    def open_plugins_gui(self):
+        self.pluginAsideWindow.show()
+
+    def scan(self):
+        # Get the currently selected plugin
+        if self.selected_plugin is None:
+            print("No plugin selected.")
+            return
+        selected_plugin = self.selected_plugin
+
+        # Get the memory dump file from the selectFileButton
+        memory_dump = self.selectFileButton.text().strip()
+
+        # Create a new VolatilityThread instance
+        self.thread = VolatilityThread(memory_dump, selected_plugin)
+
+        # Connect the output_signal to the display_output slot
+        self.thread.output_signal.connect(self.display_output)
+
+        # Connect the progress_signal to the set_progress slot of the progress_manager
+        self.thread.progress_signal.connect(self.progress_manager.set_progress)
+
+        # Start the thread
+        self.thread.start()
+
+    @pyqtSlot(str)
+    def display_output(self, output):
+        self.textEdit.append(output)
+
