@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget
 import sys
 from frontend.home_screen_GUI import HomeScreen
 from frontend.scan_screen import ScanScreen
+from frontend.export_screen import ExportScreen
 
 
 class Main(QMainWindow):
@@ -16,12 +17,14 @@ class Main(QMainWindow):
         # Set up different screens
         self.home_screen = HomeScreen(self.show_scan_screen)
         self.scan_screen = ScanScreen()
+        self.export_screen = ExportScreen()
 
         # Her skal vi ha "home knapp"
-        self.scan_screen.exportButton.clicked.connect(self.show_home_screen)
+        self.scan_screen.exportButton.clicked.connect(self.show_export_screen)
 
         self.stacked_widget.addWidget(self.home_screen)
         self.stacked_widget.addWidget(self.scan_screen)
+        self.stacked_widget.addWidget(self.export_screen)
 
     def show_home_screen(self):
         self.stacked_widget.setCurrentWidget(self.home_screen)
@@ -30,6 +33,10 @@ class Main(QMainWindow):
     def show_scan_screen(self):
         self.stacked_widget.setCurrentWidget(self.scan_screen)
         self.showMaximized()
+
+    def show_export_screen(self):
+        self.export_screen = ExportScreen()
+        self.export_screen.show()
 
 
 def main():

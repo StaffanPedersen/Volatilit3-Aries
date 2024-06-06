@@ -13,11 +13,6 @@ class ScanScreen(QWidget):
     def init_ui(self):
         self.setObjectName("ScanScreen")
 
-# Gammel kode, kan fjernes?
-        # self.resize(1920, 1080)
-        # self.setMinimumSize(QSize(1920, 1080))
-        # self.setMaximumSize(QSize(1920, 1080))
-
 # Dynamically set the window size to match the screen size
         screen = QApplication.primaryScreen()
         screen_geometry = screen.geometry()
@@ -77,6 +72,7 @@ class ScanScreen(QWidget):
 
 # ITEMS IN LEFT GROUP BOX
 
+
     def setup_left_group_box(self, layout):
         font1 = QFont()
         font1.setFamily("Inter_FXH")
@@ -99,7 +95,7 @@ class ScanScreen(QWidget):
             10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         self.selectFileButton = self.create_transparent_button(
-            self.groupBox_left, "frontend/images/browse.png")
+            self.groupBox_left, "frontend/images/filmappe.png")
         self.selectFileButton.setText("    Select file")
         self.selectFileButton.setSizePolicy(button_size_policy)
 
@@ -158,22 +154,24 @@ class ScanScreen(QWidget):
         self.selectedPluginTextBox.setObjectName("selectedPluginTextBox")
         font2 = QFont()
         font2.setFamily("Inter_FXH")
-        font2.setPointSize(10)
+        font2.setPointSize(20)
         font2.setBold(True)
         font2.setItalic(False)
         font2.setWeight(75)
-        self.selectedPluginTextBox.setMaximumHeight(50)
+        self.selectedPluginTextBox.setFixedHeight(50)
         self.selectedPluginTextBox.setFont(font2)
         self.selectedPluginTextBox.setStyleSheet("""
         QLabel {
             background-color: #404040;
             border-radius: 10px;
             padding: 5px;
-            font: 10pt "Inter_FXH";
+            font: 14pt "Inter_FXH";
             font-weight: 500;
+            color: green;
+            padding-right: 300px;
         }
         """)
-        self.selectedPluginTextBox.setText("")
+        self.selectedPluginTextBox.setText(">")
         self.selectedPluginTextBox.setAlignment(Qt.AlignCenter)
         self.selectedPluginTextBox.setSizePolicy(button_size_policy)
         selected_plugin_text_layout.addWidget(self.selectedPluginTextBox)
