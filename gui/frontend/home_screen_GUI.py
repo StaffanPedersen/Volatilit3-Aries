@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication
 
 
 class HomeScreen(QWidget):
@@ -10,7 +10,8 @@ class HomeScreen(QWidget):
     def init_ui(self):
         layout = QVBoxLayout()
 
-        # navigate to scan screen
+
+# navigate to scan screen
         self.scan_button = QPushButton("Go to Scan Screen")
         self.scan_button.clicked.connect(self.switch_screen_callback)
 

@@ -1,18 +1,47 @@
-from PyQt5.QtCore import Qt, QSize
+
+from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QLabel, \
-    QSizePolicy, QSpacerItem
+    QSizePolicy, QSpacerItem, QFileDialog
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, QTextEdit, QPushButton
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QFont, QIcon, QPixmap
+from PyQt5.QtWidgets import QLabel, \
+    QSizePolicy, QSpacerItem, QApplication
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, QTextEdit, QPushButton, QLabel
 
+from gui.frontend.error_handler_GUI import show_error_message
+from gui.frontend.pluginAsideGUI import PluginAsideWindow
+from gui.frontend.volatility_thread_GUI import VolatilityThread
+
+
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit, QGroupBox, QSpacerItem, QFileDialog, QPushButton, QSizePolicy
+from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtCore import Qt, pyqtSignal
+import sys
 
 class ScanScreen(QWidget):
+    plugin_stored = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
         self.init_ui()
 
+        # Initialize the plugin aside window
+        self.pluginAsideWindow = PluginAsideWindow()
+        self.pluginAsideWindow.plugin_stored.connect(self.update_selected_plugin)
+
     def init_ui(self):
         self.setObjectName("ScanScreen")
-        self.resize(1920, 1080)
+
+# Dynamically set the window size to match the screen size
+        screen = QApplication.primaryScreen()
+        screen_geometry = screen.geometry()
+        screen_width = screen_geometry.width()
+        screen_height = screen_geometry.height()
+
+# Set window position
+        self.setGeometry(0, 0, screen_width, screen_height)
 
         font = QFont()
         font.setPointSize(12)
@@ -24,26 +53,28 @@ class ScanScreen(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-
         # Left group box (20% width)
         self.groupBox_left = QGroupBox(self)
         self.groupBox_left.setObjectName("groupBox_left")
-        self.groupBox_left.setStyleSheet("QWidget { background-color: #353535; }")
+        self.groupBox_left.setStyleSheet(
+            "QWidget { background-color: #353535; }")
         self.groupBox_left.setFlat(True)
-        self.groupBox_left.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.groupBox_left.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         left_layout = QVBoxLayout(self.groupBox_left)
         left_layout.setContentsMargins(10, 10, 10, 10)
         left_layout.setSpacing(10)
         self.setup_left_group_box(left_layout)
 
-
         # Right group box (80% width)
         self.groupBox_right = QGroupBox(self)
         self.groupBox_right.setObjectName("groupBox_right")
-        self.groupBox_right.setStyleSheet("QWidget { background-color: #262626; }")
+        self.groupBox_right.setStyleSheet(
+            "QWidget { background-color: #262626; }")
         self.groupBox_right.setFlat(True)
-        self.groupBox_right.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.groupBox_right.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         right_layout = QVBoxLayout(self.groupBox_right)
         right_layout.setContentsMargins(10, 10, 10, 10)
@@ -66,7 +97,8 @@ class ScanScreen(QWidget):
         font1.setItalic(False)
         font1.setWeight(75)
 
-        button_size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        button_size_policy = QSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Fixed)
         button_size_policy.setHorizontalStretch(9)
 
         # SPACE OVER SELECT FILE BUTTON
@@ -76,14 +108,18 @@ class ScanScreen(QWidget):
 
         # Left and right space for selectFileButton
         file_button_layout = QHBoxLayout()
-        file_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        file_button_layout.addSpacerItem(QSpacerItem(
+            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
-        self.selectFileButton = self.create_transparent_button(self.groupBox_left, "frontend/images/filmappe.png")
+        self.selectFileButton = self.create_transparent_button(
+            self.groupBox_left, "frontend/images/filmappe.png")
         self.selectFileButton.setText("    Select file")
         self.selectFileButton.setSizePolicy(button_size_policy)
+        self.selectFileButton.clicked.connect(self.select_file)  # Connect the button to open file dialog
 
         file_button_layout.addWidget(self.selectFileButton)
-        file_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        file_button_layout.addSpacerItem(QSpacerItem(
+            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         layout.addLayout(file_button_layout)
 
         # Space between selectFileButton and the plugin selector
@@ -96,7 +132,8 @@ class ScanScreen(QWidget):
         plugin_layout.setSpacing(0)
 
         select_plugin_layout = QHBoxLayout()
-        select_plugin_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        select_plugin_layout.addSpacerItem(QSpacerItem(
+            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.selectPluginButton = QPushButton(self.groupBox_left)
         self.selectPluginButton.setObjectName("selectPluginButton")
         self.selectPluginButton.setFont(font1)
@@ -110,12 +147,10 @@ class ScanScreen(QWidget):
             font-weight: 500;
         }
 
-
         QPushButton:pressed {
             background-color: #F66600; 
             border: 2px solid #F66600;
         }
-        
 
         QPushButton:flat {
             border: none;
@@ -123,43 +158,49 @@ class ScanScreen(QWidget):
         """)
         self.selectPluginButton.setText("Select plugin...")
         self.selectPluginButton.setSizePolicy(button_size_policy)
+        self.selectPluginButton.clicked.connect(self.open_plugins_gui)
         select_plugin_layout.addWidget(self.selectPluginButton)
-        select_plugin_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        select_plugin_layout.addSpacerItem(QSpacerItem(
+            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         plugin_layout.addLayout(select_plugin_layout)
 
         selected_plugin_text_layout = QHBoxLayout()
-        selected_plugin_text_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        selected_plugin_text_layout.addSpacerItem(QSpacerItem(
+            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.selectedPluginTextBox = QLabel(self.groupBox_left)
         self.selectedPluginTextBox.setObjectName("selectedPluginTextBox")
         font2 = QFont()
         font2.setFamily("Inter_FXH")
-        font2.setPointSize(10)
+        font2.setPointSize(20)
         font2.setBold(True)
         font2.setItalic(False)
         font2.setWeight(75)
-        self.selectedPluginTextBox.setMaximumHeight(50)
+        self.selectedPluginTextBox.setFixedHeight(50)
         self.selectedPluginTextBox.setFont(font2)
         self.selectedPluginTextBox.setStyleSheet("""
         QLabel {
             background-color: #404040;
             border-radius: 10px;
             padding: 5px;
-            font: 10pt "Inter_FXH";
+            font: 14pt "Inter_FXH";
             font-weight: 500;
+            color: green;
+            padding-right: 300px;
         }
         """)
-        self.selectedPluginTextBox.setText("")
+        self.selectedPluginTextBox.setText(">")
         self.selectedPluginTextBox.setAlignment(Qt.AlignCenter)
         self.selectedPluginTextBox.setSizePolicy(button_size_policy)
         selected_plugin_text_layout.addWidget(self.selectedPluginTextBox)
-        selected_plugin_text_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        selected_plugin_text_layout.addSpacerItem(QSpacerItem(
+            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         plugin_layout.addLayout(selected_plugin_text_layout)
         layout.addLayout(plugin_layout)
 
-
         # RUN BUTTON
         run_button_layout = QHBoxLayout()
-        run_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        run_button_layout.addSpacerItem(QSpacerItem(
+            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.runButton = QPushButton(self.groupBox_left)
         self.runButton.setObjectName("runButton")
         self.runButton.setFont(font1)
@@ -186,17 +227,19 @@ class ScanScreen(QWidget):
         self.runButton.setMaximumSize(200, 50)
         self.runButton.setMinimumSize(150, 50)
         self.runButton.setSizePolicy(button_size_policy)
+        self.runButton.clicked.connect(self.scan)
         run_button_layout.addWidget(self.runButton, alignment=Qt.AlignRight)
-        run_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        run_button_layout.addSpacerItem(QSpacerItem(
+            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         layout.addLayout(run_button_layout)
         spacer_item = QWidget()
         spacer_item.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         layout.addWidget(spacer_item)
 
-
-# META DATA WINDOW
+        # META DATA WINDOW
         metadata_layout = QHBoxLayout()
-        metadata_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        metadata_layout.addSpacerItem(QSpacerItem(
+            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.metaDataWindow = QTextEdit(self.groupBox_left)
         self.metaDataWindow.setObjectName("metaDataWindow")
         self.metaDataWindow.setFont(font2)
@@ -212,9 +255,11 @@ class ScanScreen(QWidget):
                     color: white;
                 }
                 """)
-        self.metaDataWindow.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.metaDataWindow.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Expanding)
         metadata_layout.addWidget(self.metaDataWindow)
-        metadata_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        metadata_layout.addSpacerItem(QSpacerItem(
+            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         layout.addLayout(metadata_layout)
         self.metaDataWindow.setMinimumHeight(400)
 
@@ -229,7 +274,8 @@ class ScanScreen(QWidget):
         layout.addWidget(space_above_clear_button)
 
         clear_button_layout = QHBoxLayout()
-        clear_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        clear_button_layout.addSpacerItem(QSpacerItem(
+            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.clearButton = QPushButton(self.groupBox_left)
         self.clearButton.setObjectName("clearButton")
         self.clearButton.setStyleSheet("""
@@ -255,13 +301,13 @@ class ScanScreen(QWidget):
         self.clearButton.setCheckable(False)
         self.clearButton.setSizePolicy(button_size_policy)
         clear_button_layout.addWidget(self.clearButton)
-        clear_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        clear_button_layout.addSpacerItem(QSpacerItem(
+            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         layout.addLayout(clear_button_layout)
 
         space_under_clear_button = QWidget()
         space_under_clear_button.setFixedHeight(int(self.height() * 0.01))
         layout.addWidget(space_under_clear_button)
-
 
     def setup_right_group_box(self, layout):
         buttonHolder = QWidget(self.groupBox_right)
@@ -269,9 +315,12 @@ class ScanScreen(QWidget):
         buttonLayout.setContentsMargins(0, 0, 0, 0)
         buttonLayout.setSpacing(0)
 
-        self.terminalButton = self.create_transparent_button(buttonHolder, "frontend/images/terminal.png")
-        self.helpButton = self.create_transparent_button(buttonHolder, "frontend/images/help.png")
-        self.settingsButton = self.create_transparent_button(buttonHolder, "frontend/images/settings.png")
+        self.terminalButton = self.create_transparent_button(
+            buttonHolder, "frontend/images/terminal.png")
+        self.helpButton = self.create_transparent_button(
+            buttonHolder, "frontend/images/help.png")
+        self.settingsButton = self.create_transparent_button(
+            buttonHolder, "frontend/images/settings.png")
 
         button_style = """
         QPushButton {
@@ -331,7 +380,8 @@ class ScanScreen(QWidget):
         layout.addWidget(self.commandInfoBox)
 
         text_edit_layout = QHBoxLayout()
-        text_edit_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        text_edit_layout.addSpacerItem(QSpacerItem(
+            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.textEdit = QTextEdit(self.groupBox_right)
         self.textEdit.setObjectName("textEdit")
         self.textEdit.setEnabled(False)
@@ -345,7 +395,8 @@ class ScanScreen(QWidget):
             font-weight: 500;
         }
         """)
-        self.textEdit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.textEdit.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Expanding)
         layout.addWidget(self.textEdit)
 
         self.exportButton = QPushButton(self.groupBox_right)
@@ -407,3 +458,49 @@ class ScanScreen(QWidget):
         button.setIconSize(QSize(100, 100))
         button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         return button
+
+
+    def select_file(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.ReadOnly
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump File", "",
+                                                   "All Files (*);;Memory Files (*.mem)", options=options)
+        if file_name:
+            short_file_name = file_name.split('/')[-1]
+            self.selectFileButton.setText(f"    {short_file_name}")
+
+    def update_selected_plugin(self, plugin_name):
+        self.selected_plugin = plugin_name
+        self.selectedPluginTextBox.setText(plugin_name)
+        print(f"Updated selected plugin: {self.selected_plugin}")
+
+    def open_plugins_gui(self):
+        self.pluginAsideWindow.show()
+
+    def scan(self):
+        # Get the currently selected plugin
+        if self.selected_plugin is None:
+            print("No plugin selected.")
+            return
+        selected_plugin = self.selected_plugin
+
+        # Get the memory dump file from the selectFileButton
+        memory_dump = self.selectFileButton.text().strip()
+
+        # Create a new VolatilityThread instance
+        self.thread = VolatilityThread(memory_dump, selected_plugin)
+
+        # Connect the output_signal to the display_output slot
+        self.thread.output_signal.connect(self.display_output)
+
+        # Connect the progress_signal to the set_progress slot of the progress_manager
+        self.thread.progress_signal.connect(self.progress_manager.set_progress)
+
+        # Start the thread
+        self.thread.start()
+
+    @pyqtSlot(str)
+    def display_output(self, output):
+        self.textEdit.append(output)
+
+
