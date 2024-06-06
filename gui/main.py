@@ -3,6 +3,7 @@ import sys
 from frontend.home_screen_GUI import HomeScreen
 from frontend.scan_screen import ScanScreen
 from frontend.export_screen import ExportScreen
+from frontend.settings_window import SettingsWindow
 
 
 class Main(QMainWindow):
@@ -22,9 +23,13 @@ class Main(QMainWindow):
         # Her skal vi ha "home knapp"
         self.scan_screen.exportButton.clicked.connect(self.show_export_screen)
 
+
+
         self.stacked_widget.addWidget(self.home_screen)
         self.stacked_widget.addWidget(self.scan_screen)
         self.stacked_widget.addWidget(self.export_screen)
+
+
 
     def show_home_screen(self):
         self.stacked_widget.setCurrentWidget(self.home_screen)

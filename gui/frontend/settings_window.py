@@ -119,9 +119,3 @@ class SettingsWindow(QWidget):
 
         # Legg til et strekk for å dytte innholdet til toppen
         main_content_layout.addStretch()
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    settings_window = SettingsWindow()
-    settings_window.show()
-    sys.exit(app.exec_())
