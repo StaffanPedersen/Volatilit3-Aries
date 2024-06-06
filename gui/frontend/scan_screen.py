@@ -13,6 +13,8 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, QTextE
 from gui.frontend.error_handler_GUI import show_error_message
 from gui.frontend.pluginAsideGUI import PluginAsideWindow
 from gui.frontend.volatility_thread_GUI import VolatilityThread
+from gui.frontend.settings_window import SettingsWindow
+from gui.frontend.help import HelpWindow
 
 
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit, QGroupBox, QSpacerItem, QFileDialog, QPushButton, QSizePolicy
@@ -30,7 +32,8 @@ class ScanScreen(QWidget):
         # Initialize the plugin aside window
         self.pluginAsideWindow = PluginAsideWindow()
         self.pluginAsideWindow.plugin_stored.connect(self.update_selected_plugin)
-
+        self.settings_window = SettingsWindow()
+        self.help_window = HelpWindow()
     def init_ui(self):
         self.setObjectName("ScanScreen")
 
@@ -88,6 +91,15 @@ class ScanScreen(QWidget):
         main_layout.setStretch(0, 2)
         main_layout.setStretch(1, 8)
 
+        self.settingsButton.clicked.connect(self.show_settings_window)
+        self.helpButton.clicked.connect(self.show_help_window)
+
+    def show_settings_window(self):
+        self.settings_window.show()
+
+    def show_help_window(self):
+        self.help_window.show()
+
 
 # ITEMS IN LEFT GROUP BOX
 
@@ -117,6 +129,7 @@ class ScanScreen(QWidget):
         self.selectFileButton.setText("    Select file")
         self.selectFileButton.setSizePolicy(button_size_policy)
         self.selectFileButton.clicked.connect(self.select_file)  # Connect the button to open file dialog
+        # Koble knappen til SettingsWindow
 
         file_button_layout.addWidget(self.selectFileButton)
         file_button_layout.addSpacerItem(QSpacerItem(
@@ -323,11 +336,14 @@ class ScanScreen(QWidget):
         self.settingsButton = self.create_transparent_button(
             buttonHolder, "frontend/images/settings.png")
 
+
         button_style = """
         QPushButton {
             border: none;
         }
         """
+
+
         self.terminalButton.setStyleSheet(button_style)
         self.helpButton.setStyleSheet(button_style)
         self.settingsButton.setStyleSheet(button_style)
@@ -474,6 +490,8 @@ class ScanScreen(QWidget):
 
     def open_plugins_gui(self):
         self.pluginAsideWindow.show()
+
+
 
     def scan(self):
         # Get the currently selected plugin
