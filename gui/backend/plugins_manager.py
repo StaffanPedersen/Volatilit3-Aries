@@ -1,5 +1,5 @@
 import os
-from .volatility_finder import find_volatility_file
+from gui.backend.volatility_finder import find_volatility_file
 
 
 def get_all_plugins(filepath=None, os_name=None):

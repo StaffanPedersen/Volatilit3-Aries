@@ -2,8 +2,7 @@ from PyQt5 import QtWidgets, QtCore
 from gui.backend.plugins_manager import get_all_plugins
 
 
-class MainWindow(QtWidgets.QMainWindow):
-
+class PluginAsideWindow(QtWidgets.QMainWindow):
     plugin_stored = QtCore.pyqtSignal(str)
 
     def __init__(self):
@@ -131,25 +130,29 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def store_selected_plugin(self):
         """Store the selected plugin and print a message."""
-        self.selected_plugin = self.checked_plugins
-        print(f"Selected plugin '{self.selected_plugin}' has been stored.")
-        # Emit the plugin_stored signal with the selected plugin as a string
-        self.plugin_stored.emit(self.selected_plugin)
+        if self.selected_plugin is not None:
+            # Split the selected plugin on '.' and take all parts except the first one
+            plugin_parts = self.selected_plugin.split('.')
+            plugin_name = '.'.join(plugin_parts[1:])
+            print(f"Selected plugin '{plugin_name}' has been stored.")
+            # Emit the plugin_stored signal with the selected plugin as a string
+            self.plugin_stored.emit(plugin_name)
+        else:
+            print("No plugin selected.")
 
     def update_checked_plugins(self, state):
         """Update the list of checked plugins."""
         checkbox = self.sender()  # Get the checkbox that emitted the signal
         if state == QtCore.Qt.Checked:
-            self.checked_plugins = checkbox.text()  # Store the text of the checked checkbox
+            self.selected_plugin = checkbox.text()  # Store the text of the checked checkbox
         else:
-            self.checked_plugins = None  # Set to None if the checkbox is unchecked
-        print(f"Checked plugin: {self.checked_plugins}")  # Debug print
+            self.selected_plugin = None  # Set to None if the checkbox is unchecked
+        print(f"Selected plugin: {self.selected_plugin}")  # Debug print
 
-
-if __name__ == "__main__":
-    import sys
-
-    app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec_())
+    def get_selected_plugin(self):
+        if self.selected_plugin is None:
+            raise Exception("No plugin selected")
+        # Split the selected plugin on '.' and take all parts except the first one
+        plugin_parts = self.selected_plugin.split('.')
+        plugin_name = '.'.join(plugin_parts[1:])
+        return plugin_name
