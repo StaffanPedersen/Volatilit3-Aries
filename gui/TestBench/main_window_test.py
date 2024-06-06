@@ -98,6 +98,7 @@ class MainWindow(QMainWindow):
         # Get the currently selected plugin
         selected_plugin = self.pluginAsideWindow.get_selected_plugin()
 
+        print(self.selected_file_label.text())
         # Get the memory dump file
         memory_dump = self.selected_file_label.text().replace("Selected file: ", "")
 

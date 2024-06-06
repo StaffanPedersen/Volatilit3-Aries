@@ -28,6 +28,8 @@ class OutputManager(QWidget):
         self.layout.addLayout(self.checkbox_layout)
         self.layout.addWidget(self.table_view)
 
+        data = []
+
     def set_data(self, headers, data):
         """Set the headers and data for the table view."""
         self.backend.set_data(headers, data)
@@ -43,6 +45,7 @@ class OutputManager(QWidget):
         for row_data in data:
             items = [QStandardItem(field) for field in row_data]
             self.original_model.appendRow(items)
+
 
     def _create_checkboxes(self, headers):
         """Create checkboxes for each column header."""
@@ -128,8 +131,13 @@ class OutputManager(QWidget):
                     column_index = self.backend.headers.index(header)
                     self.table_view.setColumnHidden(column_index, True)
 
+
     def filter_results(self, text):
         """Filter the results displayed in the table view based on the input text."""
         self.table_proxy_model.setFilterKeyColumn(-1)  # Search all columns
         self.table_proxy_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.table_proxy_model.setFilterFixedString(text)
+
+    def export_results(self, data):
+        """Export the results to a file."""
+        self.backend.export_results(data)

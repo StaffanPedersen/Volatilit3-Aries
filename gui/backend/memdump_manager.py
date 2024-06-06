@@ -27,6 +27,7 @@ class MemDumpManager:
                 if self.is_valid_memory_dump(file_name):
                     self.selected_file_label.setText(f"Selected file: {file_name}")
                     self.valid_memory_dump_selected = True
+                    print(f"Selected file: {file_name}")
                 else:
                     show_error_message(self.window, "Invalid File", "The selected file is not a valid memory dump.")
                     self.selected_file_label.setText("No file selected")

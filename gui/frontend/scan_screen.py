@@ -25,7 +25,7 @@ class ScanScreen(QWidget):
         main_layout.setSpacing(0)
 
 
-# Left group box (20% width)
+        # Left group box (20% width)
         self.groupBox_left = QGroupBox(self)
         self.groupBox_left.setObjectName("groupBox_left")
         self.groupBox_left.setStyleSheet("QWidget { background-color: #353535; }")
@@ -38,7 +38,7 @@ class ScanScreen(QWidget):
         self.setup_left_group_box(left_layout)
 
 
-# Right group box (80% width)
+        # Right group box (80% width)
         self.groupBox_right = QGroupBox(self)
         self.groupBox_right.setObjectName("groupBox_right")
         self.groupBox_right.setStyleSheet("QWidget { background-color: #262626; }")
@@ -58,7 +58,7 @@ class ScanScreen(QWidget):
         main_layout.setStretch(1, 8)
 
 
-# ITEMS IN LEFT GROUP BOX
+    # ITEMS IN LEFT GROUP BOX
     def setup_left_group_box(self, layout):
         font1 = QFont()
         font1.setFamily("Inter_FXH")
@@ -69,12 +69,12 @@ class ScanScreen(QWidget):
         button_size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         button_size_policy.setHorizontalStretch(9)
 
-# SPACE OVER SELECT FILE BUTTON
+        # SPACE OVER SELECT FILE BUTTON
         spacer_above_file_button = QWidget()
         spacer_above_file_button.setFixedHeight(int(self.height() * 0.05))
         layout.addWidget(spacer_above_file_button)
 
-# Left and right space for selectFileButton
+        # Left and right space for selectFileButton
         file_button_layout = QHBoxLayout()
         file_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
@@ -86,7 +86,7 @@ class ScanScreen(QWidget):
         file_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         layout.addLayout(file_button_layout)
 
-# Space between selectFileButton and the plugin selector
+        # Space between selectFileButton and the plugin selector
         spacer_above_plugin = QWidget()
         spacer_above_plugin.setFixedHeight(int(self.height() * 0.05))
         layout.addWidget(spacer_above_plugin)
@@ -157,7 +157,7 @@ class ScanScreen(QWidget):
         layout.addLayout(plugin_layout)
 
 
-# RUN BUTTON
+        # RUN BUTTON
         run_button_layout = QHBoxLayout()
         run_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.runButton = QPushButton(self.groupBox_left)
@@ -222,7 +222,7 @@ class ScanScreen(QWidget):
 
 
 
-# CLEAR BUTTON
+        # CLEAR BUTTON
 
         space_above_clear_button = QWidget()
         space_above_clear_button.setFixedHeight(int(self.height() * 0.05))
@@ -349,6 +349,9 @@ class ScanScreen(QWidget):
         layout.addWidget(self.textEdit)
 
         self.exportButton = QPushButton(self.groupBox_right)
+        self.exportButton.clicked.connect(self.export_output)
+
+
         self.exportButton.setObjectName("exportButton")
         font1 = QFont()
         font1.setFamily("Inter_FXH")
