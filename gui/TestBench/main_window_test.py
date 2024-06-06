@@ -57,6 +57,7 @@ class MainWindow(QMainWindow):
 
         self.progress_manager = ProgressManager(self)
         self.main_layout.addWidget(self.progress_manager)
+        self.progress_manager.setStyleSheet("background-color: #05B8CC;")
 
         self.filter_input = QLineEdit(self)
         self.filter_input.setPlaceholderText("Filter results")
@@ -109,6 +110,9 @@ class MainWindow(QMainWindow):
 
         # Connect the progress_signal to the set_progress slot of the progress_manager
         self.thread.progress_signal.connect(self.progress_manager.set_progress)
+
+        # Show the progress bar
+        self.progress_manager.show_progress()
 
         # Start the thread
         self.thread.start()

@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QProgressBar, QLabel
-from gui.backend.progress_manager import ProgressManagerBackend  # Import the backend class
+from gui.backend.progress_manager import ProgressManagerBackend
 
 
 class ProgressManager(QWidget):
