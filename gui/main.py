@@ -3,6 +3,7 @@ import sys
 from frontend.home_screen_GUI import HomeScreen
 from frontend.scan_screen import ScanScreen
 
+
 class Main(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -24,15 +25,19 @@ class Main(QMainWindow):
 
     def show_home_screen(self):
         self.stacked_widget.setCurrentWidget(self.home_screen)
+        self.showMaximized()
 
     def show_scan_screen(self):
         self.stacked_widget.setCurrentWidget(self.scan_screen)
+        self.showMaximized()
+
 
 def main():
     app = QApplication(sys.argv)
     main_window = Main()
     main_window.show()
     sys.exit(app.exec_())
+
 
 if __name__ == "__main__":
     main()
