@@ -4,9 +4,9 @@ from PyQt5.QtCore import Qt
 from gui.frontend.utils import create_transparent_button, setup_button_style
 import pandas as pd
 from fpdf import FPDF
-#from docx import Document
 import os
 import webbrowser
+from gui.frontend.settings_window import SettingsWindow  # Correct the import path
 
 class CustomTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
@@ -43,7 +43,8 @@ class RightGroupBox(QGroupBox):
         self.helpButton = create_transparent_button(self, "help.png", "")
         self.settingsButton = create_transparent_button(self, "settings.png", "")
 
-        self.helpButton.clicked.connect(self.open_help)
+        self.helpButton.clicked.connect(self.show_help_window)
+        self.settingsButton.clicked.connect(self.show_settings_window)  # Connect the settings button
 
         buttonHolder = QWidget(self)
         buttonLayout = QHBoxLayout(buttonHolder)
@@ -242,3 +243,13 @@ class RightGroupBox(QGroupBox):
                 row_cells[i].text = str(item)
 
         doc.save(filePath)'''
+
+    def show_help_window(self):
+        """Show the settings window."""
+        self.settings_window = SettingsWindow()
+        self.settings_window.show()
+
+    def show_settings_window(self):
+        """Show the settings window when the settings button is clicked."""
+        self.settings_window = SettingsWindow()
+        self.settings_window.show()

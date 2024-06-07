@@ -20,13 +20,14 @@ class LeftGroupBox(QGroupBox):
         self.setObjectName("groupBox_left")
         self.setStyleSheet("QWidget { background-color: #353535; }")
         self.setFlat(True)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # Set the size policy to Fixed
+        self.setFixedSize(350, 900)  # Adjust the fixed size as needed
         self.initialize_ui()
 
     def initialize_ui(self):
         """Initialize the user interface for the left group box."""
         left_layout = QVBoxLayout(self)
-        left_layout.setContentsMargins(10, 10, 10, 10)
+        left_layout.setContentsMargins(10, 0, 10, 10)  # Adjust the top margin to position the fileButton
         left_layout.setSpacing(10)
 
         # Create and configure buttons and text edit
@@ -48,16 +49,16 @@ class LeftGroupBox(QGroupBox):
         self.clearButton.clicked.connect(self.clear_workspace)
 
         # Add buttons and text edit to the layout
-        left_layout.addWidget(self.create_spacer(int(self.height() * 0.05)))
+        left_layout.addWidget(self.create_spacer(1))  # Adjust this value to change the position of the fileButton
         left_layout.addLayout(self.create_file_button_layout())
-        left_layout.addWidget(self.create_spacer(int(self.height() * 0.05)))
+        left_layout.addWidget(self.create_spacer(1))
         left_layout.addLayout(self.create_plugin_layout())
         left_layout.addLayout(self.create_run_button_layout())
-        left_layout.addWidget(self.create_spacer(50))
+        left_layout.addWidget(self.create_spacer(1))
         left_layout.addLayout(self.create_metadata_layout())
-        left_layout.addWidget(self.create_spacer(int(self.height() * 0.05)))
+        left_layout.addWidget(self.create_spacer(1))
         left_layout.addLayout(self.create_clear_button_layout())
-        left_layout.addWidget(self.create_spacer(int(self.height() * 0.01)))
+        left_layout.addWidget(self.create_spacer(1))
 
     def create_spacer(self, height):
         """Create a spacer widget with the specified height."""
@@ -80,15 +81,17 @@ class LeftGroupBox(QGroupBox):
         # Create the layout for the select button
         select_plugin_layout = QHBoxLayout()
         select_plugin_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        self.selectPluginButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.selectPluginButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         select_plugin_layout.addWidget(self.selectPluginButton)
         select_plugin_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         layout.addLayout(select_plugin_layout)
+        self.selectPluginButton.setFixedSize(300, 50)
 
         # Create the layout for the selected plugin text box
         selected_plugin_text_layout = QHBoxLayout()
         self.selectedPluginTextBox = QLabel(self)
         self.selectedPluginTextBox.setObjectName("selectedPluginTextBox")
+        self.selectedPluginTextBox.setFixedSize(300, 30)
 
         # Define the font
         font2 = QFont()
@@ -97,7 +100,6 @@ class LeftGroupBox(QGroupBox):
         font2.setBold(True)
         font2.setItalic(False)
         font2.setWeight(75)
-        self.selectedPluginTextBox.setFixedHeight(50)
         self.selectedPluginTextBox.setFont(font2)
 
         # Apply stylesheet
@@ -113,7 +115,7 @@ class LeftGroupBox(QGroupBox):
         """)
         self.selectedPluginTextBox.setText(">")
         self.selectedPluginTextBox.setAlignment(Qt.AlignCenter)
-        self.selectedPluginTextBox.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.selectedPluginTextBox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         # Add spacers and the QLabel to the horizontal layout
         selected_plugin_text_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
@@ -130,13 +132,15 @@ class LeftGroupBox(QGroupBox):
         layout = QHBoxLayout()
         layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         layout.addWidget(self.runButton)
-        layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        self.runButton.setFixedSize(100, 50)
+        layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))  # Add this line
         return layout
 
     def create_metadata_layout(self):
         """Create the layout for the metadata display."""
         layout = QHBoxLayout()
         layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        self.metaDataWindow.setFixedSize(300, 300)
         self.metaDataWindow.setObjectName("metaDataWindow")
         self.metaDataWindow.setStyleSheet("""
             QTextEdit {
@@ -149,19 +153,17 @@ class LeftGroupBox(QGroupBox):
                 color: white;
             }
         """)
-        self.metaDataWindow.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.metaDataWindow.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         layout.addWidget(self.metaDataWindow)
         layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        self.metaDataWindow.setMinimumHeight(400)
+
         return layout
 
     def create_clear_button_layout(self):
         """Create the layout for the clear button."""
         layout = QVBoxLayout()
 
-        space_above_clear_button = QWidget()
-        space_above_clear_button.setFixedHeight(int(self.height() * 0.05))
-        layout.addWidget(space_above_clear_button)
+        self.clearButton.setFixedSize(300, 50)
 
         clear_button_layout = QHBoxLayout()
         clear_button_layout.addSpacerItem(QSpacerItem(
@@ -171,9 +173,25 @@ class LeftGroupBox(QGroupBox):
             10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         layout.addLayout(clear_button_layout)
 
-        space_under_clear_button = QWidget()
-        space_under_clear_button.setFixedHeight(int(self.height() * 0.01))
-        layout.addWidget(space_under_clear_button)
+        self.clearButton.setStyleSheet("""
+                QPushButton {
+                    background-color: #FF5656;
+                    border: 1px solid #000000;
+                    border-radius: 10px;
+                    padding: 5px;
+                    font: 20pt "Inter_FXH";
+                    font-weight: 500;
+                }
+
+                QPushButton:pressed {
+                    background-color: #ab1b1b; 
+                    border: 2px solid #ab1b1b;
+                }
+
+                QPushButton:flat {
+                    border: none;
+                }
+                """)
 
         return layout
 
