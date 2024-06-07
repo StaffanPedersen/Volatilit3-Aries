@@ -8,11 +8,15 @@ from gui.backend.volatility_thread import VolatilityThread
 from gui.frontend.error_handler_GUI import show_error_message
 import os
 
+
 class LeftGroupBox(QGroupBox):
-    command_signal = pyqtSignal(str)  # Signal to emit the command string
+    command_signal = pyqtSignal(str)
 
     def __init__(self, parent):
         super().__init__(parent)
+
+        self.existing_widgets = None
+        self.pluginAsideWindow = None
         self.selected_file = None
         self.selected_plugin = None
         self.plugin_window = None
@@ -143,7 +147,8 @@ class LeftGroupBox(QGroupBox):
         """Open a file dialog to select a memory dump file."""
         print("LeftGroupBox: open_file_dialog method called")
         options = QFileDialog.Options()
-        fileName, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump File", "", "All Files (*);;Memory Files (*.mem)", options=options)
+        fileName, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump File", "",
+                                                  "All Files (*);;Memory Files (*.mem)", options=options)
         if fileName:
             print(f"LeftGroupBox: File selected - {fileName}")
             self.selected_file = fileName
@@ -153,13 +158,29 @@ class LeftGroupBox(QGroupBox):
         else:
             print("LeftGroupBox: No file selected")
 
+    # Logic for opening the plugin window and closing it as a widget in the left group box
     def open_plugin_window(self):
-        """Open the plugin selection window."""
-        print("LeftGroupBox: open_plugin_window method called")
-        if not self.plugin_window:
-            self.plugin_window = PluginAsideWindow(self)
-            self.plugin_window.plugin_stored.connect(self.update_selected_plugin_text)
-        self.plugin_window.show()
+        if not self.pluginAsideWindow:
+            self.pluginAsideWindow = PluginAsideWindow(self.width(), self)
+            self.pluginAsideWindow.plugin_stored.connect(self.update_selected_plugin_text)
+            self.pluginAsideWindow.closed.connect(self.close_plugin_window)
+            self.existing_widgets = [self.layout().itemAt(i).widget() for i in range(self.layout().count())]
+            self.existing_widgets.append(self.runButton)
+            for widget in self.existing_widgets:
+                if widget is not None:  #
+                    widget.hide()
+            self.layout().setContentsMargins(0, 0, 0, 0)
+            self.layout().addWidget(self.pluginAsideWindow)
+        self.pluginAsideWindow.show()
+
+    def close_plugin_window(self):
+        if self.pluginAsideWindow:
+            self.layout().removeWidget(self.pluginAsideWindow)
+            self.pluginAsideWindow.deleteLater()
+            self.pluginAsideWindow = None
+            for widget in self.existing_widgets:
+                if widget is not None:
+                    widget.show()
 
     def update_selected_plugin_text(self, plugin_name):
         """Update the selected plugin text box."""

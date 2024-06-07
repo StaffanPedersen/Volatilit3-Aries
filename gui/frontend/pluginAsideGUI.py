@@ -1,14 +1,15 @@
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QVBoxLayout
 
 from gui.backend.plugin_manager import get_all_plugins
 
 
-class PluginAsideWindow(QtWidgets.QMainWindow):
+class PluginAsideWindow(QtWidgets.QWidget):
     plugin_stored = QtCore.pyqtSignal(str)
     closed = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, width, parent=None):
         super().__init__(parent)
 
         # Initialize the selected_plugin attribute
@@ -21,7 +22,7 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
 
         # Initialize widgets
         self.init_saveButton()
-        self.init_mainWindow()
+        self.init_mainWindow(width)
         self.init_sidebar()
         self.init_banner()
         self.init_scrollArea()
@@ -31,11 +32,11 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
         self.saveButton.setStyleSheet("background-color: #555; color: #fff;")
         self.saveButton.setGeometry(QtCore.QRect(210, 250, 50, 50))
 
-    def init_mainWindow(self):
+    def init_mainWindow(self, width):
         self.setWindowTitle("plugins Window")
-        self.setGeometry(100, 100, 400, 800)
-        self.setMinimumSize(400, 800)
-        self.setMaximumSize(400, 800)
+        self.setGeometry(100, 100, width, 800)
+        self.setMinimumSize(width, 800)
+        self.setMaximumSize(width, 800)
 
     def init_sidebar(self):
         self.sidebar = QtWidgets.QWidget()
@@ -57,6 +58,12 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
         self.sidebarLayout.addWidget(self.banner)
 
     def init_scrollArea(self):
+
+        # Add the sidebar to the layout of PluginAsideWindow
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.sidebar)
+        self.setLayout(layout)
+
         self.scrollArea = QtWidgets.QScrollArea()
         self.scrollArea.setWidgetResizable(True)
         self.scrollWidget = QtWidgets.QWidget()
@@ -140,7 +147,7 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
         self.sidebarLayout.addWidget(self.buttonArea)
 
         # Set sidebar as central widget
-        self.setCentralWidget(self.sidebar)
+        # self.setCentralWidget(self.sidebar)
 
         # Connect the clicked signal of the saveButton to the store_selected_plugin slot
         self.saveButton.clicked.connect(self.store_selected_plugin)
