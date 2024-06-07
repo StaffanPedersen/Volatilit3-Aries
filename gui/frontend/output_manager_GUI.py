@@ -1,13 +1,12 @@
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtCore import Qt, QSortFilterProxyModel
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QCheckBox, QTableView, QAbstractItemView, QHeaderView
-from gui.backend.output_manager import OutputManagerBackend  # Import the backend class
-
+from gui.backend.output_manager import OutputManagerBackend
 
 class OutputManager(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.backend = OutputManagerBackend()  # Use the backend class
+        self.backend = OutputManagerBackend()
 
         # Table View
         self.original_model = QStandardItemModel()
