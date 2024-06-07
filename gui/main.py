@@ -3,7 +3,6 @@ import sys
 from frontend.home_screen_GUI import HomeScreen
 from frontend.scan_screen import ScanScreen
 from frontend.export_screen import ExportScreen
-from frontend.settings_window import SettingsWindow
 
 
 class Main(QMainWindow):
