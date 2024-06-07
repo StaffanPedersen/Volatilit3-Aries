@@ -28,14 +28,14 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
 
     def init_saveButton(self):
         self.saveButton = QtWidgets.QPushButton("Save", self)
-        self.saveButton.setStyleSheet("background-color: #151515; color: #FF8956;")
+        self.saveButton.setStyleSheet("background-color: #555; color: #fff;")
         self.saveButton.setGeometry(QtCore.QRect(210, 250, 50, 50))
 
     def init_mainWindow(self):
         self.setWindowTitle("plugins Window")
-        self.setGeometry(100, 100, 400, 1024)
-        self.setMinimumSize(400, 1000)
-        self.setMaximumSize(400, 1000)
+        self.setGeometry(100, 100, 400, 800)
+        self.setMinimumSize(400, 800)
+        self.setMaximumSize(400, 800)
 
     def init_sidebar(self):
         self.sidebar = QtWidgets.QWidget()
@@ -66,7 +66,7 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
 
         # Get the list of plugins from plugins_manager.py
         plugin_data = get_all_plugins()
-        self.pluginNames = [f"{os_name}.{plugin}" for os_name, plugins in plugin_data for plugin in plugins]
+        self.pluginNames = [f"{os_name}.{plugin.split('.')[-1]}" for os_name, plugins in plugin_data for plugin in plugins]
 
         for name in self.pluginNames:
             element = QtWidgets.QWidget()
@@ -89,7 +89,7 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
         self.scrollArea.setWidget(self.scrollWidget)
         self.sidebarLayout.addWidget(self.scrollArea)
 
-        # Create a new QWidget for the buttons
+        # Create a button area with add and save buttons
         self.buttonArea = QtWidgets.QWidget()
         self.buttonAreaLayout = QtWidgets.QGridLayout()
         self.buttonArea.setLayout(self.buttonAreaLayout)
@@ -164,8 +164,8 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
         if state == QtCore.Qt.Checked:
             self.selected_plugin = checkbox.text()  # Store the text of the checked checkbox
         else:
-            self.selected_plugin = None  # Set to None if the checkbox is unchecked
-        print(f"Selected plugin: {self.selected_plugin}")  # Debug print
+            self.checked_plugins = None
+        print(f"Checked plugin: {self.checked_plugins}")
 
     def get_selected_plugin(self):
         if self.selected_plugin is None:

@@ -13,3 +13,10 @@ def find_volatility_file(start_path, max_attempts=5):
         attempts += 1
 
     return None
+
+if __name__ == "__main__":
+    path = find_volatility_file(os.getcwd())
+    if path:
+        print(f"Volatility path found: {path}")
+    else:
+        print("vol.py not found.")
