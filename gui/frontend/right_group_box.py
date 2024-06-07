@@ -1,12 +1,12 @@
 from PyQt5.QtWidgets import QTableWidgetItem, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, \
     QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSize
 from gui.frontend.utils import create_transparent_button, setup_button_style
 import pandas as pd
 from fpdf import FPDF
-#from docx import Document
 import os
 import webbrowser
+from gui.frontend.settings_window import SettingsWindow  # Correct the import path
 
 class CustomTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
@@ -33,37 +33,47 @@ class RightGroupBox(QGroupBox):
         right_layout.setContentsMargins(10, 10, 10, 10)
         right_layout.setSpacing(10)
 
-        # Create and configure the top layout with buttons
         topLayout = QHBoxLayout()
-        topLayout.setContentsMargins(0, 0, 0, 0)
-        topLayout.setSpacing(0)
-        topLayout.addStretch()
 
         self.terminalButton = create_transparent_button(self, "terminal.png", "")
         self.helpButton = create_transparent_button(self, "help.png", "")
         self.settingsButton = create_transparent_button(self, "settings.png", "")
 
-        self.helpButton.clicked.connect(self.open_help)
+        button_size = QSize(64, 64)  # Adjust these values to get the desired size
+        self.terminalButton.setFixedSize(button_size)
+        self.helpButton.setFixedSize(button_size)
+        self.settingsButton.setFixedSize(button_size)
+
+        # Uncomment to add yellow border to buttons
+        # self.terminalButton.setStyleSheet("border: 2px solid yellow;")
+        # self.helpButton.setStyleSheet("border: 2px solid yellow;")
+        # self.settingsButton.setStyleSheet("border: 2px solid yellow;")
+
+        self.helpButton.clicked.connect(self.show_help_window)
+        self.settingsButton.clicked.connect(self.show_settings_window)  # Connect the settings button
 
         buttonHolder = QWidget(self)
         buttonLayout = QHBoxLayout(buttonHolder)
         buttonLayout.setContentsMargins(0, 0, 0, 0)
-        buttonLayout.setSpacing(0)
+        buttonLayout.setSpacing(10)  # Set the space between buttons here
         buttonLayout.addWidget(self.terminalButton)
         buttonLayout.addWidget(self.helpButton)
         buttonLayout.addWidget(self.settingsButton)
-        buttonLayout.setAlignment(Qt.AlignRight)
+
+        # Align buttons to the right side
+        topLayout.addStretch()
         topLayout.addWidget(buttonHolder)
+        topLayout.setAlignment(buttonHolder, Qt.AlignRight)
+
+
 
         right_layout.addLayout(topLayout)
-        right_layout.addWidget(self.create_spacer(int(self.height() * 0.05)))
 
         # Create and configure the command info box
         self.commandInfoBox = QTextEdit(self)
         self.commandInfoBox.setObjectName("textEdit_3")
         self.commandInfoBox.setEnabled(True)
         self.commandInfoBox.setReadOnly(True)
-        self.commandInfoBox.setMinimumHeight(50)
         self.commandInfoBox.setStyleSheet("""
         QTextEdit {
             background-color: transparent;
@@ -83,9 +93,12 @@ class RightGroupBox(QGroupBox):
         """)
         right_layout.addWidget(self.commandInfoBox)
 
+
+
         # Create and configure the output table
         self.outputTable = QTableWidget(self)
         self.outputTable.setObjectName("outputTable")
+        self.outputTable.setFixedSize(1225, 600)
         self.outputTable.setStyleSheet("""
         QTableWidget {
             background-color: #353535;
@@ -105,12 +118,21 @@ class RightGroupBox(QGroupBox):
         self.outputTable.horizontalHeader().sectionClicked.connect(self.handle_header_click)
         right_layout.addWidget(self.outputTable)
 
+        right_layout.addWidget(self.create_spacer(10, ''))
+
         # Create and configure the export button
         self.exportButton = QPushButton(self)
         setup_button_style(self.exportButton, "Export to...")
         self.exportButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.exportButton.clicked.connect(self.export_data)
-        right_layout.addWidget(self.exportButton, alignment=Qt.AlignCenter)
+
+        # Wrap exportButton in a QHBoxLayout to align it to the center
+        export_button_layout = QHBoxLayout()
+        export_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        export_button_layout.addWidget(self.exportButton)
+        export_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        right_layout.addLayout(export_button_layout)
+
+        right_layout.addWidget(self.create_spacer(10, ''))
 
         right_layout.setStretchFactor(self.commandInfoBox, 1)
         right_layout.setStretchFactor(self.outputTable, 8)
@@ -118,10 +140,12 @@ class RightGroupBox(QGroupBox):
 
         self.setLayout(right_layout)
 
-    def create_spacer(self, height):
-        """Create a spacer widget with the specified height."""
+
+    def create_spacer(self, height, color):
+        """Create a spacer widget with the specified height and color."""
         spacer = QWidget()
         spacer.setFixedHeight(height)
+        spacer.setStyleSheet(f"background-color: {color};")
         return spacer
 
     def display_output(self, headers, data):
@@ -242,3 +266,13 @@ class RightGroupBox(QGroupBox):
                 row_cells[i].text = str(item)
 
         doc.save(filePath)'''
+
+    def show_help_window(self):
+        """Show the settings window."""
+        self.settings_window = SettingsWindow()
+        self.settings_window.show()
+
+    def show_settings_window(self):
+        """Show the settings window when the settings button is clicked."""
+        self.settings_window = SettingsWindow()
+        self.settings_window.show()
