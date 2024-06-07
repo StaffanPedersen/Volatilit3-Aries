@@ -27,71 +27,63 @@ class LeftGroupBox(QGroupBox):
     def initialize_ui(self):
         """Initialize the user interface for the left group box."""
         left_layout = QVBoxLayout(self)
-        left_layout.setContentsMargins(10, 0, 10, 10)  # Adjust the top margin to position the fileButton
+        left_layout.setContentsMargins(10, 0, 10, 10)  # Adjust the top margin to 0
         left_layout.setSpacing(10)
 
         # Create and configure buttons and text edit
         self.selectFileButton = create_transparent_button(self, "filmappe.png", "    Select file")
         self.metaDataWindow = QTextEdit(self)
+        self.metaDataWindow.setStyleSheet("""
+                    QTextEdit {
+                        background-color: #000000;
+                        border: 1px solid #FF8956;
+                        border-radius: 10px;
+                        padding: 5px;
+                        font: 14pt "Inter_FXH";
+                        font-weight: 500;
+                        color: white;
+                    }
+                """)
 
         self.selectFileButton.clicked.connect(self.open_file_dialog)
 
         self.selectPluginButton = QPushButton(self)
         setup_button_style(self.selectPluginButton, "Select plugin")
         self.selectPluginButton.clicked.connect(self.open_plugin_window)
+        self.selectPluginButton.setFixedSize(330, 50)
 
         self.runButton = QPushButton(self)
         setup_button_style(self.runButton, "Run")
         self.runButton.clicked.connect(self.run_volatility_scan)
+        self.runButton.setFixedSize(100, 50)
 
         self.clearButton = QPushButton(self)
         setup_button_style(self.clearButton, "Clear Workspace")
         self.clearButton.clicked.connect(self.clear_workspace)
+        self.clearButton.setStyleSheet("""
+                QPushButton {
+                    background-color: #FF5656;
+                    border: 1px solid #000000;
+                    border-radius: 10px;
+                    padding: 5px;
+                    font: 20pt "Inter_FXH";
+                    font-weight: 500;
+                }
 
-        # Add buttons and text edit to the layout
-        left_layout.addWidget(self.create_spacer(1))  # Adjust this value to change the position of the fileButton
-        left_layout.addLayout(self.create_file_button_layout())
-        left_layout.addWidget(self.create_spacer(1))
-        left_layout.addLayout(self.create_plugin_layout())
-        left_layout.addLayout(self.create_run_button_layout())
-        left_layout.addWidget(self.create_spacer(1))
-        left_layout.addLayout(self.create_metadata_layout())
-        left_layout.addWidget(self.create_spacer(1))
-        left_layout.addLayout(self.create_clear_button_layout())
-        left_layout.addWidget(self.create_spacer(1))
+                QPushButton:pressed {
+                    background-color: #ab1b1b; 
+                    border: 2px solid #ab1b1b;
+                }
 
-    def create_spacer(self, height):
-        """Create a spacer widget with the specified height."""
-        spacer = QWidget()
-        spacer.setFixedHeight(height)
-        return spacer
+                QPushButton:flat {
+                    border: none;
+                }
+                """)
 
-    def create_file_button_layout(self):
-        """Create the layout for the file button."""
-        layout = QHBoxLayout()
-        layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        layout.addWidget(self.selectFileButton)
-        layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        return layout
-
-    def create_plugin_layout(self):
-        """Create the layout for the plugin selection."""
-        layout = QVBoxLayout()
-
-        # Create the layout for the select button
-        select_plugin_layout = QHBoxLayout()
-        select_plugin_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        self.selectPluginButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        select_plugin_layout.addWidget(self.selectPluginButton)
-        select_plugin_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        layout.addLayout(select_plugin_layout)
-        self.selectPluginButton.setFixedSize(300, 50)
-
-        # Create the layout for the selected plugin text box
-        selected_plugin_text_layout = QHBoxLayout()
+        # Define the selected plugin text box
         self.selectedPluginTextBox = QLabel(self)
         self.selectedPluginTextBox.setObjectName("selectedPluginTextBox")
-        self.selectedPluginTextBox.setFixedSize(300, 30)
+        self.selectedPluginTextBox.setFixedSize(330, 30)
 
         # Define the font
         font2 = QFont()
@@ -117,83 +109,35 @@ class LeftGroupBox(QGroupBox):
         self.selectedPluginTextBox.setAlignment(Qt.AlignCenter)
         self.selectedPluginTextBox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        # Add spacers and the QLabel to the horizontal layout
-        selected_plugin_text_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        selected_plugin_text_layout.addWidget(self.selectedPluginTextBox)
-        selected_plugin_text_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        # Add buttons and text edit to the layout
+        left_layout.addWidget(self.create_spacer(5, ''))  # Adjust this value to change the position of the fileButton
+        left_layout.addWidget(self.selectFileButton)
+        left_layout.addWidget(self.create_spacer(10, ''))
+        left_layout.addWidget(self.selectPluginButton)
+        # left_layout.addWidget(self.create_spacer(10, 'yellow'))
+        left_layout.addWidget(self.selectedPluginTextBox)
+        left_layout.addWidget(self.create_spacer(10, ''))
 
-        # Add the horizontal layout to the main layout
-        layout.addLayout(selected_plugin_text_layout)
+        # Wrap runButton in a QHBoxLayout to align it to the right
+        run_button_layout = QHBoxLayout()
+        run_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        run_button_layout.addWidget(self.runButton)
+        left_layout.addLayout(run_button_layout)
 
-        return layout
+        left_layout.addWidget(self.create_spacer(10, ''))
+        left_layout.addWidget(self.metaDataWindow)
+        left_layout.addWidget(self.create_spacer(10, ''))
+        left_layout.addWidget(self.clearButton)
+        left_layout.addWidget(self.create_spacer(10, ''))
 
-    def create_run_button_layout(self):
-        """Create the layout for the run button."""
-        layout = QHBoxLayout()
-        layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        layout.addWidget(self.runButton)
-        self.runButton.setFixedSize(100, 50)
-        layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))  # Add this line
-        return layout
+        self.setLayout(left_layout)
 
-    def create_metadata_layout(self):
-        """Create the layout for the metadata display."""
-        layout = QHBoxLayout()
-        layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        self.metaDataWindow.setFixedSize(300, 300)
-        self.metaDataWindow.setObjectName("metaDataWindow")
-        self.metaDataWindow.setStyleSheet("""
-            QTextEdit {
-                background-color: #000000;
-                border: 1px solid #FF8956;
-                border-radius: 10px;
-                padding: 5px;
-                font: 14pt "Inter_FXH";
-                font-weight: 500;
-                color: white;
-            }
-        """)
-        self.metaDataWindow.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        layout.addWidget(self.metaDataWindow)
-        layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
-
-        return layout
-
-    def create_clear_button_layout(self):
-        """Create the layout for the clear button."""
-        layout = QVBoxLayout()
-
-        self.clearButton.setFixedSize(300, 50)
-
-        clear_button_layout = QHBoxLayout()
-        clear_button_layout.addSpacerItem(QSpacerItem(
-            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        clear_button_layout.addWidget(self.clearButton)
-        clear_button_layout.addSpacerItem(QSpacerItem(
-            10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        layout.addLayout(clear_button_layout)
-
-        self.clearButton.setStyleSheet("""
-                QPushButton {
-                    background-color: #FF5656;
-                    border: 1px solid #000000;
-                    border-radius: 10px;
-                    padding: 5px;
-                    font: 20pt "Inter_FXH";
-                    font-weight: 500;
-                }
-
-                QPushButton:pressed {
-                    background-color: #ab1b1b; 
-                    border: 2px solid #ab1b1b;
-                }
-
-                QPushButton:flat {
-                    border: none;
-                }
-                """)
-
-        return layout
+    def create_spacer(self, height, color):
+        """Create a spacer widget with the specified height and color."""
+        spacer = QWidget()
+        spacer.setFixedHeight(height)
+        spacer.setStyleSheet(f"background-color: {color};")
+        return spacer
 
     def open_file_dialog(self):
         """Open a file dialog to select a memory dump file."""
