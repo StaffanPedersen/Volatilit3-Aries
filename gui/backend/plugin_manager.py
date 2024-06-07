@@ -1,8 +1,8 @@
 import os
-from gui.backend.volatility_finder import find_volatility_file
-
+from .volatility_finder import find_volatility_file
 
 def get_all_plugins(filepath=None, os_name=None):
+    """Fetch all available plugins for the specified OS or all if OS is not specified."""
     try:
         start_path = os.path.dirname(os.path.realpath(__file__))
         volatility_file = find_volatility_file(start_path) if filepath is None else filepath
@@ -19,8 +19,6 @@ def get_all_plugins(filepath=None, os_name=None):
             'Mac': os.path.join(base_dir, 'volatility3', 'framework', 'plugins', 'mac')
         }
         plugin_list = []
-
-        print(plugin_list)
 
         if os_name is None:
             print("OS is undefined.")

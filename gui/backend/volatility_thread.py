@@ -1,54 +1,62 @@
+from PyQt5.QtCore import QThread, pyqtSignal
+from gui.backend.volatility_finder import find_volatility_file
 import subprocess
 import csv
-from io import StringIO
-from gui.backend.plugins_manager import find_volatility_file  # Adjusted the import to a relative import
-import os
+import io
+import os  # Import the os module
 
+class VolatilityThread(QThread):
+    output_signal = pyqtSignal(list, list)
+    progress_signal = pyqtSignal(int)
+    command_signal = pyqtSignal(str)  # Signal to emit the command string
 
-class VolatilityBackend:
-    @staticmethod
-    def run_volatility(memory_dump, plugin):
-        """Run the Volatility command and capture its output."""
+    def __init__(self, memory_dump, plugin, parent=None):
+        super().__init__(parent)
+        self.memory_dump = memory_dump
+        self.plugin = plugin.lower()  # Ensure the plugin name is lowercase
+        self.vol_path = find_volatility_file(os.getcwd())  # Provide the current working directory as start_path
+
+    def run(self):
+        command = f"python \"{self.vol_path}\" -f \"{self.memory_dump}\" -r csv {self.plugin}"
+        self.command_signal.emit(command)  # Emit the command
+        output = self.run_volatility_scan(command)
+        headers, data = self.parse_output(output)
+        self.output_signal.emit(headers, data)
+        self.progress_signal.emit(100)
+
+    def run_volatility_scan(self, command):
         try:
-            start_path = os.path.dirname(os.path.realpath(__file__))
-            volatility_file = find_volatility_file(start_path)
-            base_dir = os.path.join(os.path.dirname(volatility_file), "vol.py")
-            vol_path = base_dir
-            command = ['python', vol_path, '-f', memory_dump, '-r', 'csv', plugin]
-            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-            output_lines = []
-            total_lines = 0
-
-            for line in iter(process.stdout.readline, ''):
-                output_lines.append(line)
-                total_lines += 1
-
-            process.stdout.close()
-            process.wait()
-
-            if process.returncode == 0:
-                print(''.join(output_lines))  # Print the captured output
-                return ''.join(output_lines)
-            else:
-                print(process.stderr.read())  # Print any error output
-                return process.stderr.read()
+            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True)
+            output, error = process.communicate()
+            if process.returncode != 0:
+                error_message = f"Error: {error}"
+                print(error_message)
+                return error_message
+            output_message = output
+            print("Volatility scan output:\n", output_message)
+            return output_message
         except Exception as e:
-            print(str(e))
-            return str(e)
+            error_message = f"Exception: {str(e)}"
+            print(error_message)
+            return error_message
 
-    @staticmethod
-    def parse_output(output):
-        """Parse the CSV output from the Volatility command into headers and data."""
-        csv_reader = csv.reader(StringIO(output))
-        headers = next(csv_reader, None)
-        data = [row for row in csv_reader if row]
+    def parse_output(self, output):
+        headers = []
+        data = []
+        csv_reader = csv.reader(io.StringIO(output))
 
-        if headers and "TreeDepth" in headers:
-            tree_depth_index = headers.index("TreeDepth")
-            headers.pop(tree_depth_index)
-            for row in data:
-                row.pop(tree_depth_index)
+        tree_depth_index = None
+
+        for row in csv_reader:
+            if not headers:
+                headers = row
+                if "TreeDepth" in headers:
+                    tree_depth_index = headers.index("TreeDepth")
+                    headers.pop(tree_depth_index)
+            else:
+                if tree_depth_index is not None and len(row) > tree_depth_index:
+                    row.pop(tree_depth_index)
+                data.append(row)
 
         return headers, data
 
