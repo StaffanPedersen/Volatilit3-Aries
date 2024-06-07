@@ -6,7 +6,7 @@ class Main(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Volatility GUI")
-        self.setGeometry(100, 100, 1024, 768)
+        self.setFixedSize(1600, 900)
 
         # Create a stacked widget
         self.stack = QStackedWidget(self)
