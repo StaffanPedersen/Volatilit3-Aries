@@ -1,13 +1,15 @@
 from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtCore import pyqtSignal
+
 from gui.backend.plugins_manager import get_all_plugins
 
 
-# 353535
 class PluginAsideWindow(QtWidgets.QMainWindow):
     plugin_stored = QtCore.pyqtSignal(str)
+    closed = pyqtSignal()
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
         # Initialize the selected_plugin attribute
         self.selected_plugin = None
@@ -31,9 +33,9 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
 
     def init_mainWindow(self):
         self.setWindowTitle("plugins Window")
-        self.setGeometry(100, 100, 400, 800)
-        self.setMinimumSize(400, 800)
-        self.setMaximumSize(400, 800)
+        self.setGeometry(100, 100, 400, 1024)
+        self.setMinimumSize(400, 1000)
+        self.setMaximumSize(400, 1000)
 
     def init_sidebar(self):
         self.sidebar = QtWidgets.QWidget()
@@ -41,7 +43,7 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
         self.sidebar.setLayout(self.sidebarLayout)
         self.sidebar.setStyleSheet("background-color: #353535;")
         self.sidebar.setMinimumSize(200, 800)
-        self.sidebar.setMaximumSize(400, 800)
+        self.sidebar.setMaximumSize(400, 1010)
 
     def init_banner(self):
         self.banner = QtWidgets.QWidget()
@@ -49,12 +51,6 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
         self.banner.setLayout(self.bannerLayout)
         self.bannerLabel = QtWidgets.QLabel("Plugins")
         self.bannerLayout.addWidget(self.bannerLabel)
-        self.bannerButton = QtWidgets.QPushButton("X")
-        self.bannerButton.setMinimumSize(50, 50)
-        self.bannerButton.setMaximumSize(50, 50)
-        self.bannerButton.setFlat(True)
-        self.bannerLayout.addWidget(self.bannerButton)
-        self.bannerButton.clicked.connect(self.close)
         self.banner.setStyleSheet("background-color: #FF8956; color: grey;\n"
                                   "font-size: 24px;\n"
                                   "color: black;")
@@ -178,3 +174,7 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
         plugin_parts = self.selected_plugin.split('.')
         plugin_name = '.'.join(plugin_parts[1:])
         return plugin_name
+
+    def closeEvent(self, event):
+        self.closed.emit()  # Emit the signal when the window is closed
+        super().closeEvent(event)

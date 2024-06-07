@@ -1,46 +1,53 @@
-
-from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal
+from PyQt5.QtCore import QSize, pyqtSlot, Qt, pyqtSignal
 from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtWidgets import QLabel, \
-    QSizePolicy, QSpacerItem, QFileDialog
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, QTextEdit, QPushButton
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QFont, QIcon, QPixmap
-from PyQt5.QtWidgets import QLabel, \
-    QSizePolicy, QSpacerItem, QApplication
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, QTextEdit, QPushButton, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit, QGroupBox, QSpacerItem, \
+    QFileDialog, QPushButton, QSizePolicy, QStackedWidget
 
-from gui.frontend.error_handler_GUI import show_error_message
 from gui.frontend.pluginAsideGUI import PluginAsideWindow
 from gui.frontend.volatility_thread_GUI import VolatilityThread
 
-
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit, QGroupBox, QSpacerItem, QFileDialog, QPushButton, QSizePolicy
-from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtCore import Qt, pyqtSignal
-import sys
 
 class ScanScreen(QWidget):
     plugin_stored = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
-        self.init_ui()
+
+        # Initialize the groupBox_left
+        self.groupBox_left = QGroupBox(self)
+        self.groupBox_left.setObjectName("groupBox_left")
+        self.groupBox_left.setStyleSheet("QWidget { background-color: #353535; }")
+        self.groupBox_left.setFlat(True)
+        self.groupBox_left.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        left_layout = QVBoxLayout(self.groupBox_left)
+        left_layout.setContentsMargins(10, 10, 10, 10)
+        left_layout.setSpacing(10)
+        self.setup_left_group_box(left_layout)
 
         # Initialize the plugin aside window
         self.pluginAsideWindow = PluginAsideWindow()
         self.pluginAsideWindow.plugin_stored.connect(self.update_selected_plugin)
 
+        self.init_ui()
+
     def init_ui(self):
+        # Initialize the QStackedWidget
+        self.stackedWidget = QStackedWidget()
+        self.stackedWidget.addWidget(self.groupBox_left)
+        self.stackedWidget.addWidget(self.pluginAsideWindow)
         self.setObjectName("ScanScreen")
 
-# Dynamically set the window size to match the screen size
+        # Connect the closed signal of the pluginAsideWindow to the close_plugins_gui slot
+        self.pluginAsideWindow.closed.connect(self.close_plugins_gui)
+
+        # Dynamically set the window size to match the screen size
         screen = QApplication.primaryScreen()
         screen_geometry = screen.geometry()
         screen_width = screen_geometry.width()
         screen_height = screen_geometry.height()
 
-# Set window position
+        # Set window position
         self.setGeometry(0, 0, screen_width, screen_height)
 
         font = QFont()
@@ -52,20 +59,6 @@ class ScanScreen(QWidget):
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
-
-        # Left group box (20% width)
-        self.groupBox_left = QGroupBox(self)
-        self.groupBox_left.setObjectName("groupBox_left")
-        self.groupBox_left.setStyleSheet(
-            "QWidget { background-color: #353535; }")
-        self.groupBox_left.setFlat(True)
-        self.groupBox_left.setSizePolicy(
-            QSizePolicy.Expanding, QSizePolicy.Expanding)
-
-        left_layout = QVBoxLayout(self.groupBox_left)
-        left_layout.setContentsMargins(10, 10, 10, 10)
-        left_layout.setSpacing(10)
-        self.setup_left_group_box(left_layout)
 
         # Right group box (80% width)
         self.groupBox_right = QGroupBox(self)
@@ -81,15 +74,16 @@ class ScanScreen(QWidget):
         right_layout.setSpacing(10)
         self.setup_right_group_box(right_layout)
 
-        main_layout.addWidget(self.groupBox_left)
+        # Replace groupBox_left with stackedWidget in the main layout
+        main_layout.addWidget(self.stackedWidget)
+
         main_layout.addWidget(self.groupBox_right)
 
         # Stretch 20% / 80% layout
         main_layout.setStretch(0, 2)
         main_layout.setStretch(1, 8)
 
-
-# ITEMS IN LEFT GROUP BOX
+    # ITEMS IN LEFT GROUP BOX
 
     def setup_left_group_box(self, layout):
         font1 = QFont()
@@ -266,9 +260,7 @@ class ScanScreen(QWidget):
 
         self.metaDataWindow.setSizePolicy(button_size_policy)
 
-
-
-# CLEAR BUTTON
+        # CLEAR BUTTON
 
         space_above_clear_button = QWidget()
         space_above_clear_button.setFixedHeight(int(self.height() * 0.05))
@@ -457,7 +449,6 @@ class ScanScreen(QWidget):
         button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         return button
 
-
     def select_file(self):
         options = QFileDialog.Options()
         options |= QFileDialog.ReadOnly
@@ -473,7 +464,12 @@ class ScanScreen(QWidget):
         print(f"Updated selected plugin: {self.selected_plugin}")
 
     def open_plugins_gui(self):
-        self.pluginAsideWindow.show()
+        # Switch to the PluginAsideWindow in the QStackedWidget
+        self.stackedWidget.setCurrentWidget(self.pluginAsideWindow)
+
+    def close_plugins_gui(self):
+        # Switch back to the groupBox_left in the QStackedWidget
+        self.stackedWidget.setCurrentWidget(self.groupBox_left)
 
     def scan(self):
         # Get the currently selected plugin
@@ -500,5 +496,3 @@ class ScanScreen(QWidget):
     @pyqtSlot(str)
     def display_output(self, output):
         self.textEdit.append(output)
-
-
