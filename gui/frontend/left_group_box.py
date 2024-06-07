@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextE
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont
 from gui.frontend.utils import create_transparent_button, setup_button_style
-from gui.frontend.pluginAsideGUI import PluginAsideGUI
+from gui.frontend.pluginAsideGUI import PluginAsideWindow
 from gui.backend.volatility_thread import VolatilityThread
 from gui.frontend.error_handler_GUI import show_error_message
 import os
@@ -195,7 +195,7 @@ class LeftGroupBox(QGroupBox):
         """Open the plugin selection window."""
         print("LeftGroupBox: open_plugin_window method called")
         if not self.plugin_window:
-            self.plugin_window = PluginAsideGUI(self)
+            self.plugin_window = PluginAsideWindow(self)
             self.plugin_window.plugin_stored.connect(self.update_selected_plugin_text)
         self.plugin_window.show()
 
