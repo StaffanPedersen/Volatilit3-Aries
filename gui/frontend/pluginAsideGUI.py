@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import pyqtSignal
 
-from gui.backend.plugins_manager import get_all_plugins
+from gui.backend.plugin_manager import get_all_plugins
 
 
 class PluginAsideWindow(QtWidgets.QMainWindow):
@@ -66,7 +66,7 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
 
         # Get the list of plugins from plugins_manager.py
         plugin_data = get_all_plugins()
-        self.pluginNames = [f"{os_name}.{plugin.split('.')[-1]}" for os_name, plugins in plugin_data for plugin in plugins]
+        self.pluginNames = [f"{os_name}.{plugin}" for os_name, plugins in plugin_data for plugin in plugins]
 
         for name in self.pluginNames:
             element = QtWidgets.QWidget()

@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLa
     QFileDialog, QPushButton, QSizePolicy, QStackedWidget
 
 from gui.frontend.pluginAsideGUI import PluginAsideWindow
-from gui.frontend.volatility_thread_GUI import VolatilityThread
+from gui.backend.volatility_thread import VolatilityThread
 
 
 class ScanScreen(QWidget):
