@@ -59,3 +59,4 @@ class VolatilityThread(QThread):
                 data.append(row)
 
         return headers, data
+
