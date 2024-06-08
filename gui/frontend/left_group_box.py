@@ -1,22 +1,26 @@
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextEdit, QSizePolicy,
-                             QFileDialog, QHBoxLayout, QSpacerItem, QWidget)
+                             QHBoxLayout, QSpacerItem, QWidget)
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont
 from gui.frontend.utils import create_transparent_button, setup_button_style
 from gui.frontend.pluginAsideGUI import PluginAsideWindow
 from gui.backend.volatility_thread import VolatilityThread
 from gui.frontend.error_handler_GUI import show_error_message
-import os
+from gui.backend.file_manager import FileManager  # Import the new FileManager class
+import os  # Ensure os is imported
 
 class LeftGroupBox(QGroupBox):
     command_signal = pyqtSignal(str)  # Signal to emit the command string
 
     def __init__(self, parent):
         super().__init__(parent)
+        print("LeftGroupBox: Initializing LeftGroupBox")
         self.selected_file = None
         self.selected_plugin = None
         self.plugin_window = None
         self.volatility_thread = None
+        self.file_manager = FileManager(self)  # Initialize the FileManager
+        self.file_manager.unsupported_file_signal.connect(self.handle_unsupported_file)
         self.setObjectName("groupBox_left")
         self.setStyleSheet("QWidget { background-color: #353535; }")
         self.setFlat(True)
@@ -26,6 +30,7 @@ class LeftGroupBox(QGroupBox):
 
     def initialize_ui(self):
         """Initialize the user interface for the left group box."""
+        print("LeftGroupBox: Initializing UI")
         left_layout = QVBoxLayout(self)
         left_layout.setContentsMargins(10, 0, 10, 10)  # Adjust the top margin to 0
         left_layout.setSpacing(10)
@@ -45,7 +50,7 @@ class LeftGroupBox(QGroupBox):
                     }
                 """)
 
-        self.selectFileButton.clicked.connect(self.open_file_dialog)
+        self.selectFileButton.clicked.connect(self.handle_file_selection)
 
         self.selectPluginButton = QPushButton(self)
         setup_button_style(self.selectPluginButton, "Select plugin")
@@ -134,24 +139,34 @@ class LeftGroupBox(QGroupBox):
 
     def create_spacer(self, height, color):
         """Create a spacer widget with the specified height and color."""
+        print(f"LeftGroupBox: Creating spacer with height {height} and color {color}")
         spacer = QWidget()
         spacer.setFixedHeight(height)
         spacer.setStyleSheet(f"background-color: {color};")
         return spacer
 
-    def open_file_dialog(self):
-        """Open a file dialog to select a memory dump file."""
-        print("LeftGroupBox: open_file_dialog method called")
-        options = QFileDialog.Options()
-        fileName, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump File", "", "All Files (*);;Memory Files (*.mem)", options=options)
-        if fileName:
-            print(f"LeftGroupBox: File selected - {fileName}")
-            self.selected_file = fileName
-            self.selectFileButton.setText(f"    {os.path.basename(fileName)}")
-            self.metaDataWindow.setText(f'Selected file: {fileName}')
-            self.run_initial_scan(fileName)
+    def handle_file_selection(self):
+        """Handle the file selection using FileManager."""
+        print("LeftGroupBox: handle_file_selection method called")
+        selected_file = self.file_manager.open_file_dialog()
+        if selected_file:
+            self.selected_file = selected_file
+            self.selectFileButton.setText(f"    {os.path.basename(selected_file)}")
+            self.metaDataWindow.setText(f'Selected file: {selected_file}')
+            self.run_initial_scan(selected_file)
         else:
-            print("LeftGroupBox: No file selected")
+            print("LeftGroupBox: No valid file selected")
+
+    def handle_unsupported_file(self):
+        """Handle the use of an unsupported file type."""
+        print("LeftGroupBox: Handling unsupported file type")
+        if self.file_manager.selected_file:
+            self.selected_file = self.file_manager.selected_file
+            self.selectFileButton.setText(f"    {os.path.basename(self.selected_file)}")
+            self.metaDataWindow.setText(f'Selected file: {self.selected_file}')
+            self.run_initial_scan(self.selected_file)
+        else:
+            print("LeftGroupBox: No valid file to handle")
 
     def open_plugin_window(self):
         """Open the plugin selection window."""
@@ -163,18 +178,18 @@ class LeftGroupBox(QGroupBox):
 
     def update_selected_plugin_text(self, plugin_name):
         """Update the selected plugin text box."""
-        print(f"Selected plugin: {plugin_name}")
+        print(f"LeftGroupBox: Selected plugin: {plugin_name}")
         self.selected_plugin = plugin_name
         self.selectedPluginTextBox.setText("> " + plugin_name)
 
     def run_volatility_scan(self):
         """Run the Volatility scan with the selected file and plugin."""
         if not self.selected_file or not self.selected_plugin:
-            print("File or plugin not selected")
+            print("LeftGroupBox: File or plugin not selected")
             show_error_message(self, "Error", "File or plugin not selected")
             return
 
-        print(f"Running {self.selected_plugin} on {self.selected_file}")
+        print(f"LeftGroupBox: Running {self.selected_plugin} on {self.selected_file}")
         try:
             self.volatility_thread = VolatilityThread(self.selected_file, self.selected_plugin, parent=self)
             self.volatility_thread.command_signal.connect(self.parent().groupBox_right.update_command_info)
@@ -185,25 +200,25 @@ class LeftGroupBox(QGroupBox):
 
     def run_initial_scan(self, fileName):
         """Run an initial scan with a default plugin on the selected file."""
-        print(f"Running initial scan with windows.info on {fileName}")
+        print(f"LeftGroupBox: Running initial scan with windows.info on {fileName}")
         self.volatility_thread = VolatilityThread(fileName, "windows.info", parent=self)
         self.volatility_thread.output_signal.connect(self.display_initial_scan_result)
         self.volatility_thread.start()
 
     def display_initial_scan_result(self, headers, data):
         """Display the initial scan result in the metadata window."""
-        print("Displaying initial scan result in metaDataWindow")
+        print("LeftGroupBox: Displaying initial scan result in metaDataWindow")
         result_text = "\n\n".join(["\t\n".join(row) for row in data])
         self.metaDataWindow.setText(result_text)
 
     def display_result(self, headers, data):
         """Display the scan result in the right group box output table."""
-        print("Displaying result in RightGroupBox output table")
+        print("LeftGroupBox: Displaying result in RightGroupBox output table")
         self.parent().groupBox_right.display_output(headers, data)
 
     def clear_workspace(self):
         """Clear the workspace by resetting the selected file and plugin."""
-        print("Clearing workspace")
+        print("LeftGroupBox: Clearing workspace")
         self.selected_file = None
         self.selected_plugin = None
         self.selectFileButton.setText("    Select file")
