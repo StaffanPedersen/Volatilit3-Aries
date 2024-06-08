@@ -1,9 +1,11 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QSpacerItem, QSizePolicy
 from PyQt5.QtGui import QFont, QMouseEvent
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint, pyqtSignal
 
 class WarningPopup(QWidget):
+    confirm_signal = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -71,6 +73,7 @@ class WarningPopup(QWidget):
 
     def confirmAction(self):
         print('Confirmed warning message')
+        self.confirm_signal.emit()
         self.close()
 
     def exitAction(self):
