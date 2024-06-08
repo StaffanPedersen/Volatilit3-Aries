@@ -65,8 +65,6 @@ class RightGroupBox(QGroupBox):
         topLayout.addWidget(buttonHolder)
         topLayout.setAlignment(buttonHolder, Qt.AlignRight)
 
-
-
         right_layout.addLayout(topLayout)
 
         # Create and configure the command info box
@@ -93,12 +91,12 @@ class RightGroupBox(QGroupBox):
         """)
         right_layout.addWidget(self.commandInfoBox)
 
-
-
         # Create and configure the output table
         self.outputTable = QTableWidget(self)
         self.outputTable.setObjectName("outputTable")
-        self.outputTable.setFixedSize(1225, 600)
+        self.outputTable.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.outputTable.horizontalHeader().setStretchLastSection(True)
+        self.outputTable.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)  # Allow resizing columns
         self.outputTable.setStyleSheet("""
         QTableWidget {
             background-color: #353535;
@@ -113,7 +111,6 @@ class RightGroupBox(QGroupBox):
             color: #FF8956;
         }
         """)
-        self.outputTable.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.outputTable.setSortingEnabled(True)
         self.outputTable.horizontalHeader().sectionClicked.connect(self.handle_header_click)
         right_layout.addWidget(self.outputTable)
@@ -139,7 +136,6 @@ class RightGroupBox(QGroupBox):
         right_layout.setStretchFactor(self.exportButton, 1)
 
         self.setLayout(right_layout)
-
 
     def create_spacer(self, height, color):
         """Create a spacer widget with the specified height and color."""
