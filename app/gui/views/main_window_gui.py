@@ -1,9 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout
-from gui2.backend.scan_screen import ScanScreenBackend
-from gui2.frontend.left_group_box import LeftGroupBox
-from gui2.frontend.right_group_box import RightGroupBox
+from app.gui.layouts.input_screen import InputScreen
+from app.gui.layouts.scan_screen import ScanScreen
 
-class ScanScreen(QWidget):
+class MainWindow(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.backend = ScanScreenBackend()
@@ -11,7 +10,7 @@ class ScanScreen(QWidget):
 
     def initialize_ui(self):
         """Initialize the user interface for the scan screen."""
-        self.setObjectName("ScanScreen")
+        self.setObjectName("MainWindow")
         self.resize(1920, 1080)
 
         # Create the main layout and set margins and spacing
@@ -20,24 +19,24 @@ class ScanScreen(QWidget):
         main_layout.setSpacing(0)
 
         # Add left and right group boxes
-        self.groupBox_left = LeftGroupBox(self)
-        self.groupBox_right = RightGroupBox(self)
+        self.input_screen = InputScreenBox(self)
+        self.scan_screen = ScanScreenBox(self)
 
-        main_layout.addWidget(self.groupBox_left)
-        main_layout.addWidget(self.groupBox_right)
+        main_layout.addWidget(self.input_screen)
+        main_layout.addWidget(self.scan_screen)
         main_layout.setStretch(0, 2)
         main_layout.setStretch(1, 8)
 
         # Connect the select file button to handle the result only
-        self.groupBox_left.selectFileButton.clicked.connect(self.handle_file_selection)
+        self.input_screen.selectFileButton.clicked.connect(self.handle_file_selection)
 
     def handle_file_selection(self):
         """Handle the file selection from the left group box."""
         print("ScanScreen: handle_file_selection method called")
-        fileName = self.groupBox_left.selected_file
+        fileName = self.input_screen.selected_file
         if fileName:
             print(f"ScanScreen: File selected - {fileName}")
             self.backend.set_memory_dump(fileName)
-            self.groupBox_left.metaDataWindow.setText(f'Selected file: {fileName}')
+            self.input_screen.metaDataWindow.setText(f'Selected file: {fileName}')
         else:
             print("ScanScreen: No file selected")

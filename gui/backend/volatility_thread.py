@@ -5,6 +5,7 @@ import csv
 import io
 import os  # Import the os module
 
+
 class VolatilityThread(QThread):
     output_signal = pyqtSignal(list, list)
     progress_signal = pyqtSignal(int)
@@ -26,7 +27,8 @@ class VolatilityThread(QThread):
 
     def run_volatility_scan(self, command):
         try:
-            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True)
+            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1,
+                                       universal_newlines=True)
             output, error = process.communicate()
             if process.returncode != 0:
                 error_message = f"Error: {error}"
@@ -59,4 +61,3 @@ class VolatilityThread(QThread):
                 data.append(row)
 
         return headers, data
-

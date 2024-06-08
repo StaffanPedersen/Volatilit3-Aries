@@ -2,13 +2,13 @@ from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextE
                              QFileDialog, QHBoxLayout, QSpacerItem, QWidget)
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont
-from gui.frontend.utils import create_transparent_button, setup_button_style
-from gui.frontend.pluginAsideGUI import PluginAsideWindow
-from gui.backend.volatility_thread import VolatilityThread
-from gui.frontend.error_handler_GUI import show_error_message
+# from gui.frontend.utils import create_transparent_button, setup_button_style
+# from gui.frontend.pluginAsideGUI import PluginAsideWindow
+# from gui.backend.volatility_thread import VolatilityThread
+# from gui.frontend.error_handler_GUI import show_error_message
 import os
 
-class LeftGroupBox(QGroupBox):
+class InputScreen(QGroupBox):
     command_signal = pyqtSignal(str)  # Signal to emit the command string
 
     def __init__(self, parent):
@@ -17,7 +17,7 @@ class LeftGroupBox(QGroupBox):
         self.selected_plugin = None
         self.plugin_window = None
         self.volatility_thread = None
-        self.setObjectName("groupBox_left")
+        self.setObjectName("input_screen")
         self.setStyleSheet("QWidget { background-color: #353535; }")
         self.setFlat(True)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # Set the size policy to Fixed
@@ -26,9 +26,9 @@ class LeftGroupBox(QGroupBox):
 
     def initialize_ui(self):
         """Initialize the user interface for the left group box."""
-        left_layout = QVBoxLayout(self)
-        left_layout.setContentsMargins(10, 0, 10, 10)  # Adjust the top margin to 0
-        left_layout.setSpacing(10)
+        input_screen_layout = QVBoxLayout(self)
+        input_screen_layout.setContentsMargins(10, 0, 10, 10)  # Adjust the top margin to 0
+        input_screen_layout.setSpacing(10)
 
         # Create and configure buttons and text edit
         self.selectFileButton = create_transparent_button(self, "filmappe.png", "    Select file")
@@ -110,27 +110,27 @@ class LeftGroupBox(QGroupBox):
         self.selectedPluginTextBox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         # Add buttons and text edit to the layout
-        left_layout.addWidget(self.create_spacer(5, ''))  # Adjust this value to change the position of the fileButton
-        left_layout.addWidget(self.selectFileButton)
-        left_layout.addWidget(self.create_spacer(10, ''))
-        left_layout.addWidget(self.selectPluginButton)
+        input_screen_layout.addWidget(self.create_spacer(5, ''))  # Adjust this value to change the position of the fileButton
+        input_screen_layout.addWidget(self.selectFileButton)
+        input_screen_layout.addWidget(self.create_spacer(10, ''))
+        input_screen_layout.addWidget(self.selectPluginButton)
         # left_layout.addWidget(self.create_spacer(10, 'yellow'))
-        left_layout.addWidget(self.selectedPluginTextBox)
-        left_layout.addWidget(self.create_spacer(10, ''))
+        input_screen_layout.addWidget(self.selectedPluginTextBox)
+        input_screen_layout.addWidget(self.create_spacer(10, ''))
 
         # Wrap runButton in a QHBoxLayout to align it to the right
         run_button_layout = QHBoxLayout()
         run_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         run_button_layout.addWidget(self.runButton)
-        left_layout.addLayout(run_button_layout)
+        input_screen_layout.addLayout(run_button_layout)
 
-        left_layout.addWidget(self.create_spacer(10, ''))
-        left_layout.addWidget(self.metaDataWindow)
-        left_layout.addWidget(self.create_spacer(10, ''))
-        left_layout.addWidget(self.clearButton)
-        left_layout.addWidget(self.create_spacer(10, ''))
+        input_screen_layout.addWidget(self.create_spacer(10, ''))
+        input_screen_layout.addWidget(self.metaDataWindow)
+        input_screen_layout.addWidget(self.create_spacer(10, ''))
+        input_screen_layout.addWidget(self.clearButton)
+        input_screen_layout.addWidget(self.create_spacer(10, ''))
 
-        self.setLayout(left_layout)
+        self.setLayout(input_screen_layout)
 
     def create_spacer(self, height, color):
         """Create a spacer widget with the specified height and color."""
@@ -141,7 +141,7 @@ class LeftGroupBox(QGroupBox):
 
     def open_file_dialog(self):
         """Open a file dialog to select a memory dump file."""
-        print("LeftGroupBox: open_file_dialog method called")
+        print("InputScreenBox: open_file_dialog method called")
         options = QFileDialog.Options()
         fileName, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump File", "", "All Files (*);;Memory Files (*.mem)", options=options)
         if fileName:

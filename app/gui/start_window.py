@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton
 
+
 class HomeScreen(QWidget):
     def __init__(self, switch_screen_callback, parent=None):
         super().__init__(parent)
@@ -11,10 +12,10 @@ class HomeScreen(QWidget):
         layout = QVBoxLayout(self)
 
         # Create and add a start button to the layout
-        self.start_button = QPushButton("Start Scan", self)
-        layout.addWidget(self.start_button)
+        self.start_btn = QPushButton("Start Scan", self)
+        layout.addWidget(self.start_btn)
 
-        # Connect the start button to the callback function to switch screens
-        self.start_button.clicked.connect(self.switch_screen_callback)
+        # Connect start btn to waiting callback in main.py
+        self.start_btn.clicked.connect(self.switch_screen_callback)
 
         self.setLayout(layout)

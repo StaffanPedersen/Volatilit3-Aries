@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget
 from gui.frontend.home_screen_GUI import HomeScreen
 from gui.frontend.scan_screen_GUI import ScanScreen
 
+
 class Main(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -27,11 +28,13 @@ class Main(QMainWindow):
     def show_scan_screen(self):
         self.stack.setCurrentWidget(self.scan_screen)
 
+
 def main():
     app = QApplication([])
     main_window = Main()
     main_window.show()
     app.exec_()
+
 
 if __name__ == "__main__":
     main()
