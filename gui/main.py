@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget
+
 from gui.frontend.home_screen_GUI import HomeScreen
 from gui.frontend.scan_screen_GUI import ScanScreen
 
