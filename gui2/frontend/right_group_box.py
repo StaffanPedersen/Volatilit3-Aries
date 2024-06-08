@@ -56,9 +56,10 @@ class RightGroupBox(QGroupBox):
         buttonLayout = QHBoxLayout(buttonHolder)
         buttonLayout.setContentsMargins(0, 0, 0, 0)
         buttonLayout.setSpacing(10)  # Set the space between buttons here
-        buttonLayout.addWidget(self.terminalButton)
+
         buttonLayout.addWidget(self.helpButton)
         buttonLayout.addWidget(self.settingsButton)
+        buttonLayout.addWidget(self.terminalButton)
 
         # Align buttons to the right side
         topLayout.addStretch()
