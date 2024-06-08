@@ -1,12 +1,15 @@
 from PyQt5 import QtWidgets, QtCore
-from gui.backend.plugins_manager import get_all_plugins
+from PyQt5.QtCore import pyqtSignal
+
+from gui.backend.plugin_manager import get_all_plugins
 
 
 class PluginAsideWindow(QtWidgets.QMainWindow):
     plugin_stored = QtCore.pyqtSignal(str)
+    closed = pyqtSignal()
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
         # Initialize the selected_plugin attribute
         self.selected_plugin = None
@@ -38,9 +41,9 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
         self.sidebar = QtWidgets.QWidget()
         self.sidebarLayout = QtWidgets.QVBoxLayout()
         self.sidebar.setLayout(self.sidebarLayout)
-        self.sidebar.setStyleSheet("background-color: #333;")
+        self.sidebar.setStyleSheet("background-color: #353535;")
         self.sidebar.setMinimumSize(200, 800)
-        self.sidebar.setMaximumSize(400, 800)
+        self.sidebar.setMaximumSize(400, 1010)
 
     def init_banner(self):
         self.banner = QtWidgets.QWidget()
@@ -48,15 +51,9 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
         self.banner.setLayout(self.bannerLayout)
         self.bannerLabel = QtWidgets.QLabel("Plugins")
         self.bannerLayout.addWidget(self.bannerLabel)
-        self.bannerButton = QtWidgets.QPushButton("X")
-        self.bannerButton.setMinimumSize(50, 50)
-        self.bannerButton.setMaximumSize(50, 50)
-        self.bannerButton.setFlat(True)
-        self.bannerLayout.addWidget(self.bannerButton)
-        self.bannerButton.clicked.connect(self.close)
-        self.banner.setStyleSheet("background-color: #555; color: #fff;\n"
+        self.banner.setStyleSheet("background-color: #FF8956; color: grey;\n"
                                   "font-size: 24px;\n"
-                                  "color: red;")
+                                  "color: black;")
         self.sidebarLayout.addWidget(self.banner)
 
     def init_scrollArea(self):
@@ -65,6 +62,7 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
         self.scrollWidget = QtWidgets.QWidget()
         self.scrollLayout = QtWidgets.QVBoxLayout()
         self.scrollWidget.setLayout(self.scrollLayout)
+        self.scrollArea.setStyleSheet("border: none;")
 
         # Get the list of plugins from plugins_manager.py
         plugin_data = get_all_plugins()
@@ -75,49 +73,68 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
             elementLayout = QtWidgets.QHBoxLayout()
             element.setLayout(elementLayout)
             checkbox = QtWidgets.QCheckBox(name)  # Set the plugin name as the checkbox text
-            checkbox.setStyleSheet("background-color: #555; color: #fff;")  # Add styling options here
+            checkbox.setStyleSheet("background-color: #353535; color: #fff; font-size: 14px;")
             checkbox.setMinimumSize(220, 20)  # Set minimum size
             checkbox.setMaximumSize(280, 20)  # Set maximum size
             self.buttonGroup.addButton(checkbox)  # Add the checkbox to the QButtonGroup
             checkbox.stateChanged.connect(
                 self.update_checked_plugins)  # Connect the stateChanged signal to the custom slot
-            button = QtWidgets.QPushButton("X")
-            button.setStyleSheet("background-color: #555; color: #fff;")  # Add styling options here
-            button.setFixedSize(20, 20)
+            # button = QtWidgets.QPushButton("X")
+            # button.setStyleSheet("background-color: #555; color: #fff;")
+            # button.setFixedSize(20, 20)
             elementLayout.addWidget(checkbox)
-            elementLayout.addWidget(button)
+            # elementLayout.addWidget(button)
             self.scrollLayout.addWidget(element)
         # Set the container widget as the widget for the scroll area
         self.scrollArea.setWidget(self.scrollWidget)
         self.sidebarLayout.addWidget(self.scrollArea)
 
-        # Create a new QWidget for the buttons
+        # Create a button area with add and save buttons
         self.buttonArea = QtWidgets.QWidget()
         self.buttonAreaLayout = QtWidgets.QGridLayout()
         self.buttonArea.setLayout(self.buttonAreaLayout)
 
         # "+" button
         self.addButton = QtWidgets.QPushButton("+", self)
-        self.addButton.setStyleSheet("background-color: #555; color: #fff;\n"
-                                     "font-size: 24px;")  # Add styling options here
-        self.addButton.setGeometry(QtCore.QRect(270, 200, 30, 30))  # Set position and size
+        self.addButton.setStyleSheet(" background-color: #262626\n;"
+                                     " color: #FF8956;"
+                                     " font-size: 24px\n;"
+                                     " border: 1px solid #000000\n;"
+                                     " border-radius: 5px")
+        self.addButton.setFixedSize(30, 30)  # Set fixed size
+
+        # "Cancel" button
+        self.cancelButton = QtWidgets.QPushButton("Cancel", self)
+        self.cancelButton.setStyleSheet("background-color: #262626\n;"
+                                        " color: #FF8956\n;"
+                                        " font-size: 18px\n;"
+                                        " border: 1px solid #FF8956\n;"
+                                        " border-radius: 5px")
+        self.cancelButton.setFixedSize(80, 40)
+
+        # Connect the clicked signal of the cancelButton to the close slot
+        self.cancelButton.clicked.connect(self.close)
 
         # "Save" button
         self.saveButton = QtWidgets.QPushButton("Save", self)
-        self.saveButton.setStyleSheet("background-color: #555; color: #fff;")  # Add styling options here
-        self.saveButton.setGeometry(QtCore.QRect(210, 250, 50, 50))  # Set position and size
+        self.saveButton.setStyleSheet("background-color: #262626\n;"
+                                      " color: #FF8956\n;"
+                                      " font-size: 18px\n;"
+                                      " border: 1px solid #FF8956\n;"
+                                      " border-radius: 5px")
+        self.saveButton.setFixedSize(80, 40)
 
-        #   Create a QVBoxLayout for the "+" button
-        addButtonLayout = QtWidgets.QVBoxLayout()
-        addButtonLayout.addWidget(self.addButton)  # "+" button in the middle
+        # Add the "+" button to the grid layout at the center
+        self.buttonAreaLayout.addWidget(self.addButton, 0, 1)
 
-        # Create a QHBoxLayout for the "Save" button
-        saveButtonLayout = QtWidgets.QHBoxLayout()
-        saveButtonLayout.addWidget(self.saveButton, 1)  # "Save" button at the right
-        saveButtonLayout.addWidget(QtWidgets.QWidget(), 1)  # Empty widget at the left
+        # Add the "Cancel" button to the grid layout at the left
+        self.buttonAreaLayout.addWidget(self.cancelButton, 1, 0)
 
-        # Add the QVBoxLayout and QHBoxLayout to the grid layout
-        self.buttonAreaLayout.addLayout(saveButtonLayout, 1, 0)  # Add to row 1, column 0
+        # Add the "Save" button to the grid layout at the right
+        self.buttonAreaLayout.addWidget(self.saveButton, 1, 2)
+
+        # Add the button area to the sidebar layout
+        self.sidebarLayout.addWidget(self.buttonArea)
 
         # Add the button area to the sidebar layout
         self.sidebarLayout.addWidget(self.buttonArea)
@@ -137,6 +154,7 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
             print(f"Selected plugin '{plugin_name}' has been stored.")
             # Emit the plugin_stored signal with the selected plugin as a string
             self.plugin_stored.emit(plugin_name)
+            self.close()  # Close the window
         else:
             print("No plugin selected.")
 
@@ -146,8 +164,8 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
         if state == QtCore.Qt.Checked:
             self.selected_plugin = checkbox.text()  # Store the text of the checked checkbox
         else:
-            self.selected_plugin = None  # Set to None if the checkbox is unchecked
-        print(f"Selected plugin: {self.selected_plugin}")  # Debug print
+            self.checked_plugins = None
+        print(f"Checked plugin: {self.checked_plugins}")
 
     def get_selected_plugin(self):
         if self.selected_plugin is None:
@@ -156,3 +174,7 @@ class PluginAsideWindow(QtWidgets.QMainWindow):
         plugin_parts = self.selected_plugin.split('.')
         plugin_name = '.'.join(plugin_parts[1:])
         return plugin_name
+
+    def closeEvent(self, event):
+        self.closed.emit()  # Emit the signal when the window is closed
+        super().closeEvent(event)
