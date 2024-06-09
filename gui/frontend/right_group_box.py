@@ -8,6 +8,13 @@ import os
 import webbrowser
 from gui.frontend.settings_window import SettingsWindow  # Correct the import path
 
+# Check for optional library
+try:
+    from docx import Document
+    DOCX_AVAILABLE = True
+except ImportError:
+    DOCX_AVAILABLE = False
+
 class CustomTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
         try:
@@ -43,11 +50,6 @@ class RightGroupBox(QGroupBox):
         self.terminalButton.setFixedSize(button_size)
         self.helpButton.setFixedSize(button_size)
         self.settingsButton.setFixedSize(button_size)
-
-        # Uncomment to add yellow border to buttons
-        # self.terminalButton.setStyleSheet("border: 2px solid yellow;")
-        # self.helpButton.setStyleSheet("border: 2px solid yellow;")
-        # self.settingsButton.setStyleSheet("border: 2px solid yellow;")
 
         self.helpButton.clicked.connect(self.show_help_window)
         self.settingsButton.clicked.connect(self.show_settings_window)  # Connect the settings button
@@ -121,6 +123,7 @@ class RightGroupBox(QGroupBox):
         self.exportButton = QPushButton(self)
         setup_button_style(self.exportButton, "Export to...")
         self.exportButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.exportButton.clicked.connect(self.export_data)  # Connect the export button
 
         # Wrap exportButton in a QHBoxLayout to align it to the center
         export_button_layout = QHBoxLayout()
@@ -195,30 +198,44 @@ class RightGroupBox(QGroupBox):
 
     def export_data(self):
         """Export the displayed data to a file."""
+        print("Starting export process")
         options = QFileDialog.Options()
         filePath, _ = QFileDialog.getSaveFileName(self, "Save File", "",
-                                                  "PDF Files (*.pdf);;CSV Files (*.csv);;Excel Files (*.xls);;Text Files (*.txt);;Word Files (*.doc)",
+                                                  "PDF Files (*.pdf);;CSV Files (*.csv);;Excel Files (*.xls);;Text Files (*.txt);;Word Files (*.doc);;JSON Files (*.json)",
                                                   options=options)
+        print(f"File path selected: {filePath}")
         if filePath:
             ext = os.path.splitext(filePath)[1].lower()
-            if ext == ".pdf":
-                self.export_to_pdf(filePath)
-            elif ext == ".csv":
-                self.export_to_csv(filePath)
-            elif ext == ".xls":
-                self.export_to_excel(filePath)
-            elif ext == ".txt":
-                self.export_to_txt(filePath)
-            elif ext == ".doc":
-                self.export_to_doc(filePath)
+            print(f"File extension: {ext}")
+            try:
+                if ext == ".pdf":
+                    self.export_to_pdf(filePath)
+                elif ext == ".csv":
+                    self.export_to_csv(filePath)
+                elif ext == ".xls":
+                    self.export_to_excel(filePath)
+                elif ext == ".txt":
+                    self.export_to_txt(filePath)
+                elif ext == ".doc":
+                    if DOCX_AVAILABLE:
+                        self.export_to_doc(filePath)
+                    else:
+                        print("DOCX export not available. Please install python-docx.")
+                elif ext == ".json":
+                    self.export_to_json(filePath)
+            except Exception as e:
+                print(f"Error during export: {e}")
 
     def export_to_pdf(self, filePath):
         """Export the data to a PDF file."""
+        print(f"Exporting to PDF: {filePath}")
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
         line_height = pdf.font_size * 2
-        col_width = pdf.epw / len(self.headers)
+        page_width = pdf.w - 2 * pdf.l_margin  # Correct way to get the page width
+
+        col_width = page_width / len(self.headers)
 
         for header in self.headers:
             pdf.cell(col_width, line_height, header, border=1)
@@ -233,38 +250,54 @@ class RightGroupBox(QGroupBox):
 
     def export_to_csv(self, filePath):
         """Export the data to a CSV file."""
+        print(f"Exporting to CSV: {filePath}")
         df = pd.DataFrame(self.data, columns=self.headers)
         df.to_csv(filePath, index=False)
 
     def export_to_excel(self, filePath):
         """Export the data to an Excel file."""
+        print(f"Exporting to Excel: {filePath}")
         df = pd.DataFrame(self.data, columns=self.headers)
         df.to_excel(filePath, index=False)
 
     def export_to_txt(self, filePath):
         """Export the data to a text file."""
+        print(f"Exporting to TXT: {filePath}")
         with open(filePath, 'w') as file:
             file.write("\t".join(self.headers) + "\n")
             for row in self.data:
                 file.write("\t".join(map(str, row)) + "\n")
 
-    '''def export_to_doc(self, filePath):
+    def export_to_doc(self, filePath):
         """Export the data to a Word document."""
-        doc = Document()
-        table = doc.add_table(rows=1, cols=len(self.headers))
-        hdr_cells = table.rows[0].cells
-        for i, header in enumerate(self.headers):
-            hdr_cells[i].text = header
+        print(f"Exporting to DOC: {filePath}")
+        try:
+            from docx import Document  # Import here to avoid unnecessary dependencies if not used
+            doc = Document()
+            table = doc.add_table(rows=1, cols=len(self.headers))
+            hdr_cells = table.rows[0].cells
+            for i, header in enumerate(self.headers):
+                hdr_cells[i].text = header
 
-        for row in self.data:
-            row_cells = table.add_row().cells
-            for i, item in enumerate(row):
-                row_cells[i].text = str(item)
+            for row in self.data:
+                row_cells = table.add_row().cells
+                for i, item in enumerate(row):
+                    row_cells[i].text = str(item)
 
-        doc.save(filePath)'''
+            doc.save(filePath)
+        except ImportError:
+            print("docx module not installed")
+        except Exception as e:
+            print(f"Error exporting to DOC: {e}")
+
+    def export_to_json(self, filePath):
+        """Export the data to a JSON file."""
+        print(f"Exporting to JSON: {filePath}")
+        df = pd.DataFrame(self.data, columns=self.headers)
+        df.to_json(filePath, orient='records', lines=True)
 
     def show_help_window(self):
-        """Show the settings window."""
+        """Show the help window."""
         self.settings_window = SettingsWindow()
         self.settings_window.show()
 
