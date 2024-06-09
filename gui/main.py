@@ -25,8 +25,14 @@ class Main(QMainWindow):
         # Show home screen initially
         self.stack.setCurrentWidget(self.home_screen)
 
+        # Connect the back_to_home_signal from scan screen's right group box to the show_home_screen method
+        self.scan_screen.groupBox_right.back_to_home_signal.connect(self.show_home_screen)
+
     def show_scan_screen(self):
         self.stack.setCurrentWidget(self.scan_screen)
+
+    def show_home_screen(self):
+        self.stack.setCurrentWidget(self.home_screen)
 
 
 def main():

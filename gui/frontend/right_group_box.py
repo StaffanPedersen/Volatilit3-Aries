@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QTableWidgetItem, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, \
     QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from gui.frontend.utils import create_transparent_button, setup_button_style
 import pandas as pd
 from fpdf import FPDF
@@ -23,6 +23,8 @@ class CustomTableWidgetItem(QTableWidgetItem):
             return self.text() < other.text()
 
 class RightGroupBox(QGroupBox):
+    back_to_home_signal = pyqtSignal()  # Signal to go back to home screen
+
     def __init__(self, parent):
         super().__init__(parent)
         self.setObjectName("groupBox_right")
@@ -50,6 +52,8 @@ class RightGroupBox(QGroupBox):
         self.terminalButton.setFixedSize(button_size)
         self.helpButton.setFixedSize(button_size)
         self.settingsButton.setFixedSize(button_size)
+
+        self.terminalButton.clicked.connect(self.go_back_to_home)  # Connect the terminal button to go back
 
         self.helpButton.clicked.connect(self.show_help_window)
         self.settingsButton.clicked.connect(self.show_settings_window)  # Connect the settings button
@@ -305,3 +309,7 @@ class RightGroupBox(QGroupBox):
         """Show the settings window when the settings button is clicked."""
         self.settings_window = SettingsWindow()
         self.settings_window.show()
+
+    def go_back_to_home(self):
+        """Emit signal to go back to home screen."""
+        self.back_to_home_signal.emit()
