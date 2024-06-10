@@ -77,7 +77,7 @@ class PluginAsideWindow(QtWidgets.QWidget):
 
         # Get the list of plugins from plugins_manager.py
         plugin_data = get_all_plugins()
-        self.pluginNames = [f"{os_name}.{plugin}" for os_name, plugins in plugin_data for plugin in plugins]
+        self.pluginNames = [f"{plugin}" for os_name, plugins in plugin_data for plugin in plugins]
 
         for name in self.pluginNames:
             element = QtWidgets.QWidget()
@@ -150,30 +150,23 @@ class PluginAsideWindow(QtWidgets.QWidget):
         # Add the button area to the sidebar layout
         self.sidebarLayout.addWidget(self.buttonArea)
 
-        # Set sidebar as central widget
-        # self.setCentralWidget(self.sidebar)
-
         # Connect the clicked signal of the saveButton to the store_selected_plugin slot
         self.saveButton.clicked.connect(self.store_selected_plugin)
 
     def store_selected_plugin(self):
         """Store the selected plugin and print a message."""
         if self.selected_plugin is not None:
-            # Split the selected plugin on '.' and take all parts except the first one
-            plugin_parts = self.selected_plugin.split('.')
-            plugin_name = '.'.join(plugin_parts[1:])
-            print(f"Selected plugin '{plugin_name}' has been stored.")
-            # Emit the plugin_stored signal with the selected plugin as a string
-            self.plugin_stored.emit(plugin_name)
+            print(f"Selected plugin '{self.selected_plugin}' has been stored.")
+            self.plugin_stored.emit(self.selected_plugin)
             self.close()  # Close the window
         else:
             print("No plugin selected.")
 
     def update_checked_plugins(self, state):
         """Update the list of checked plugins."""
-        checkbox = self.sender()  # Get the checkbox that emitted the signal
+        checkbox = self.sender()
         if state == QtCore.Qt.Checked:
-            self.selected_plugin = checkbox.text()  # Store the text of the checked checkbox
+            self.selected_plugin = checkbox.text()
         else:
             self.checked_plugins = None
         print(f"Checked plugin: {self.checked_plugins}")
@@ -181,11 +174,8 @@ class PluginAsideWindow(QtWidgets.QWidget):
     def get_selected_plugin(self):
         if self.selected_plugin is None:
             raise Exception("No plugin selected")
-        # Split the selected plugin on '.' and take all parts except the first one
-        plugin_parts = self.selected_plugin.split('.')
-        plugin_name = '.'.join(plugin_parts[1:])
-        return plugin_name
+        return self.selected_plugin
 
     def closeEvent(self, event):
-        self.closed.emit()  # Emit the signal when the window is closed
+        self.closed.emit()
         super().closeEvent(event)
