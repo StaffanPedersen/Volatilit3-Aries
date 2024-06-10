@@ -119,7 +119,7 @@ class LeftGroupBox(QGroupBox):
         self.selectedPluginTextBox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         # Add buttons and text edit to the layout
-        left_layout.addWidget(self.create_spacer(5, ''))  # Adjust this value to change the position of the fileButton
+        #left_layout.addWidget(self.create_spacer(0, ''))  # Adjust this value to change the position of the fileButton
         left_layout.addWidget(self.selectFileButton)
         left_layout.addWidget(self.create_spacer(10, ''))
         left_layout.addWidget(self.selectPluginButton)
