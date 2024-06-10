@@ -119,13 +119,13 @@ class LeftGroupBox(QGroupBox):
         self.selectedPluginTextBox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         # Add buttons and text edit to the layout
-        left_layout.addWidget(self.create_spacer(5, ''))  # Adjust this value to change the position of the fileButton
+        #left_layout.addWidget(self.create_spacer(0, ''))  # Adjust this value to change the position of the fileButton
         left_layout.addWidget(self.selectFileButton)
-        left_layout.addWidget(self.create_spacer(10, ''))
+        left_layout.addWidget(self.create_spacer(10, 'yellow'))
         left_layout.addWidget(self.selectPluginButton)
         # left_layout.addWidget(self.create_spacer(10, 'yellow'))
         left_layout.addWidget(self.selectedPluginTextBox)
-        left_layout.addWidget(self.create_spacer(10, ''))
+        left_layout.addWidget(self.create_spacer(10, 'yellow'))
 
         # Wrap runButton in a QHBoxLayout to align it to the right
         run_button_layout = QHBoxLayout()
@@ -133,11 +133,11 @@ class LeftGroupBox(QGroupBox):
         run_button_layout.addWidget(self.runButton)
         left_layout.addLayout(run_button_layout)
 
-        left_layout.addWidget(self.create_spacer(10, ''))
+        left_layout.addWidget(self.create_spacer(10, 'yellow'))
         left_layout.addWidget(self.metaDataWindow)
-        left_layout.addWidget(self.create_spacer(10, ''))
+        left_layout.addWidget(self.create_spacer(10, 'yellow'))
         left_layout.addWidget(self.clearButton)
-        left_layout.addWidget(self.create_spacer(10, ''))
+        left_layout.addWidget(self.create_spacer(10, 'yellow'))
 
         self.setLayout(left_layout)
 
