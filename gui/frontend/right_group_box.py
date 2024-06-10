@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QTableWidgetItem, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, \
-    QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog
+    QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog, QLineEdit
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from gui.frontend.utils import create_transparent_button, setup_button_style
 import pandas as pd
@@ -97,6 +97,33 @@ class RightGroupBox(QGroupBox):
         """)
         right_layout.addWidget(self.commandInfoBox)
 
+        # Create a smaller layout for the search bar and table
+        search_and_table_layout = QVBoxLayout()
+        search_and_table_layout.setSpacing(5)
+
+        # Create the search bar
+        self.searchBar = QLineEdit(self)
+        self.searchBar.setPlaceholderText("Search")
+        self.searchBar.setFixedHeight(30)  # Adjust the height to prevent squishing
+        self.searchBar.setStyleSheet("""
+            QLineEdit {
+                background-color: #353535;
+                border: 1px solid #FF8956;
+                border-radius: 5px;
+                color: #FF8956;
+                padding: 5px;
+                font: 12pt "Inter_FXH";
+            }
+            QLineEdit:focus {
+                outline: none;
+            }
+            QLineEdit::placeholder {
+                color: #FF8956;
+            }
+        """)
+        self.searchBar.textChanged.connect(self.filter_table)
+        search_and_table_layout.addWidget(self.searchBar)
+
         # Create and configure the output table
         self.outputTable = QTableWidget(self)
         self.outputTable.setObjectName("outputTable")
@@ -119,7 +146,9 @@ class RightGroupBox(QGroupBox):
         """)
         self.outputTable.setSortingEnabled(True)
         self.outputTable.horizontalHeader().sectionClicked.connect(self.handle_header_click)
-        right_layout.addWidget(self.outputTable)
+        search_and_table_layout.addWidget(self.outputTable)
+
+        right_layout.addLayout(search_and_table_layout)
 
         right_layout.addWidget(self.create_spacer(10, ''))
 
@@ -139,10 +168,21 @@ class RightGroupBox(QGroupBox):
         right_layout.addWidget(self.create_spacer(10, ''))
 
         right_layout.setStretchFactor(self.commandInfoBox, 1)
-        right_layout.setStretchFactor(self.outputTable, 8)
+        right_layout.setStretchFactor(search_and_table_layout, 8)
         right_layout.setStretchFactor(self.exportButton, 1)
 
         self.setLayout(right_layout)
+
+    def filter_table(self, text):
+        """Filter the table based on the search text."""
+        for i in range(self.outputTable.rowCount()):
+            for j in range(self.outputTable.columnCount()):
+                item = self.outputTable.item(i, j)
+                if item and text.lower() in item.text().lower():
+                    self.outputTable.showRow(i)
+                    break
+            else:
+                self.outputTable.hideRow(i)
 
     def create_spacer(self, height, color):
         """Create a spacer widget with the specified height and color."""
