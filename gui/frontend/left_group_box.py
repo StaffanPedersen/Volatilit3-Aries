@@ -84,6 +84,7 @@ class LeftGroupBox(QGroupBox):
         self.runButton.setFixedSize(100, 50)
 
         self.clearButton = QPushButton(self)
+        self.clearButton.setFixedSize(330, 50)
         setup_button_style(self.clearButton, "Clear Workspace")
         self.clearButton.clicked.connect(self.clear_workspace)
         self.clearButton.setStyleSheet("""

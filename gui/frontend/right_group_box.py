@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QTableWidgetItem, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, \
-    QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog, QLineEdit
+    QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog, QLineEdit, QDialog, QCheckBox, QScrollArea
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from gui.frontend.utils import create_transparent_button, setup_button_style
 import pandas as pd
@@ -7,6 +7,9 @@ from fpdf import FPDF
 import os
 import webbrowser
 from gui.frontend.settings_window import SettingsWindow  # Correct the import path
+from functools import partial
+import json
+
 
 # Check for optional library
 try:
@@ -35,6 +38,7 @@ class RightGroupBox(QGroupBox):
         self.sort_orders = {}
         self.headers = []
         self.data = []
+        self.filter_settings = {}  # Store filter settings
 
     def initialize_ui(self):
         """Initialize the user interface for the right group box."""
@@ -152,24 +156,32 @@ class RightGroupBox(QGroupBox):
 
         right_layout.addWidget(self.create_spacer(10, ''))
 
-        # Create and configure the export button
+        # Create and configure the export and filter buttons
         self.exportButton = QPushButton(self)
+        self.exportButton.setFixedSize(330, 50)
         setup_button_style(self.exportButton, "Export to...")
         self.exportButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.exportButton.clicked.connect(self.export_data)  # Connect the export button
 
-        # Wrap exportButton in a QHBoxLayout to align it to the center
-        export_button_layout = QHBoxLayout()
-        export_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        export_button_layout.addWidget(self.exportButton)
-        export_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        right_layout.addLayout(export_button_layout)
+        self.filterButton = QPushButton(self)
+        setup_button_style(self.filterButton, "Filter")
+        self.filterButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.filterButton.setFixedSize(330, 50)
+        self.filterButton.clicked.connect(self.show_filter_window)  # Connect the filter button
+
+        # Wrap exportButton and filterButton in a QHBoxLayout to align them to the center
+        button_layout = QHBoxLayout()
+        button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        button_layout.addWidget(self.filterButton)
+        button_layout.addWidget(self.exportButton)
+        button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        right_layout.addLayout(button_layout)
 
         right_layout.addWidget(self.create_spacer(10, ''))
 
         right_layout.setStretchFactor(self.commandInfoBox, 1)
         right_layout.setStretchFactor(search_and_table_layout, 8)
-        right_layout.setStretchFactor(self.exportButton, 1)
+        right_layout.setStretchFactor(button_layout, 1)
 
         self.setLayout(right_layout)
 
@@ -353,3 +365,77 @@ class RightGroupBox(QGroupBox):
     def go_back_to_home(self):
         """Emit signal to go back to home screen."""
         self.back_to_home_signal.emit()
+
+    def apply_filter(self):
+        """Apply filter logic based on user input and close the filter window."""
+        try:
+            filter_criteria = self.searchBar.text().strip().lower()
+            for i in range(self.outputTable.rowCount()):
+                row_match = False
+                for j in range(self.outputTable.columnCount()):
+                    item = self.outputTable.item(i, j)
+                    if item and filter_criteria in item.text().strip().lower():
+                        row_match = True
+                        break
+                self.outputTable.setRowHidden(i, not row_match)
+            self.filter_dialog.close()  # Close the filter window
+        except Exception as e:
+            print(f"Error applying filter: {e}")
+
+    def show_filter_window(self):
+        """Show the filter window with dynamic headers."""
+        self.filter_dialog = QDialog(self)  # Store a reference to the filter dialog
+        self.filter_dialog.setWindowTitle("Filter")
+        self.filter_dialog.setStyleSheet("background-color: black; color: white;")
+        self.filter_dialog.setFixedSize(300, 400)
+
+        layout = QVBoxLayout(self.filter_dialog)
+
+        scroll = QScrollArea(self.filter_dialog)
+        scroll.setWidgetResizable(True)
+        scroll.setStyleSheet("background-color: black;")
+
+        scroll_widget = QWidget()
+        scroll_layout = QVBoxLayout(scroll_widget)
+        scroll_widget.setLayout(scroll_layout)
+
+        item_vars = {}
+        # Get stored filter settings or default to all True
+        filter_settings = self.filter_settings.get("columns", {header: True for header in self.headers})
+        for idx, header in enumerate(self.headers):
+            checkbox = QCheckBox(header)
+            checkbox.setStyleSheet("color: white;")
+            # Set checkbox state based on stored settings
+            checkbox.setChecked(filter_settings.get(header, True))
+            checkbox.stateChanged.connect(partial(self.toggle_column, idx, checkbox))  # Use partial to capture idx
+            scroll_layout.addWidget(checkbox)
+            item_vars[header] = checkbox
+
+        scroll.setWidget(scroll_widget)
+
+        layout.addWidget(scroll)
+
+        button_layout = QHBoxLayout()
+        apply_button = QPushButton("Apply")
+        apply_button.setStyleSheet("background-color: #FF8956; color: black;")
+        apply_button.clicked.connect(self.apply_filter)  # Connect the apply button to apply_filter()
+        button_layout.addWidget(apply_button)
+
+        layout.addLayout(button_layout)
+
+        self.filter_dialog.setLayout(layout)
+        self.filter_dialog.exec_()
+
+    def toggle_column(self, column_index, checkbox):
+        """Toggle the visibility of a column based on checkbox state and save filter settings."""
+        self.outputTable.setColumnHidden(column_index, not checkbox.isChecked())
+
+    def save_filter_settings(self):
+        """Save the state of the filter checkboxes to JSON."""
+        item_vars = {header: self.filter_dialog.findChild(QCheckBox, header) for header in self.headers}
+        self.filter_settings["columns"] = {header: checkbox.isChecked() for header, checkbox in item_vars.items()}
+        # Save filter settings to a file or database
+        with open("filter_settings.json", "w") as f:
+            json.dump(self.filter_settings, f)
+
+
