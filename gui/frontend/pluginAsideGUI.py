@@ -34,9 +34,13 @@ class PluginAsideWindow(QtWidgets.QWidget):
 
     def init_mainWindow(self, width):
         self.setWindowTitle("plugins Window")
-        self.setGeometry(100, 100, width, 800)
-        self.setMinimumSize(width, 800)
-        self.setMaximumSize(width, 800)
+        parent_height = self.parent().height()
+        self.setGeometry(100, 100, width,
+                         parent_height)
+        self.setMinimumSize(width,
+                            parent_height)
+        self.setMaximumSize(width,
+                            parent_height)
 
     def init_sidebar(self):
         self.sidebar = QtWidgets.QWidget()
