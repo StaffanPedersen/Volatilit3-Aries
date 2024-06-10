@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget
 
-from gui.frontend.home_screen_GUI import HomeScreen
-from gui.frontend.scan_screen_GUI import ScanScreen
+from app.gui.start_window import HomeScreen
+from app.gui.views.main_window_gui import MainWindow
 
 
 class Main(QMainWindow):
@@ -10,30 +10,23 @@ class Main(QMainWindow):
         self.setWindowTitle("Volatility GUI")
         self.setFixedSize(1600, 900)
 
-
         # Create a stacked widget
         self.stack = QStackedWidget(self)
         self.setCentralWidget(self.stack)
 
         # Initialize home screen and scan screen
         self.home_screen = HomeScreen(self.show_scan_screen)
-        self.scan_screen = ScanScreen()
+        self.main_screen = MainWindow()
 
         # Add widgets to the stacked widget
         self.stack.addWidget(self.home_screen)
-        self.stack.addWidget(self.scan_screen)
+        self.stack.addWidget(self.main_screen)
 
         # Show home screen initially
         self.stack.setCurrentWidget(self.home_screen)
 
-        # Connect the back_to_home_signal from scan screen's right group box to the show_home_screen method
-        self.scan_screen.groupBox_right.back_to_home_signal.connect(self.show_home_screen)
-
-    def show_scan_screen(self):
-        self.stack.setCurrentWidget(self.scan_screen)
-
-    def show_home_screen(self):
-        self.stack.setCurrentWidget(self.home_screen)
+    def start_main_window(self):
+        self.stack.setCurrentWidget(self.main_window_screen)
 
 
 def main():
