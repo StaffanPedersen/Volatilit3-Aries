@@ -103,8 +103,8 @@ class RightGroupBox(QGroupBox):
 
         # Create the search bar
         self.searchBar = QLineEdit(self)
-        self.searchBar.setPlaceholderText("Search...")
-        self.searchBar.setFixedHeight(25)  # Make the search bar smaller/thinner
+        self.searchBar.setPlaceholderText("Search")
+        self.searchBar.setFixedHeight(30)  # Adjust the height to prevent squishing
         self.searchBar.setStyleSheet("""
             QLineEdit {
                 background-color: #353535;
