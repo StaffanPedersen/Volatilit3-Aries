@@ -69,7 +69,8 @@ class PluginAsideWindow(QtWidgets.QWidget):
         self.scrollWidget.setLayout(self.scrollLayout)
         self.scrollArea.setStyleSheet("border: none;")
 
-        plugin_data = get_all_plugins()
+        # Get the list of plugins from plugins_manager.py
+        plugin_data = get_all_plugins(None, 'Windows') #Case sensitive input
         self.pluginNames = [f"{plugin}" for os_name, plugins in plugin_data for plugin in plugins]
 
         for name in self.pluginNames:
