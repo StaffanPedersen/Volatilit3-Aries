@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextEdit, QSizePolicy,
-                             QHBoxLayout, QSpacerItem, QWidget, QFileDialog)
+                             QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QProgressBar)
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont
 from gui.frontend.utils import create_transparent_button, setup_button_style
@@ -8,7 +8,6 @@ from gui.backend.volatility_thread import VolatilityThread
 from gui.frontend.error_handler_GUI import show_error_message
 from gui.backend.file_manager import FileManager  # Import the new FileManager class
 import os  # Ensure os is imported
-
 
 class LeftGroupBox(QGroupBox):
     command_signal = pyqtSignal(str)
@@ -147,7 +146,6 @@ class LeftGroupBox(QGroupBox):
         left_layout.addWidget(self.create_spacer(10, ''))
         left_layout.addWidget(self.selectPluginButton)
         left_layout.addWidget(self.selectedPluginTextBox)
-        left_layout.addWidget(self.create_spacer(10, ''))
 
         # Wrap runButton and toggleButton in a QHBoxLayout to align them to the right
         run_button_layout = QHBoxLayout()
@@ -235,8 +233,6 @@ class LeftGroupBox(QGroupBox):
                 if widget is not None:
                     widget.show()
 
-        
-
     def update_selected_plugin_text(self, plugin_name):
         """Update the selected plugin text box."""
         print(f"LeftGroupBox: Selected plugin: {plugin_name}")
@@ -256,11 +252,17 @@ class LeftGroupBox(QGroupBox):
             self.volatility_thread.command_signal.connect(self.parent().groupBox_right.update_command_info)
             self.volatility_thread.output_signal.connect(self.display_result)
             self.volatility_thread.log_signal.connect(self.log_to_terminal)
+            self.volatility_thread.progress_signal.connect(self.update_progress_bar)
+            self.parent().groupBox_right.show_progress_bar()
             self.volatility_thread.start()
         except Exception as e:
             error_message = f"LeftGroupBox: Error running Volatility scan: {str(e)}"
             self.log_to_terminal(error_message)
             show_error_message(self, "Error", error_message)
+
+    def update_progress_bar(self, value):
+        """Update the progress bar value based on the type of scan."""
+        self.parent().groupBox_right.update_progress_bar(value)
 
     def run_initial_scan(self, fileName):
         """Run an initial scan with a default plugin on the selected file."""

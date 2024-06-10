@@ -41,8 +41,7 @@ class VolatilityThread(QThread):
 
     def run_volatility_scan(self, command):
         try:
-            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1,
-                                       universal_newlines=True)
+            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, bufsize=1)
             output, error = process.communicate()
             if process.returncode != 0:
                 error_message = f"Error: {error}"
