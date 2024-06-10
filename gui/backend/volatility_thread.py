@@ -3,27 +3,41 @@ from gui.backend.volatility_finder import find_volatility_file
 import subprocess
 import csv
 import io
-import os  # Import the os module
-
+import os
+import traceback
+from datetime import datetime
 
 class VolatilityThread(QThread):
     output_signal = pyqtSignal(list, list)
     progress_signal = pyqtSignal(int)
-    command_signal = pyqtSignal(str)  # Signal to emit the command string
+    command_signal = pyqtSignal(str)
+    log_signal = pyqtSignal(str)
 
     def __init__(self, memory_dump, plugin, parent=None):
         super().__init__(parent)
         self.memory_dump = memory_dump
-        self.plugin = plugin.lower()  # Ensure the plugin name is lowercase
-        self.vol_path = find_volatility_file(os.getcwd())  # Provide the current working directory as start_path
+        self.plugin = plugin.lower()
+        self.vol_path = find_volatility_file(os.getcwd())
 
     def run(self):
-        command = f"python \"{self.vol_path}\" -f \"{self.memory_dump}\" -r csv {self.plugin}"
-        self.command_signal.emit(command)  # Emit the command
-        output = self.run_volatility_scan(command)
-        headers, data = self.parse_output(output)
-        self.output_signal.emit(headers, data)
-        self.progress_signal.emit(100)
+        try:
+            command = f"python \"{self.vol_path}\" -f \"{self.memory_dump}\" -r csv {self.plugin}"
+            self.command_signal.emit(command)
+            self.log_signal.emit(self.format_log_message("info", f"Command to run: {command}"))
+
+            output = self.run_volatility_scan(command)
+            headers, data = self.parse_output(output)
+            self.output_signal.emit(headers, data)
+            self.progress_signal.emit(100)
+            self.log_signal.emit(self.format_log_message("info", "Scan completed successfully"))
+
+        except Exception as e:
+            error_message = f"An error occurred: {str(e)}"
+            self.log_signal.emit(self.format_log_message("error", error_message))
+            traceback.print_exc()
+            self.output_signal.emit([], [])
+            self.progress_signal.emit(0)
+            self.command_signal.emit("Error occurred")
 
     def run_volatility_scan(self, command):
         try:
@@ -32,14 +46,13 @@ class VolatilityThread(QThread):
             output, error = process.communicate()
             if process.returncode != 0:
                 error_message = f"Error: {error}"
-                print(error_message)
+                self.log_signal.emit(self.format_log_message("error", error_message))
                 return error_message
-            output_message = output
-            print("Volatility scan output:\n", output_message)
-            return output_message
+            self.log_signal.emit(self.format_log_message("info", "Volatility scan output:\n" + output))
+            return output
         except Exception as e:
             error_message = f"Exception: {str(e)}"
-            print(error_message)
+            self.log_signal.emit(self.format_log_message("error", error_message))
             return error_message
 
     def parse_output(self, output):
@@ -61,3 +74,12 @@ class VolatilityThread(QThread):
                 data.append(row)
 
         return headers, data
+
+    def format_log_message(self, level, message):
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        if level == "info":
+            return f"[INFO] [{timestamp}] {message}"
+        elif level == "error":
+            return f"[ERROR] [{timestamp}] {message}"
+        else:
+            return f"[{level.upper()}] [{timestamp}] {message}"
