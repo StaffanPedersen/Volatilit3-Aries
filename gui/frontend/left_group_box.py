@@ -30,6 +30,9 @@ class LeftGroupBox(QGroupBox):
         self.setFlat(True)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # Set the size policy to Fixed
         self.setFixedSize(350, 900)  # Adjust the fixed size as needed
+
+        self.showing_metadata = True  # Track which window is being shown
+
         self.initialize_ui()
 
     def initialize_ui(self):
@@ -53,6 +56,20 @@ class LeftGroupBox(QGroupBox):
                         color: white;
                     }
                 """)
+
+        self.terminalWindow = QTextEdit(self)
+        self.terminalWindow.setStyleSheet("""
+                    QTextEdit {
+                        background-color: #000000;
+                        border: 1px solid #FF8956;
+                        border-radius: 10px;
+                        padding: 5px;
+                        font: 14pt "Inter_FXH";
+                        font-weight: 200;
+                        color: white;
+                    }
+                """)
+        self.terminalWindow.hide()  # Initially hide the terminal window
 
         self.selectFileButton.clicked.connect(self.handle_file_selection)
 
@@ -88,6 +105,12 @@ class LeftGroupBox(QGroupBox):
                     border: none;
                 }
                 """)
+
+        # Add the toggle button
+        self.toggleButton = QPushButton(self)
+        setup_button_style(self.toggleButton, "Toggle View")
+        self.toggleButton.clicked.connect(self.toggle_view)
+        self.toggleButton.setFixedSize(220, 50)
 
         # Define the selected plugin text box
         self.selectedPluginTextBox = QLabel(self)
@@ -125,14 +148,16 @@ class LeftGroupBox(QGroupBox):
         left_layout.addWidget(self.selectedPluginTextBox)
         left_layout.addWidget(self.create_spacer(10, ''))
 
-        # Wrap runButton in a QHBoxLayout to align it to the right
+        # Wrap runButton and toggleButton in a QHBoxLayout to align them to the right
         run_button_layout = QHBoxLayout()
         run_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        run_button_layout.addWidget(self.toggleButton)
         run_button_layout.addWidget(self.runButton)
         left_layout.addLayout(run_button_layout)
 
         left_layout.addWidget(self.create_spacer(10, ''))
         left_layout.addWidget(self.metaDataWindow)
+        left_layout.addWidget(self.terminalWindow)
         left_layout.addWidget(self.create_spacer(10, ''))
         left_layout.addWidget(self.clearButton)
         left_layout.addWidget(self.create_spacer(10, ''))
@@ -146,7 +171,6 @@ class LeftGroupBox(QGroupBox):
         spacer.setFixedHeight(height)
         spacer.setStyleSheet(f"background-color: {color};")
         return spacer
-
 
     def open_file_dialog(self):
         """Open a file dialog to select a memory dump file."""
@@ -218,25 +242,34 @@ class LeftGroupBox(QGroupBox):
     def run_volatility_scan(self):
         """Run the Volatility scan with the selected file and plugin."""
         if not self.selected_file or not self.selected_plugin:
-            print("LeftGroupBox: File or plugin not selected")
+            self.log_to_terminal("LeftGroupBox: File or plugin not selected")
             show_error_message(self, "Error", "File or plugin not selected")
             return
 
-        print(f"LeftGroupBox: Running {self.selected_plugin} on {self.selected_file}")
         try:
+            self.log_to_terminal(f"Running {self.selected_plugin} on {self.selected_file}")
             self.volatility_thread = VolatilityThread(self.selected_file, self.selected_plugin, parent=self)
             self.volatility_thread.command_signal.connect(self.parent().groupBox_right.update_command_info)
             self.volatility_thread.output_signal.connect(self.display_result)
+            self.volatility_thread.log_signal.connect(self.log_to_terminal)
             self.volatility_thread.start()
         except Exception as e:
-            show_error_message(self, "Error", str(e))
+            error_message = f"LeftGroupBox: Error running Volatility scan: {str(e)}"
+            self.log_to_terminal(error_message)
+            show_error_message(self, "Error", error_message)
 
     def run_initial_scan(self, fileName):
         """Run an initial scan with a default plugin on the selected file."""
-        print(f"LeftGroupBox: Running initial scan with windows.info on {fileName}")
-        self.volatility_thread = VolatilityThread(fileName, "windows.info", parent=self)
-        self.volatility_thread.output_signal.connect(self.display_initial_scan_result)
-        self.volatility_thread.start()
+        try:
+            self.log_to_terminal(f"Running initial scan with windows.info on {fileName}\n")
+            self.volatility_thread = VolatilityThread(fileName, "windows.info", parent=self)
+            self.volatility_thread.output_signal.connect(self.display_initial_scan_result)
+            self.volatility_thread.log_signal.connect(self.log_to_terminal)
+            self.volatility_thread.start()
+        except Exception as e:
+            error_message = f"LeftGroupBox: Error running initial scan: {str(e)}"
+            self.log_to_terminal(error_message)
+            show_error_message(self, "Error", error_message)
 
     def display_initial_scan_result(self, headers, data):
         """Display the initial scan result in the metadata window."""
@@ -311,5 +344,29 @@ class LeftGroupBox(QGroupBox):
         self.selectFileButton.setText("    Select file")
         self.selectedPluginTextBox.setText(">")
         self.metaDataWindow.setText("")
+        self.terminalWindow.setText("")
         self.parent().groupBox_right.clear_output()
 
+    def toggle_view(self):
+        """Toggle between the metadata window and the terminal window."""
+        self.showing_metadata = not self.showing_metadata
+        if self.showing_metadata:
+            self.metaDataWindow.show()
+            self.terminalWindow.hide()
+        else:
+            self.metaDataWindow.hide()
+            self.terminalWindow.show()
+
+    def log_to_terminal(self, message):
+        """Log a message to the terminal window."""
+        formatted_message = self.format_log_message(message)
+        self.terminalWindow.append(formatted_message + "<br>")  # Add line break after each message
+
+    def format_log_message(self, message):
+        """Format log message for better readability."""
+        if "[ERROR]" in message:
+            return f'<span style="color:red;">{message}</span>'
+        elif "[INFO]" in message:
+            return f'<span style="color:white;">{message}</span>'
+        else:
+            return message
