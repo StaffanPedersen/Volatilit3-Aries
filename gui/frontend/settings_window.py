@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLay
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 
+from gui.frontend.theme import get_theme
+
 
 class SettingsWindow(QWidget):
     def __init__(self):
@@ -87,12 +89,13 @@ class SettingsWindow(QWidget):
             "font-size: 25px; color: black; background-color: #ff8956;")  # Combine all styles in one call
         main_content_layout.addWidget(theme_label)
 
-        # Combo box for theme
+        # # Combo box for theme
         theme_combobox = QComboBox(main_content)
-        theme_combobox.addItems(["Light", "Dark", "Blue"])  # Add themes
+        theme_names = get_theme().keys()
+        for theme_name in theme_names:
+            theme_combobox.addItem(theme_name)
         theme_combobox.setStyleSheet("font-size: 16px;")  # Style the combo box
         main_content_layout.addWidget(theme_combobox)
-
 
         # Create a layout for text size and text style
         text_layout = QHBoxLayout()
