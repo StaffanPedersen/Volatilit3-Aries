@@ -38,7 +38,7 @@ class RightGroupBox(QGroupBox):
         self.sort_orders = {}
         self.headers = []
         self.data = []
-        self.filter_settings = {}  # Store filter settings
+        self.filter_settings = {"all_checked": False, "none_checked": False}  # Store filter settings
 
     def initialize_ui(self):
         """Initialize the user interface for the right group box."""
@@ -378,15 +378,30 @@ class RightGroupBox(QGroupBox):
                         row_match = True
                         break
                 self.outputTable.setRowHidden(i, not row_match)
+            self.save_filter_settings()  # Save the filter settings before closing the filter window
             self.filter_dialog.close()  # Close the filter window
         except Exception as e:
             print(f"Error applying filter: {e}")
+
+    def toggle_column(self, column_index, checkbox):
+        """Toggle the visibility of a column based on checkbox state."""
+        self.outputTable.setColumnHidden(column_index, not checkbox.isChecked())
+
+    def save_filter_settings(self):
+        """Save the state of the filter checkboxes to JSON."""
+        item_vars = {header: self.filter_dialog.findChild(QCheckBox, header) for header in self.headers}
+        self.filter_settings["columns"] = {header: checkbox.isChecked() for header, checkbox in item_vars.items()}
+        self.filter_settings["all_checked"] = self.filter_dialog.findChild(QCheckBox, "All").isChecked()
+        self.filter_settings["none_checked"] = self.filter_dialog.findChild(QCheckBox, "None").isChecked()
+        # Save filter settings to a file or database
+        with open("filter_settings.json", "w") as f:
+            json.dump(self.filter_settings, f)
 
     def show_filter_window(self):
         """Show the filter window with dynamic headers."""
         self.filter_dialog = QDialog(self)  # Store a reference to the filter dialog
         self.filter_dialog.setWindowTitle("Filter")
-        self.filter_dialog.setStyleSheet("background-color: black; color: white;")
+        self.filter_dialog.setStyleSheet("background-color: black; color: white; border: 1px solid #FF8956;")
         self.filter_dialog.setFixedSize(300, 400)
 
         layout = QVBoxLayout(self.filter_dialog)
@@ -399,12 +414,30 @@ class RightGroupBox(QGroupBox):
         scroll_layout = QVBoxLayout(scroll_widget)
         scroll_widget.setLayout(scroll_layout)
 
+        # "All" and "None" checkboxes
+        all_checkbox = QCheckBox("All")
+        none_checkbox = QCheckBox("None")
+        all_checkbox.setObjectName("All")
+        none_checkbox.setObjectName("None")
+        all_checkbox.setStyleSheet("color: white; border: none;")
+        none_checkbox.setStyleSheet("color: white; border: none;")
+        all_checkbox.stateChanged.connect(lambda state: self.toggle_all_checkboxes(scroll_widget, state, all_checkbox, none_checkbox))
+        none_checkbox.stateChanged.connect(lambda state: self.toggle_all_checkboxes(scroll_widget, not state, none_checkbox, all_checkbox))
+
+        # Load saved state for "All" and "None" checkboxes
+        all_checkbox.setChecked(self.filter_settings.get("all_checked", False))
+        none_checkbox.setChecked(self.filter_settings.get("none_checked", False))
+
+        scroll_layout.addWidget(all_checkbox)
+        scroll_layout.addWidget(none_checkbox)
+
         item_vars = {}
         # Get stored filter settings or default to all True
         filter_settings = self.filter_settings.get("columns", {header: True for header in self.headers})
         for idx, header in enumerate(self.headers):
             checkbox = QCheckBox(header)
-            checkbox.setStyleSheet("color: white;")
+            checkbox.setObjectName(header)  # Set object name for the checkbox
+            checkbox.setStyleSheet("color: white; border: none;")
             # Set checkbox state based on stored settings
             checkbox.setChecked(filter_settings.get(header, True))
             checkbox.stateChanged.connect(partial(self.toggle_column, idx, checkbox))  # Use partial to capture idx
@@ -426,16 +459,11 @@ class RightGroupBox(QGroupBox):
         self.filter_dialog.setLayout(layout)
         self.filter_dialog.exec_()
 
-    def toggle_column(self, column_index, checkbox):
-        """Toggle the visibility of a column based on checkbox state and save filter settings."""
-        self.outputTable.setColumnHidden(column_index, not checkbox.isChecked())
-
-    def save_filter_settings(self):
-        """Save the state of the filter checkboxes to JSON."""
-        item_vars = {header: self.filter_dialog.findChild(QCheckBox, header) for header in self.headers}
-        self.filter_settings["columns"] = {header: checkbox.isChecked() for header, checkbox in item_vars.items()}
-        # Save filter settings to a file or database
-        with open("filter_settings.json", "w") as f:
-            json.dump(self.filter_settings, f)
-
-
+    def toggle_all_checkboxes(self, parent_widget, check_state, source_checkbox, other_checkbox):
+        """Toggle all checkboxes to the given state and update 'All' and 'None' checkboxes."""
+        other_checkbox.blockSignals(True)
+        other_checkbox.setChecked(False)
+        other_checkbox.blockSignals(False)
+        for checkbox in parent_widget.findChildren(QCheckBox):
+            if checkbox not in [source_checkbox, other_checkbox]:
+                checkbox.setChecked(check_state)
