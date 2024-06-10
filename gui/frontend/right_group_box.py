@@ -55,7 +55,7 @@ class RightGroupBox(QGroupBox):
 
         self.terminalButton.clicked.connect(self.go_back_to_home)  # Connect the terminal button to go back
 
-        self.helpButton.clicked.connect(self.show_help_window)
+        #self.helpButton.clicked.connect(self.show_help_window)
         self.settingsButton.clicked.connect(self.show_settings_window)  # Connect the settings button
 
         buttonHolder = QWidget(self)
