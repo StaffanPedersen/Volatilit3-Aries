@@ -218,10 +218,11 @@ class LeftGroupBox(QGroupBox):
             self.pluginAsideWindow.closed.connect(self.close_plugin_window)
             self.existing_widgets = [self.layout().itemAt(i).widget() for i in range(self.layout().count())]
             self.existing_widgets.append(self.runButton)
+            self.existing_widgets.append(self.toggleButton)
             for widget in self.existing_widgets:
                 if widget is not None:  #
                     widget.hide()
-            self.layout().setContentsMargins(0, 0, 0, 0)
+
             self.layout().addWidget(self.pluginAsideWindow)
         self.pluginAsideWindow.show()
 
@@ -233,6 +234,8 @@ class LeftGroupBox(QGroupBox):
             for widget in self.existing_widgets:
                 if widget is not None:
                     widget.show()
+
+        
 
     def update_selected_plugin_text(self, plugin_name):
         """Update the selected plugin text box."""
