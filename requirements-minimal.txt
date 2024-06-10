@@ -23,3 +23,6 @@ s3fs>=2023.1.0
 
 # PyQt5 is required for the GUI
 PyQt5>=5.15.9
+
+# Get vol3
+volatility3

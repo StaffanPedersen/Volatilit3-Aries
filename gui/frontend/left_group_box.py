@@ -243,7 +243,7 @@ class LeftGroupBox(QGroupBox):
     def display_initial_scan_result(self, headers, data):
         """Display the initial scan result in the metadata window."""
         print("LeftGroupBox: Displaying initial scan result in metaDataWindow")
-        result_text = "\n\n".join(["\t\n".join(row) for row in data])
+        result_text = ">"+"\n\n>".join(["\t\n".join(row) for row in data])
         self.metaDataWindow.setText(result_text)
 
     def display_result(self, headers, data):
