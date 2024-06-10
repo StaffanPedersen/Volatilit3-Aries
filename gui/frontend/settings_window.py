@@ -11,7 +11,7 @@ class SettingsWindow(QWidget):
 
     def initUI(self):
         self.setWindowTitle('Settings Window')
-        self.resize(1500, 1000)
+        self.resize(1024, 768)
         self.setStyleSheet("background-color: black;")  # Set background color to black
 
         # Layout for the main window

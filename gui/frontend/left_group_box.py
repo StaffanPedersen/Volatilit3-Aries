@@ -9,12 +9,16 @@ from gui.frontend.error_handler_GUI import show_error_message
 from gui.backend.file_manager import FileManager  # Import the new FileManager class
 import os  # Ensure os is imported
 
+
 class LeftGroupBox(QGroupBox):
-    command_signal = pyqtSignal(str)  # Signal to emit the command string
+    command_signal = pyqtSignal(str)
 
     def __init__(self, parent):
         super().__init__(parent)
-        print("LeftGroupBox: Initializing LeftGroupBox")
+
+        self.existing_widgets = None
+        self.pluginAsideWindow = None
+
         self.selected_file = None
         self.selected_plugin = None
         self.plugin_window = None
@@ -145,6 +149,20 @@ class LeftGroupBox(QGroupBox):
         spacer.setStyleSheet(f"background-color: {color};")
         return spacer
 
+
+    def open_file_dialog(self):
+        """Open a file dialog to select a memory dump file."""
+        print("LeftGroupBox: open_file_dialog method called")
+        options = QFileDialog.Options()
+        fileName, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump File", "",
+                                                  "All Files (*);;Memory Files (*.mem)", options=options)
+        if fileName:
+            print(f"LeftGroupBox: File selected - {fileName}")
+            self.selected_file = fileName
+            self.selectFileButton.setText(f"    {os.path.basename(fileName)}")
+            self.metaDataWindow.setText(f'Selected file: {fileName}')
+            self.run_initial_scan(fileName)
+
     def handle_file_selection(self):
         """Handle the file selection using FileManager."""
         print("LeftGroupBox: handle_file_selection method called")
@@ -154,6 +172,7 @@ class LeftGroupBox(QGroupBox):
             self.selectFileButton.setText(f"    {os.path.basename(selected_file)}")
             self.metaDataWindow.setText(f'Selected file: {selected_file}')
             self.run_initial_scan(selected_file)
+
         else:
             print("LeftGroupBox: No valid file selected")
 
@@ -168,13 +187,29 @@ class LeftGroupBox(QGroupBox):
         else:
             print("LeftGroupBox: No valid file to handle")
 
+    # Logic for opening the plugin window and closing it as a widget in the left group box
     def open_plugin_window(self):
-        """Open the plugin selection window."""
-        print("LeftGroupBox: open_plugin_window method called")
-        if not self.plugin_window:
-            self.plugin_window = PluginAsideWindow(self)
-            self.plugin_window.plugin_stored.connect(self.update_selected_plugin_text)
-        self.plugin_window.show()
+        if not self.pluginAsideWindow:
+            self.pluginAsideWindow = PluginAsideWindow(self.width(), self)
+            self.pluginAsideWindow.plugin_stored.connect(self.update_selected_plugin_text)
+            self.pluginAsideWindow.closed.connect(self.close_plugin_window)
+            self.existing_widgets = [self.layout().itemAt(i).widget() for i in range(self.layout().count())]
+            self.existing_widgets.append(self.runButton)
+            for widget in self.existing_widgets:
+                if widget is not None:  #
+                    widget.hide()
+            self.layout().setContentsMargins(0, 0, 0, 0)
+            self.layout().addWidget(self.pluginAsideWindow)
+        self.pluginAsideWindow.show()
+
+    def close_plugin_window(self):
+        if self.pluginAsideWindow:
+            self.layout().removeWidget(self.pluginAsideWindow)
+            self.pluginAsideWindow.deleteLater()
+            self.pluginAsideWindow = None
+            for widget in self.existing_widgets:
+                if widget is not None:
+                    widget.show()
 
     def update_selected_plugin_text(self, plugin_name):
         """Update the selected plugin text box."""
