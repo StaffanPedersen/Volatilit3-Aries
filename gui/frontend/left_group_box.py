@@ -119,11 +119,9 @@ class LeftGroupBox(QGroupBox):
         self.selectedPluginTextBox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         # Add buttons and text edit to the layout
-        #left_layout.addWidget(self.create_spacer(0, ''))  # Adjust this value to change the position of the fileButton
         left_layout.addWidget(self.selectFileButton)
         left_layout.addWidget(self.create_spacer(10, ''))
         left_layout.addWidget(self.selectPluginButton)
-        # left_layout.addWidget(self.create_spacer(10, 'yellow'))
         left_layout.addWidget(self.selectedPluginTextBox)
         left_layout.addWidget(self.create_spacer(10, ''))
 
@@ -242,9 +240,63 @@ class LeftGroupBox(QGroupBox):
 
     def display_initial_scan_result(self, headers, data):
         """Display the initial scan result in the metadata window."""
-        print("LeftGroupBox: Displaying initial scan result in metaDataWindow")
-        result_text = ">"+"\n\n>".join(["\t\n".join(row) for row in data])
-        self.metaDataWindow.setText(result_text)
+        try:
+            print("LeftGroupBox: Displaying initial scan result in metaDataWindow")
+
+            # Validate data format
+            if not isinstance(data, list):
+                raise ValueError("Data should be a list of lists.")
+
+            # Extract OS information from the data
+            os_info = {
+                "NTBuildLab": "N/A",
+                "NtMajorVersion": "N/A",
+                "NtMinorVersion": "N/A",
+                "CSDVersion": "N/A",
+                "OSType": "Unknown"
+            }
+
+            formatted_rows = []
+            for row in data:
+                if not isinstance(row, (list, tuple)) or len(row) < 2:
+                    print(f"Skipping invalid row: {row}")  # Debug statement
+                    continue
+
+                # Debug: print the current row being processed
+                print(f"Processing row: {row}")
+
+                # Update os_info if applicable
+                if row[0] == "NTBuildLab":
+                    os_info["NTBuildLab"] = row[1]
+                    os_info["OSType"] = "Windows"
+                elif row[0] == "NtMajorVersion":
+                    os_info["NtMajorVersion"] = row[1]
+                    os_info["OSType"] = "Windows"
+                elif row[0] == "NtMinorVersion":
+                    os_info["NtMinorVersion"] = row[1]
+                    os_info["OSType"] = "Windows"
+                elif row[0] == "CSDVersion":
+                    os_info["CSDVersion"] = row[1]
+                    os_info["OSType"] = "Windows"
+
+                formatted_rows.append(row)
+
+            # Combine OS type and version into one line
+            os_details = (f"> OS: {os_info['OSType']} {os_info['NtMajorVersion']}.{os_info['NtMinorVersion']}\n\n"
+                          f"> Build: {os_info['NTBuildLab']}\n\n"
+                          f"> CSD Version: {os_info['CSDVersion']}")
+
+            # Format the scan results with the OS details on its own line and two line breaks
+            result_text = f"{os_details}\n\n" + "\n\n".join(["> " + "\n".join(row) for row in formatted_rows])
+
+            # Display the result in the metadata window
+            if not hasattr(self, 'metaDataWindow') or not callable(getattr(self.metaDataWindow, 'setText', None)):
+                raise AttributeError("metaDataWindow is not properly set up or lacks the setText method.")
+
+            self.metaDataWindow.setText(result_text)
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
     def display_result(self, headers, data):
         """Display the scan result in the right group box output table."""
@@ -260,3 +312,4 @@ class LeftGroupBox(QGroupBox):
         self.selectedPluginTextBox.setText(">")
         self.metaDataWindow.setText("")
         self.parent().groupBox_right.clear_output()
+
