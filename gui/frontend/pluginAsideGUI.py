@@ -74,7 +74,7 @@ class PluginAsideWindow(QtWidgets.QWidget):
         plugin_data = get_all_plugins(None, 'Windows')  # Case sensitive input
         self.pluginNames = [f"{plugin}" for os_name, plugins in plugin_data for plugin in plugins]
 
-        with open('D:/SmidigEksamen/Volatilit3-Aries/gui/frontend/plugin_desc.json') as f:
+        with open('./frontend/plugin_desc.json') as f:
             descriptions = json.load(f)
 
         for name in self.pluginNames:
