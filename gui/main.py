@@ -1,4 +1,8 @@
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget
+import ctypes
+
+from PyQt5 import QtGui
 
 from gui.frontend.home_screen_GUI import HomeScreen
 from gui.frontend.scan_screen_GUI import ScanScreen
@@ -7,8 +11,10 @@ from gui.frontend.scan_screen_GUI import ScanScreen
 class Main(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Volatility GUI")
+        self.setWindowTitle("Volatuition")
+        self.setWindowIcon(QtGui.QIcon("../gui/frontend/images/ariesLogoHomeScreen.png"))
         self.setFixedSize(1600, 900)
+
 
 
         # Create a stacked widget

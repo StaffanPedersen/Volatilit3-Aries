@@ -1,3 +1,4 @@
+from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import QTableWidgetItem, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, \
     QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog, QLineEdit, QDialog, QCheckBox, QScrollArea, QProgressBar
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
@@ -53,6 +54,10 @@ class RightGroupBox(QGroupBox):
         self.helpButton = create_transparent_button(self, "help.png", "")
         self.settingsButton = create_transparent_button(self, "settings.png", "")
 
+        self.terminalButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.helpButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.settingsButton.setCursor(QCursor(Qt.PointingHandCursor))
+
         button_size = QSize(64, 64)  # Adjust these values to get the desired size
         self.terminalButton.setFixedSize(button_size)
         self.helpButton.setFixedSize(button_size)
@@ -67,9 +72,52 @@ class RightGroupBox(QGroupBox):
         buttonLayout = QHBoxLayout(buttonHolder)
         buttonLayout.setContentsMargins(0, 0, 0, 0)
         buttonLayout.setSpacing(10)  # Set the space between buttons here
+        buttonLayout.addWidget(self.terminalButton)
         buttonLayout.addWidget(self.helpButton)
         buttonLayout.addWidget(self.settingsButton)
-        buttonLayout.addWidget(self.terminalButton)
+        #buttonLayout.addWidget(self.terminalButton)
+
+        self.terminalButton.setStyleSheet("""
+        QWidget {
+            background-color: #202020;
+            border: 2px solid #FF8956;
+            border-radius: 10px;
+        }
+        QWidget:hover {
+            background-color: #282828;
+        }
+        QWidget:focus {
+            background-color: #101010;
+        }
+        """)
+
+        self.helpButton.setStyleSheet("""
+        QWidget {
+            background-color: #202020;
+            border: 2px solid #FF8956;
+            border-radius: 10px;
+        }
+        QWidget:hover {
+            background-color: #282828;
+        }
+        QWidget:focus {
+            background-color: #101010;
+        }
+        """)
+
+        self.settingsButton.setStyleSheet("""
+        QWidget {
+            background-color: #202020;
+            border: 2px solid #FF8956;
+            border-radius: 10px;
+        }
+        QWidget:hover {
+            background-color: #282828;
+        }
+        QWidget:focus {
+            background-color: #101010;
+        }
+        """)
 
         # Align buttons to the right side
         topLayout.addStretch()
@@ -171,15 +219,49 @@ class RightGroupBox(QGroupBox):
         # Create and configure the export and filter buttons
         self.exportButton = QPushButton(self)
         self.exportButton.setFixedSize(330, 50)
+        self.exportButton.setCursor(QCursor(Qt.PointingHandCursor))
         setup_button_style(self.exportButton, "Export to...")
         self.exportButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.exportButton.clicked.connect(self.export_data)  # Connect the export button
+        self.exportButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 8px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
 
         self.filterButton = QPushButton(self)
         setup_button_style(self.filterButton, "Filter")
         self.filterButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.filterButton.setFixedSize(330, 50)
+        self.filterButton.setCursor(QCursor(Qt.PointingHandCursor))
         self.filterButton.clicked.connect(self.show_filter_window)  # Connect the filter button
+        self.filterButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 8px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
 
         # Wrap exportButton and filterButton in a QHBoxLayout to align them to the center
         button_layout = QHBoxLayout()

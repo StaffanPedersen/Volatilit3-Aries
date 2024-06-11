@@ -1,7 +1,9 @@
 import os
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QPixmap, QPalette, QColor
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QSpacerItem, QSizePolicy
+from PyQt5.QtGui import QFont, QPixmap, QPalette, QColor, QCursor
+from PyQt5 import QtGui, QtCore
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QSpacerItem, QSizePolicy, \
+    QGraphicsDropShadowEffect
 
 from gui.frontend.settings_window_GUI import SettingsWindowGUI
 
@@ -25,7 +27,7 @@ class HomeScreen(QWidget):
 
         title_label = QLabel('Volatuition', self)
         title_label.setFont(QFont('Arial', 36, QFont.Bold))
-        title_label.setStyleSheet('color: white; background-color: transparent; font: 100px "Inter_FXH";')
+        title_label.setStyleSheet('color: white; background-color: transparent; font: 100px "Inter_FXH"; font-style: italic')
         title_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(title_label, alignment=Qt.AlignCenter)
 
@@ -57,10 +59,33 @@ class HomeScreen(QWidget):
 
         # Adjust start button
         start_button = QPushButton('', self)
-        start_button.setFixedSize(250, 250)
-        start_button.setStyleSheet(
-            'background-color: #FF8956; border: 4px solid black; border-radius: 15px; color: black;'
-        )
+        start_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        start_button.setFixedSize(260, 260)
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(8)
+        shadow.setOffset(1, 1)
+        shadow.setColor(QColor('black'))
+        start_button.setGraphicsEffect(shadow)
+        start_button.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 4px solid black; 
+                border-radius: 15px; 
+                color: black;
+            }
+            
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #F79368;
+            }
+        
+        """)
+        #start_button.setStyleSheet(
+        #    'background-color: #FF8956; border: 4px solid black; border-radius: 15px; color: black;'
+        #)
         start_button_layout = QVBoxLayout()
         start_button_layout.setAlignment(Qt.AlignCenter)
         start_icon = QLabel(self)
@@ -72,7 +97,7 @@ class HomeScreen(QWidget):
         start_icon.setAlignment(Qt.AlignCenter)
         start_icon.setStyleSheet('border: none;')
 
-        start_label = QLabel('Start Scan', self)
+        start_label = QLabel('Start', self)
         start_label.setFont(QFont('Arial', 14))
         start_label.setStyleSheet('color: black; border: none; background-color: transparent; font: 30px "Inter_FXH"; font-weight: bold;')
         start_label.setAlignment(Qt.AlignCenter)
@@ -90,9 +115,32 @@ class HomeScreen(QWidget):
         # Adjust help button
         help_button = QPushButton('', self)
         help_button.setFixedSize(125, 125)
-        help_button.setStyleSheet(
-            'background-color: #FF8956; border: 4px solid black; border-radius: 10px; color: black; font-size: 18px; font-weight: bold;'
-        )
+        help_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        #help_button.setStyleSheet(
+        #    'background-color: #FF8956; border: 4px solid black; border-radius: 10px; color: black; font-size: 18px; font-weight: bold;'
+        #)
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(8)
+        shadow.setOffset(1, 1)
+        shadow.setColor(QColor('black'))
+        help_button.setGraphicsEffect(shadow)
+        help_button.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 4px solid black; 
+                border-radius: 15px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #F79368;
+            }
+
+        """)
         help_button.clicked.connect(self.show_help_window)
         help_button_layout = QVBoxLayout()
         help_button_layout.setAlignment(Qt.AlignCenter)
@@ -113,9 +161,33 @@ class HomeScreen(QWidget):
         # Adjust settings button
         settings_button = QPushButton('', self)
         settings_button.setFixedSize(125, 125)
-        settings_button.setStyleSheet(
-            'background-color: #FF8956; border: 4px solid black; border-radius: 10px; color: black; font-size: 18px; font-weight: bold;'
-        )
+        settings_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        #settings_button.setStyleSheet(
+        #    'background-color: #FF8956; border: 4px solid black; border-radius: 10px; color: black; font-size: 18px; font-weight: bold;'
+        #)
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(8)
+        shadow.setOffset(1, 1)
+        shadow.setColor(QColor('black'))
+        settings_button.setGraphicsEffect(shadow)
+        settings_button.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 4px solid black; 
+                border-radius: 15px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #F79368;
+            }
+
+        """)
+
         settings_button_layout = QVBoxLayout()
         settings_button_layout.setAlignment(Qt.AlignCenter)
         settings_icon = QLabel(self)
