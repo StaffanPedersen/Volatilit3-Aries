@@ -7,6 +7,7 @@ import os
 import traceback
 from datetime import datetime
 
+
 class VolatilityThread(QThread):
     output_signal = pyqtSignal(list, list)
     progress_signal = pyqtSignal(int)
@@ -15,22 +16,28 @@ class VolatilityThread(QThread):
 
     def __init__(self, memory_dump, plugin, parent=None, pid=None):
         super().__init__(parent)
-        self.memory_dump = memory_dump
-        self.plugin = plugin.lower()
+        if memory_dump is not None:
+            self.memory_dump = memory_dump
+        if plugin is not None:
+            self.plugin = (plugin.lower())
         self.pid = pid
         self.vol_path = find_volatility_file(os.getcwd())
+
 
     def run(self):
         try:
             command = f"python \"{self.vol_path}\" -f \"{self.memory_dump}\" -r csv {self.plugin}"
             if self.pid:
                 command += f" --pid {self.pid}"
+            self.progress_signal.emit(0)
             self.command_signal.emit(command)
+
             self.log_signal.emit(self.format_log_message("info", f"Command to run: {command}"))
 
             output = self.run_volatility_scan(command)
             headers, data = self.parse_output(output)
             self.output_signal.emit(headers, data)
+            print("Trying to process progress emit")
             self.progress_signal.emit(100)
             self.log_signal.emit(self.format_log_message("info", "Scan completed successfully"))
 
@@ -41,10 +48,13 @@ class VolatilityThread(QThread):
             self.output_signal.emit([], [])
             self.progress_signal.emit(0)
             self.command_signal.emit("Error occurred")
+            self.loading_window.close()
+            self.log_signal.emit(self.format_log_message("error", str(e)))
 
     def run_volatility_scan(self, command):
         try:
-            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, bufsize=1)
+            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                       universal_newlines=True, bufsize=1)
             output, error = process.communicate()
             if process.returncode != 0:
                 error_message = f"Error: {error}"
@@ -85,3 +95,7 @@ class VolatilityThread(QThread):
             return f"[ERROR] [{timestamp}] {message}"
         else:
             return f"[{level.upper()}] [{timestamp}] {message}"
+
+    def handle_progress(self, progress):
+        # This function will be called when the progress_signal is emitted
+        print("Progress signal received:", progress)

@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextEdit, QSizePolicy,
                              QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QProgressBar, QCheckBox)
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 from gui.frontend.utils import create_transparent_button, setup_button_style
 from gui.frontend.pluginAsideGUI import PluginAsideWindow
 from gui.backend.volatility_thread import VolatilityThread
@@ -9,14 +9,21 @@ from gui.frontend.error_handler_GUI import show_error_message
 from gui.backend.file_manager import FileManager  # Import the new FileManager class
 import os  # Ensure os is imported
 
+from gui.frontend.widgets.loading_window import LoadingWindow
+
+
 class LeftGroupBox(QGroupBox):
     command_signal = pyqtSignal(str)
+
 
     def __init__(self, parent):
         super().__init__(parent)
 
+        self.groupBox_right = None
         self.existing_widgets = None
         self.pluginAsideWindow = None
+
+        #self.volatility_thread.progress_signal.connect(self.handle_progress)
 
         self.selected_file = None
         self.selected_plugin = None
@@ -24,6 +31,8 @@ class LeftGroupBox(QGroupBox):
         self.selected_data = None  # Ensure selected_data is defined
         self.plugin_window = None
         self.volatility_thread = None
+
+        self.loading_window = LoadingWindow()
         self.file_manager = FileManager(self)  # Initialize the FileManager
         self.file_manager.unsupported_file_signal.connect(self.handle_unsupported_file)
         self.setObjectName("groupBox_left")
@@ -284,6 +293,7 @@ class LeftGroupBox(QGroupBox):
             self.volatility_thread.output_signal.connect(self.display_result)
             self.volatility_thread.log_signal.connect(self.log_to_terminal)
             self.volatility_thread.progress_signal.connect(self.update_progress_bar)
+            self.volatility_thread.progress_signal.connect(self.show_loading_image)
             self.parent().groupBox_right.show_progress_bar()
             self.volatility_thread.start()
         except Exception as e:
@@ -291,8 +301,18 @@ class LeftGroupBox(QGroupBox):
             self.log_to_terminal(error_message)
             show_error_message(self, "Error", error_message)
 
+    def show_loading_image(self, value):
+        if value < 100:
+            self.loading_window.show()
+
+            print(value)
+        else:
+            print(value)
+            self.loading_window.close()
+            print("done scanning")
+
     def update_progress_bar(self, value):
-        """Update the progress bar value based on the type of scan."""
+
         self.parent().groupBox_right.update_progress_bar(value)
 
     def run_initial_scan(self, fileName):
