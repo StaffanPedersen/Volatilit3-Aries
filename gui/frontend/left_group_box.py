@@ -11,7 +11,7 @@ import os  # Ensure os is imported
 from PyQt5.QtGui import QMovie
 
 
-
+from gui.frontend.widgets.loading_window import LoadingWindow
 
 
 class LeftGroupBox(QGroupBox):
@@ -34,7 +34,7 @@ class LeftGroupBox(QGroupBox):
         self.plugin_window = None
         self.volatility_thread = None
 
-
+        self.loading_window = LoadingWindow()
         self.file_manager = FileManager(self)  # Initialize the FileManager
         self.file_manager.unsupported_file_signal.connect(self.handle_unsupported_file)
         self.setObjectName("groupBox_left")
@@ -295,6 +295,7 @@ class LeftGroupBox(QGroupBox):
             self.volatility_thread.output_signal.connect(self.display_result)
             self.volatility_thread.log_signal.connect(self.log_to_terminal)
             self.volatility_thread.progress_signal.connect(self.update_progress_bar)
+            self.volatility_thread.progress_signal.connect(self.show_loading_image)
             self.parent().groupBox_right.show_progress_bar()
             self.volatility_thread.start()
         except Exception as e:
@@ -302,7 +303,15 @@ class LeftGroupBox(QGroupBox):
             self.log_to_terminal(error_message)
             show_error_message(self, "Error", error_message)
 
+    def show_loading_image(self, value):
+        if value < 100:
+            self.loading_window.show()
 
+            print(value)
+        else:
+            print(value)
+            self.loading_window.close()
+            print("done scanning")
 
     def update_progress_bar(self, value):
 
