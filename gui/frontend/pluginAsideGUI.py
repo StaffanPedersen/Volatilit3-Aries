@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QVBoxLayout
+import json
 
 from gui.backend.plugin_manager import get_all_plugins
 
@@ -70,8 +71,11 @@ class PluginAsideWindow(QtWidgets.QWidget):
         self.scrollArea.setStyleSheet("border: none;")
 
         # Get the list of plugins from plugins_manager.py
-        plugin_data = get_all_plugins(None, 'Windows') #Case sensitive input
+        plugin_data = get_all_plugins(None, 'Windows')  # Case sensitive input
         self.pluginNames = [f"{plugin}" for os_name, plugins in plugin_data for plugin in plugins]
+
+        with open('D:/SmidigEksamen/Volatilit3-Aries/gui/frontend/plugin_desc.json') as f:
+            descriptions = json.load(f)
 
         for name in self.pluginNames:
             element = QtWidgets.QWidget()
@@ -83,7 +87,19 @@ class PluginAsideWindow(QtWidgets.QWidget):
             checkbox.setMaximumSize(280, 20)
             self.buttonGroup.addButton(checkbox)
             checkbox.stateChanged.connect(
-                self.update_checked_plugins)  #
+               self.update_checked_plugins)  #
+
+            tooltip_text = "Description for " + name  # Add your description here
+            checkbox.setToolTip(tooltip_text)
+
+            if name in descriptions:
+                checkbox.setToolTip(descriptions[name])
+
+            self.buttonGroup.addButton(checkbox)
+            checkbox.stateChanged.connect(self.update_checked_plugins)
+            elementLayout.addWidget(checkbox)
+            self.scrollLayout.addWidget(element)
+
             # button = QtWidgets.QPushButton("X")
             # button.setStyleSheet("background-color: #555; color: #fff;")
             # button.setFixedSize(20, 20)
