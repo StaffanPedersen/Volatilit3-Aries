@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextEdit, QSizePolicy,
-                             QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QProgressBar)
+                             QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QProgressBar, QCheckBox)
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont
 from gui.frontend.utils import create_transparent_button, setup_button_style
@@ -20,6 +20,8 @@ class LeftGroupBox(QGroupBox):
 
         self.selected_file = None
         self.selected_plugin = None
+        self.selected_pid = None
+        self.selected_data = None  # Ensure selected_data is defined
         self.plugin_window = None
         self.volatility_thread = None
         self.file_manager = FileManager(self)  # Initialize the FileManager
@@ -81,6 +83,18 @@ class LeftGroupBox(QGroupBox):
         setup_button_style(self.runButton, "Run")
         self.runButton.clicked.connect(self.run_volatility_scan)
         self.runButton.setFixedSize(100, 50)
+
+        self.pidCheckBox = QCheckBox("Run with PID", self)
+        self.pidCheckBox.setStyleSheet("""
+            QCheckBox {
+                color: #FF8956;
+                font: 14pt "Inter_FXH";
+            }
+            QCheckBox::indicator {
+                width: 20px;
+                height: 20px;
+            }
+        """)
 
         self.clearButton = QPushButton(self)
         self.clearButton.setFixedSize(330, 50)
@@ -154,6 +168,8 @@ class LeftGroupBox(QGroupBox):
         run_button_layout.addWidget(self.runButton)
         left_layout.addLayout(run_button_layout)
 
+        left_layout.addWidget(self.pidCheckBox)  # Add the PID checkbox
+
         left_layout.addWidget(self.create_spacer(10, ''))
         left_layout.addWidget(self.metaDataWindow)
         left_layout.addWidget(self.terminalWindow)
@@ -208,6 +224,16 @@ class LeftGroupBox(QGroupBox):
         else:
             print("LeftGroupBox: No valid file to handle")
 
+    def set_selected_data(self, data):
+        """Set the selected data for a new scan."""
+        self.selected_data = data
+        self.metaDataWindow.setText(f'Selected data: {data}')  # Display the selected data
+
+    def set_selected_pid(self, pid):
+        """Set the selected PID for a new scan."""
+        self.selected_pid = pid
+        self.metaDataWindow.append(f'Selected PID: {pid}')  # Display the selected PID
+
     # Logic for opening the plugin window and closing it as a widget in the left group box
     def open_plugin_window(self):
         if not self.pluginAsideWindow:
@@ -218,7 +244,7 @@ class LeftGroupBox(QGroupBox):
             self.existing_widgets.append(self.runButton)
             self.existing_widgets.append(self.toggleButton)
             for widget in self.existing_widgets:
-                if widget is not None:  #
+                if widget is not None:
                     widget.hide()
 
             self.layout().addWidget(self.pluginAsideWindow)
@@ -247,8 +273,11 @@ class LeftGroupBox(QGroupBox):
             return
 
         try:
-            self.log_to_terminal(f"Running {self.selected_plugin} on {self.selected_file}")
-            self.volatility_thread = VolatilityThread(self.selected_file, self.selected_plugin, parent=self)
+            # Incorporate selected data and PID into the command if necessary
+            selected_data_text = f" with data {self.selected_data}" if self.selected_data else ""
+            selected_pid_text = f" and PID {self.selected_pid}" if self.pidCheckBox.isChecked() and self.selected_pid else ""
+            self.log_to_terminal(f"Running {self.selected_plugin} on {self.selected_file}{selected_data_text}{selected_pid_text}")
+            self.volatility_thread = VolatilityThread(self.selected_file, self.selected_plugin, parent=self, pid=self.selected_pid if self.pidCheckBox.isChecked() else None)
             self.volatility_thread.command_signal.connect(self.parent().groupBox_right.update_command_info)
             self.volatility_thread.output_signal.connect(self.display_result)
             self.volatility_thread.log_signal.connect(self.log_to_terminal)
@@ -347,6 +376,8 @@ class LeftGroupBox(QGroupBox):
         print("LeftGroupBox: Clearing workspace")
         self.selected_file = None
         self.selected_plugin = None
+        self.selected_pid = None
+        self.selected_data = None  # Clear selected_data
         self.selectFileButton.setText("    Select file")
         self.selectedPluginTextBox.setText(">")
         self.metaDataWindow.setText("")
