@@ -3,6 +3,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QPixmap, QPalette, QColor
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QSpacerItem, QSizePolicy
 
+from gui.frontend.settings_window_GUI import SettingsWindowGUI
+
+
 class HomeScreen(QWidget):
     def __init__(self, switch_screen_callback, parent=None):
         super().__init__(parent)
@@ -90,6 +93,7 @@ class HomeScreen(QWidget):
         help_button.setStyleSheet(
             'background-color: #FF8956; border: 4px solid black; border-radius: 10px; color: black; font-size: 18px; font-weight: bold;'
         )
+        help_button.clicked.connect(self.show_help_window)
         help_button_layout = QVBoxLayout()
         help_button_layout.setAlignment(Qt.AlignCenter)
         help_icon = QLabel(self)
@@ -115,6 +119,7 @@ class HomeScreen(QWidget):
         settings_button_layout = QVBoxLayout()
         settings_button_layout.setAlignment(Qt.AlignCenter)
         settings_icon = QLabel(self)
+        settings_button.clicked.connect(self.show_settings_window)
 
         settings_pixmap = QPixmap(settings_pixmap_path)
         if settings_pixmap.isNull():
@@ -136,6 +141,16 @@ class HomeScreen(QWidget):
         layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
         self.setLayout(layout)
+
+    def show_help_window(self):
+        """Show the help window."""
+        self.settings_window = SettingsWindowGUI()
+        self.settings_window.show()
+
+    def show_settings_window(self):
+        """Show the settings window when the settings button is clicked."""
+        self.settings_window = SettingsWindowGUI()
+        self.settings_window.show()
 
 # Testing the HomeScreen widget
 if __name__ == '__main__':
