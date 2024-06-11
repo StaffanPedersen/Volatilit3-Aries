@@ -8,6 +8,8 @@ from gui.backend.volatility_thread import VolatilityThread
 from gui.frontend.error_handler_GUI import show_error_message
 from gui.backend.file_manager import FileManager  # Import the new FileManager class
 import os  # Ensure os is imported
+from PyQt5.QtGui import QMovie
+
 
 from gui.frontend.widgets.loading_window import LoadingWindow
 
@@ -391,7 +393,20 @@ class LeftGroupBox(QGroupBox):
     def display_result(self, headers, data):
         """Display the scan result in the right group box output table."""
         print("LeftGroupBox: Displaying result in RightGroupBox output table")
-        self.parent().groupBox_right.display_output(headers, data)
+
+        # Assuming the movie is part of the data, modify it to include the QMovie instance
+        modified_data = []
+        for row in data:
+            modified_row = []
+            for item in row:
+                if item == 'some_condition_to_identify_movie':  # Replace this condition with the actual one
+                    movie = QMovie('path_to_movie.gif')  # Adjust the path as needed
+                    modified_row.append(movie)
+                else:
+                    modified_row.append(item)
+            modified_data.append(modified_row)
+
+        self.parent().groupBox_right.display_output(headers, modified_data)
 
     def clear_workspace(self):
         """Clear the workspace by resetting the selected file and plugin."""

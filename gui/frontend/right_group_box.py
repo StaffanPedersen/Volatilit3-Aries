@@ -9,6 +9,8 @@ import webbrowser
 from gui.frontend.settings_window import SettingsWindow  # Correct the import path
 from functools import partial
 import json
+from PyQt5.QtGui import QMovie
+
 
 # Check for optional library
 try:
@@ -17,12 +19,63 @@ try:
 except ImportError:
     DOCX_AVAILABLE = False
 
+from PyQt5.QtWidgets import QLabel, QHBoxLayout, QWidget
+
 class CustomTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
         try:
             return int(self.text()) < int(other.text())
         except ValueError:
             return self.text() < other.text()
+
+from PyQt5.QtWidgets import QLabel, QHBoxLayout, QWidget, QTableWidgetItem
+from PyQt5.QtGui import QMovie
+
+class CustomTableWidgetItem(QTableWidgetItem):
+    def __lt__(self, other):
+        try:
+            return int(self.text()) < int(other.text())
+        except ValueError:
+            return self.text() < other.text()
+
+def display_output(self, headers, data):
+    """Display the output data in the table."""
+    print("Displaying output in table")
+    self.headers = headers
+    self.data = data
+
+    self.outputTable.setColumnCount(len(headers))
+    self.outputTable.setHorizontalHeaderLabels(headers)
+    self.outputTable.setRowCount(len(data))
+
+    for row_idx, row_data in enumerate(data):
+        for col_idx, col_data in enumerate(row_data):
+            if isinstance(col_data, QMovie):
+                # Create a QLabel to display the movie
+                label = QLabel()
+                label.setAlignment(Qt.AlignCenter)
+                label.setMovie(col_data)
+                col_data.start()  # Start the movie
+
+                # Create a QWidget to hold the QLabel
+                cell_widget = QWidget()
+                layout = QHBoxLayout(cell_widget)
+                layout.addWidget(label)
+                layout.setAlignment(Qt.AlignCenter)
+                layout.setContentsMargins(0, 0, 0, 0)
+                cell_widget.setLayout(layout)
+
+                self.outputTable.setCellWidget(row_idx, col_idx, cell_widget)
+            else:
+                item = CustomTableWidgetItem(str(col_data))
+                item.setTextAlignment(Qt.AlignCenter)  # Center the text alignment
+                self.outputTable.setItem(row_idx, col_idx, item)
+
+    for col in range(len(headers)):
+        self.sort_orders[col] = Qt.DescendingOrder
+
+
+
 
 class RightGroupBox(QGroupBox):
     back_to_home_signal = pyqtSignal()  # Signal to go back to home screen
@@ -228,7 +281,7 @@ class RightGroupBox(QGroupBox):
         for row_idx, row_data in enumerate(data):
             for col_idx, col_data in enumerate(row_data):
                 item = CustomTableWidgetItem(str(col_data))
-                item.setTextAlignment(Qt.AlignCenter)
+                item.setTextAlignment(Qt.AlignCenter)  # Center the text alignment
                 self.outputTable.setItem(row_idx, col_idx, item)
 
         for col in range(len(headers)):
