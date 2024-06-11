@@ -85,12 +85,12 @@ class PluginAsideWindow(QtWidgets.QWidget):
             checkbox.setStyleSheet("background-color: #353535; color: #fff; font-size: 14px;")
             checkbox.setMinimumSize(220, 20)
             checkbox.setMaximumSize(280, 20)
-            # self.buttonGroup.addButton(checkbox)
-            # checkbox.stateChanged.connect(
-            #    self.update_checked_plugins)  #
+            self.buttonGroup.addButton(checkbox)
+            checkbox.stateChanged.connect(
+               self.update_checked_plugins)  #
 
-            # tooltip_text = "Description for " + name  # Add your description here
-            # checkbox.setToolTip(tooltip_text)
+            tooltip_text = "Description for " + name  # Add your description here
+            checkbox.setToolTip(tooltip_text)
 
             if name in descriptions:
                 checkbox.setToolTip(descriptions[name])
