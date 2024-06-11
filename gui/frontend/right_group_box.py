@@ -1,25 +1,28 @@
-from PyQt5.QtWidgets import QTableWidgetItem, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, \
-    QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog, QLineEdit, QDialog, QCheckBox, QScrollArea, QProgressBar
-from PyQt5.QtCore import Qt, QSize, pyqtSignal
-from gui.frontend.utils import create_transparent_button, setup_button_style
-import pandas as pd
-from fpdf import FPDF
+import json
 import os
 import webbrowser
-from gui.frontend.settings_window import SettingsWindow  # Correct the import path
 from functools import partial
-import json
-from PyQt5.QtGui import QMovie
 
+import PyQt5
+import pandas as pd
+from PyQt5.QtCore import Qt, QSize, pyqtSignal
+from PyQt5.QtWidgets import QTableWidgetItem, QGroupBox, QVBoxLayout, QPushButton, QTextEdit, QSizePolicy, \
+    QSpacerItem, QTableWidget, QHeaderView, QFileDialog, QLineEdit, QDialog, QCheckBox, QScrollArea, \
+    QProgressBar
+from fpdf import FPDF
+
+from gui.frontend.settings_window import SettingsWindow  # Correct the import path
+from gui.frontend.utils import create_transparent_button, setup_button_style
+from gui.frontend.widgets.loading_window import LoadingWindow
 
 # Check for optional library
 try:
     from docx import Document
+
     DOCX_AVAILABLE = True
 except ImportError:
     DOCX_AVAILABLE = False
 
-from PyQt5.QtWidgets import QLabel, QHBoxLayout, QWidget
 
 class CustomTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
@@ -28,15 +31,17 @@ class CustomTableWidgetItem(QTableWidgetItem):
         except ValueError:
             return self.text() < other.text()
 
-from PyQt5.QtWidgets import QLabel, QHBoxLayout, QWidget, QTableWidgetItem
+
 from PyQt5.QtGui import QMovie
 
-class CustomTableWidgetItem(QTableWidgetItem):
+
+class CustomTableWidgetItem(PyQt5.QtWidgets.QTableWidgetItem):
     def __lt__(self, other):
         try:
             return int(self.text()) < int(other.text())
         except ValueError:
             return self.text() < other.text()
+
 
 def display_output(self, headers, data):
     """Display the output data in the table."""
@@ -52,14 +57,14 @@ def display_output(self, headers, data):
         for col_idx, col_data in enumerate(row_data):
             if isinstance(col_data, QMovie):
                 # Create a QLabel to display the movie
-                label = QLabel()
+                label = PyQt5.QtWidgets.QLabel()
                 label.setAlignment(Qt.AlignCenter)
                 label.setMovie(col_data)
                 col_data.start()  # Start the movie
 
                 # Create a QWidget to hold the QLabel
-                cell_widget = QWidget()
-                layout = QHBoxLayout(cell_widget)
+                cell_widget = PyQt5.QtWidgets.QWidget()
+                layout = PyQt5.QtWidgets.QHBoxLayout(cell_widget)
                 layout.addWidget(label)
                 layout.setAlignment(Qt.AlignCenter)
                 layout.setContentsMargins(0, 0, 0, 0)
@@ -73,8 +78,6 @@ def display_output(self, headers, data):
 
     for col in range(len(headers)):
         self.sort_orders[col] = Qt.DescendingOrder
-
-
 
 
 class RightGroupBox(QGroupBox):
@@ -100,7 +103,9 @@ class RightGroupBox(QGroupBox):
         right_layout.setContentsMargins(10, 10, 10, 10)
         right_layout.setSpacing(10)
 
-        topLayout = QHBoxLayout()
+        self.loading_window = LoadingWindow()
+
+        topLayout = PyQt5.QtWidgets.QHBoxLayout()
 
         self.terminalButton = create_transparent_button(self, "terminal.png", "")
         self.helpButton = create_transparent_button(self, "help.png", "")
@@ -116,8 +121,8 @@ class RightGroupBox(QGroupBox):
         #self.helpButton.clicked.connect(self.show_help_window)
         self.settingsButton.clicked.connect(self.show_settings_window)  # Connect the settings button
 
-        buttonHolder = QWidget(self)
-        buttonLayout = QHBoxLayout(buttonHolder)
+        buttonHolder = PyQt5.QtWidgets.QWidget(self)
+        buttonLayout = PyQt5.QtWidgets.QHBoxLayout(buttonHolder)
         buttonLayout.setContentsMargins(0, 0, 0, 0)
         buttonLayout.setSpacing(10)  # Set the space between buttons here
         buttonLayout.addWidget(self.helpButton)
@@ -209,6 +214,7 @@ class RightGroupBox(QGroupBox):
         self.outputTable.setEditTriggers(QTableWidget.NoEditTriggers)  # Disable editing
         self.outputTable.clicked.connect(self.row_clicked)
         search_and_table_layout.addWidget(self.outputTable)
+        search_and_table_layout.addWidget(self.loading_window)
 
         # Add the progress bar for the output table
         self.outputProgressBar = QProgressBar(self)
@@ -235,7 +241,7 @@ class RightGroupBox(QGroupBox):
         self.filterButton.clicked.connect(self.show_filter_window)  # Connect the filter button
 
         # Wrap exportButton and filterButton in a QHBoxLayout to align them to the center
-        button_layout = QHBoxLayout()
+        button_layout = PyQt5.QtWidgets.QHBoxLayout()
         button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         button_layout.addWidget(self.filterButton)
         button_layout.addWidget(self.exportButton)
@@ -263,7 +269,7 @@ class RightGroupBox(QGroupBox):
 
     def create_spacer(self, height, color):
         """Create a spacer widget with the specified height and color."""
-        spacer = QWidget()
+        spacer = PyQt5.QtWidgets.QWidget()
         spacer.setFixedHeight(height)
         spacer.setStyleSheet(f"background-color: {color};")
         return spacer
@@ -291,7 +297,8 @@ class RightGroupBox(QGroupBox):
         """Handle the click event on the table header for sorting."""
         current_order = self.sort_orders.get(logicalIndex, Qt.DescendingOrder)
         self.outputTable.sortItems(logicalIndex, current_order)
-        self.sort_orders[logicalIndex] = Qt.AscendingOrder if current_order == Qt.DescendingOrder else Qt.DescendingOrder
+        self.sort_orders[
+            logicalIndex] = Qt.AscendingOrder if current_order == Qt.DescendingOrder else Qt.DescendingOrder
 
     def row_clicked(self, index):
         """Emit signal with the data of the selected row and handle PID selection."""
@@ -492,7 +499,7 @@ class RightGroupBox(QGroupBox):
         scroll.setWidgetResizable(True)
         scroll.setStyleSheet("background-color: black;")
 
-        scroll_widget = QWidget()
+        scroll_widget = PyQt5.QtWidgets.QWidget()
         scroll_layout = QVBoxLayout(scroll_widget)
         scroll_widget.setLayout(scroll_layout)
 
@@ -503,8 +510,10 @@ class RightGroupBox(QGroupBox):
         none_checkbox.setObjectName("None")
         all_checkbox.setStyleSheet("color: white; border: none;")
         none_checkbox.setStyleSheet("color: white; border: none;")
-        all_checkbox.stateChanged.connect(lambda state: self.toggle_all_checkboxes(scroll_widget, state, all_checkbox, none_checkbox))
-        none_checkbox.stateChanged.connect(lambda state: self.toggle_all_checkboxes(scroll_widget, not state, none_checkbox, all_checkbox))
+        all_checkbox.stateChanged.connect(
+            lambda state: self.toggle_all_checkboxes(scroll_widget, state, all_checkbox, none_checkbox))
+        none_checkbox.stateChanged.connect(
+            lambda state: self.toggle_all_checkboxes(scroll_widget, not state, none_checkbox, all_checkbox))
 
         # Load saved state for "All" and "None" checkboxes
         all_checkbox.setChecked(self.filter_settings.get("all_checked", False))
@@ -530,7 +539,7 @@ class RightGroupBox(QGroupBox):
 
         layout.addWidget(scroll)
 
-        button_layout = QHBoxLayout()
+        button_layout = PyQt5.QtWidgets.QHBoxLayout()
         apply_button = QPushButton("Apply")
         apply_button.setStyleSheet("background-color: #FF8956; color: black;")
         apply_button.clicked.connect(self.apply_filter)  # Connect the apply button to apply_filter()
@@ -557,3 +566,8 @@ class RightGroupBox(QGroupBox):
     def update_progress_bar(self, value):
         """Update the progress bar value for the table view."""
         self.outputProgressBar.setValue(value)
+
+    def toggle_show_loading_window(self):
+        if self.loading_window.isVisible():
+            self.loading_window.hide()
+        self.loading_window.show()
