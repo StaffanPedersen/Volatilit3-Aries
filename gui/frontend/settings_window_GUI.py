@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QFrame, \
-    QSpacerItem, QSizePolicy
+    QSpacerItem, QSizePolicy, QTextEdit
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 
@@ -16,43 +16,9 @@ class SettingsWindowGUI(QWidget):
         self.resize(1024, 768)
         self.setStyleSheet("background-color: black;")
 
-        main_layout = QHBoxLayout()
+        main_layout = QVBoxLayout()  # Changed to QVBoxLayout since we no longer need a horizontal layout
         main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
-
-
-        sidebar = QWidget()
-        sidebar.setFixedWidth(300)
-        sidebar.setStyleSheet("background-color: #ff8956;")
-
-        sidebar_layout = QVBoxLayout(sidebar)
-        sidebar_layout.setContentsMargins(10, 10, 10, 10)
-
-        spacer = QSpacerItem(15, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        sidebar_layout.addItem(spacer)
-        title = QLabel("Settings", sidebar)
-        title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("font-size: 35px; color: black; font-weight: bold;")
-        sidebar_layout.addWidget(title)
-
-        sidebar_layout.addSpacing(20)
-
-
-        button_names = ["General", "Manage Plugins", "About"]
-        for name in button_names:
-            button = QPushButton(name, sidebar)
-            button.setStyleSheet(
-                "border: none;"
-                "background: transparent;"
-                "color: #262626;"
-                "font-size: 20px;"
-                "font-weight: 500;")
-            sidebar_layout.addWidget(button)
-            sidebar_layout.addSpacing(10)
-
-        sidebar_layout.addStretch()
-
-        main_layout.addWidget(sidebar)
 
         main_content = QWidget()
         main_content.setAutoFillBackground(True)
@@ -64,7 +30,7 @@ class SettingsWindowGUI(QWidget):
 
         main_content_layout.addSpacing(20)
 
-        main_title = QLabel("General", main_content)
+        main_title = QLabel("Settings", main_content)
         main_title.setAlignment(Qt.AlignCenter)
         main_title.setStyleSheet("font-size: 35px; color: white; margin-bottom: 20px; border: none;")
         main_content_layout.addWidget(main_title)
@@ -150,7 +116,7 @@ class SettingsWindowGUI(QWidget):
         export_layout.addWidget(export_combobox)
         main_content_layout.addLayout(export_layout)
 
-        # Default filetype
+        # Default Export Filetype Section
         file_type_layout = QHBoxLayout()
         file_type_label = QLabel("Default Export Filetype", main_content)
         file_type_label.setStyleSheet("font-size: 20px; color: black; background-color: #ff8956;")
@@ -161,6 +127,16 @@ class SettingsWindowGUI(QWidget):
         file_type_combobox.setStyleSheet("font-size: 16px;")
         file_type_layout.addWidget(file_type_combobox)
         main_content_layout.addLayout(file_type_layout)
+
+        # ABOUT
+        header_about = QLabel("About", main_content)
+        header_about.setStyleSheet(
+            "font-size: 30px; color: white; border: none; margin-top: 20px; background-color: transparent;")
+        main_content_layout.addWidget(header_about)
+
+        text_box = QTextEdit("bla bla bla bla", main_content)
+        text_box.setStyleSheet("font-size: 20px; color: white; border: none; background-color: #262626;")
+        main_content_layout.addWidget(text_box)
 
         main_content_layout.addSpacing(20)
         main_content_layout.addStretch()
