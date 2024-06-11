@@ -28,6 +28,12 @@ class ScanScreen(QWidget):
         main_layout.setStretch(0, 2)
         main_layout.setStretch(1, 8)
 
+        self.setLayout(main_layout)
+
+        # Connect signals between group boxes
+        self.groupBox_right.row_selected_signal.connect(self.groupBox_left.set_selected_data)
+        self.groupBox_right.pid_selected_signal.connect(self.groupBox_left.set_selected_pid)
+
         # Connect the select file button to handle the result only
         self.groupBox_left.selectFileButton.clicked.connect(self.handle_file_selection)
 

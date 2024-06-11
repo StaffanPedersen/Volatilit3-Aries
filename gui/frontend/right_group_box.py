@@ -26,6 +26,8 @@ class CustomTableWidgetItem(QTableWidgetItem):
 
 class RightGroupBox(QGroupBox):
     back_to_home_signal = pyqtSignal()  # Signal to go back to home screen
+    row_selected_signal = pyqtSignal(list)  # Signal for row selection
+    pid_selected_signal = pyqtSignal(str)  # Signal for PID selection
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -149,6 +151,10 @@ class RightGroupBox(QGroupBox):
         """)
         self.outputTable.setSortingEnabled(True)
         self.outputTable.horizontalHeader().sectionClicked.connect(self.handle_header_click)
+        self.outputTable.setSelectionBehavior(QTableWidget.SelectRows)
+        self.outputTable.setSelectionMode(QTableWidget.SingleSelection)
+        self.outputTable.setEditTriggers(QTableWidget.NoEditTriggers)  # Disable editing
+        self.outputTable.clicked.connect(self.row_clicked)
         search_and_table_layout.addWidget(self.outputTable)
 
         # Add the progress bar for the output table
@@ -233,6 +239,21 @@ class RightGroupBox(QGroupBox):
         current_order = self.sort_orders.get(logicalIndex, Qt.DescendingOrder)
         self.outputTable.sortItems(logicalIndex, current_order)
         self.sort_orders[logicalIndex] = Qt.AscendingOrder if current_order == Qt.DescendingOrder else Qt.DescendingOrder
+
+    def row_clicked(self, index):
+        """Emit signal with the data of the selected row and handle PID selection."""
+        selected_row = index.row()
+        data = []
+        for column in range(self.outputTable.columnCount()):
+            data.append(self.outputTable.item(selected_row, column).text())
+        self.row_selected_signal.emit(data)
+
+        # Handle PID selection
+        if 'PID' in self.headers:
+            pid_index = self.headers.index('PID')
+            selected_pid = self.outputTable.item(selected_row, pid_index).text()
+            self.pid_selected_signal.emit(selected_pid)
+            print(f"Selected PID: {selected_pid}")  # Print selected PID to the console
 
     def update_command_info(self, command):
         """Update the command info box with the executed command."""

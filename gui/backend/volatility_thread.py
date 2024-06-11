@@ -13,15 +13,18 @@ class VolatilityThread(QThread):
     command_signal = pyqtSignal(str)
     log_signal = pyqtSignal(str)
 
-    def __init__(self, memory_dump, plugin, parent=None):
+    def __init__(self, memory_dump, plugin, parent=None, pid=None):
         super().__init__(parent)
         self.memory_dump = memory_dump
         self.plugin = plugin.lower()
+        self.pid = pid
         self.vol_path = find_volatility_file(os.getcwd())
 
     def run(self):
         try:
             command = f"python \"{self.vol_path}\" -f \"{self.memory_dump}\" -r csv {self.plugin}"
+            if self.pid:
+                command += f" --pid {self.pid}"
             self.command_signal.emit(command)
             self.log_signal.emit(self.format_log_message("info", f"Command to run: {command}"))
 
