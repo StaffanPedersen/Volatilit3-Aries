@@ -112,9 +112,9 @@ class SettingsWindowGUI(QWidget):
         export_label.setStyleSheet("font-size: 20px; color: black; background-color: #ff8956;")
         export_layout.addWidget(export_label)
 
-        self.memdump_path_label = QLabel("", main_content)  # Label to display chosen file path
-        self.memdump_path_label.setStyleSheet("font-size: 20px; color: white;")  # Style the label
-        export_layout.addWidget(self.memdump_path_label)
+        self.memdump_path = QLabel("", main_content)  # Label to display chosen file path
+        self.memdump_path.setStyleSheet("font-size: 20px; color: white;")  # Style the label
+        export_layout.addWidget(self.memdump_path)
 
         choose_file_button = QPushButton("Choose Folder", main_content)
         choose_file_button.setStyleSheet(
@@ -198,13 +198,13 @@ class SettingsWindowGUI(QWidget):
             self.text_size_combobox.setCurrentText(text_size)
             self.text_style_selection.setCurrentText(text_style)
             self.upload_combobox.setCurrentText(upload)
-            self.memdump_path_label.setText(memdump_path)
+            self.memdump_path.setText(memdump_path)
             self.file_type_combobox.setCurrentText(file_type)
 
             # Save the last selected settings
             self.save_current_settings()
 
-            settings_info = (
+            QMessageBox.settings_info = (
                 f"<font color='white'>"
                 f"<b>Theme:</b> {theme}<br/>"
                 f"<b>Text Size:</b> {text_size}<br/>"
@@ -213,6 +213,8 @@ class SettingsWindowGUI(QWidget):
                 f"<b>Memdump Path:</b> {memdump_path}<br/>"
                 f"<b>File Type:</b> {file_type}"
                 f"</font>"
+
+
             )
         except Exception as e:
             print(f"Error loading settings: {e}")
@@ -223,7 +225,7 @@ class SettingsWindowGUI(QWidget):
             text_size = self.text_size_combobox.currentText()
             text_style = self.text_style_selection.currentText()
             upload = self.upload_combobox.currentText()
-            memdump_path = self.memdump_path_label.text()
+            memdump_path = self.memdump_path.text()
             file_type = self.file_type_combobox.currentText()
 
             self.save_settings(theme, text_size, text_style, upload, memdump_path, file_type)
@@ -235,8 +237,7 @@ class SettingsWindowGUI(QWidget):
             chosen_folder = QFileDialog.getExistingDirectory(self, "Choose Default File Upload Folder")
             if chosen_folder:
 
-                # Oppdaterer også memdump_path_label
-                self.memdump_path_label.setText(chosen_folder)
+                self.memdump_path.setText(chosen_folder)
 
                 # Lagrer den valgte filstien
                 self.save_current_settings()
@@ -245,7 +246,7 @@ class SettingsWindowGUI(QWidget):
 
     def clear_file_path(self):
         try:
-            self.memdump_path_label.setText("")  # Tømmer filstien
+            self.memdump_path.setText("")  # Tømmer filstien
             self.save_current_settings()  # Lagrer de oppdaterte innstillingene
             QMessageBox.information(self, "Path Cleared",
                                     "<font color='white'>File path has been cleared.</font>")

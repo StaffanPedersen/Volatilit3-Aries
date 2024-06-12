@@ -338,7 +338,7 @@ class RightGroupBox(QGroupBox):
     def open_help(self):
         """Open the help URL in the web browser."""
         webbrowser.open("https://github.com/volatilityfoundation/volatility/wiki/Command-Reference")
-    def get_settings_values(self):
+    '''def get_settings_values(self):
         try:
             config = configparser.ConfigParser()
             config.read('settings.ini')
@@ -350,12 +350,43 @@ class RightGroupBox(QGroupBox):
 
             return theme, text_size, text_style, memdump_path
         except Exception as e:
+            print(f"Error loading settings: {e}")'''
+
+    def get_settings_values(self):
+        try:
+            config = configparser.ConfigParser()
+            config.read('settings.ini')
+
+            theme = config['DEFAULT'].get('Theme', 'Light')
+            text_size = config['DEFAULT'].get('TextSize', '12')
+            text_style = config['DEFAULT'].get('TextStyle', 'Normal')
+            memdump_path = config['DEFAULT'].get('MemdumpPath', '')  # Read file path
+            file_type = config['DEFAULT'].get('FileType', 'none')  # Read file type
+            upload = config['DEFAULT'].get('Upload', 'none')  # Read upload value
+
+            return theme, text_size, text_style, memdump_path, file_type, upload
+        except Exception as e:
             print(f"Error loading settings: {e}")
+
+    '''def get_settings_values(self):
+        try:
+            config = configparser.ConfigParser()
+            config.read('settings.ini')
+
+            theme = config['DEFAULT'].get('Theme', 'Light')
+            text_size = config['DEFAULT'].get('TextSize', '12')
+            text_style = config['DEFAULT'].get('TextStyle', 'Normal')
+            memdump_path = config['DEFAULT'].get('MemdumpPath', '')  # Read file path
+            file_type = config['DEFAULT'].get('FileType', 'none')  # Read file type
+
+            return theme, text_size, text_style, memdump_path, file_type
+        except Exception as e:
+            print(f"Error loading settings: {e}")'''
 
 
     def check_memdump_path(self):
         try:
-            theme, text_size, text_style, memdump_path = self.get_settings_values()
+            theme, text_size, text_style, memdump_path, file_type, upload = self.get_settings_values()
             if memdump_path:  # If memdump_path is not empty
                 self.eksport_to_file()
             else:  # If memdump_path is empty
@@ -363,64 +394,80 @@ class RightGroupBox(QGroupBox):
         except Exception as e:
             print(f"Error while checking memdump path: {e}")
 
+
     def eksport_to_file(self):
         """Export the displayed data to a file."""
         try:
             print("Starting export process")
 
             # Get settings values
-            theme, text_size, text_style, memdump_path = self.get_settings_values()
+            theme, text_size, text_style, memdump_path, file_type, upload = self.get_settings_values()
             print(f"Memdump path from settings: {memdump_path}")
+            print(f"File type from settings: {file_type}")
 
-            # If no saved file path, let the user choose one
+            # If no saved file path, return
             if not memdump_path:
                 print("Error: Memdump path is missing in settings.")
+                return
+
+            # Check if the directory exists
+            if not os.path.isdir(memdump_path):
+                print("Error: Memdump path does not exist or is not a directory.")
+                return
+
+            # Check if the directory is writable
+            if not os.access(memdump_path, os.W_OK):
+                print("Error: No write access to the specified directory.")
                 return
 
             saved_path = memdump_path  # Get saved file path
             print(f"Saved file path: {saved_path}")
 
             options = QFileDialog.Options()
-            filePath, _ = QFileDialog.getSaveFileName(self, "Save File", saved_path,
-                                                      "PDF Files (*.pdf);;CSV Files (*.csv);;Excel Files (*.xls);;Text Files (*.txt);;Word Files (*.doc);;JSON Files (*.json)",
-                                                      options=options)
+
+            # If file_type is None, allow all file types in the dialog
+            if file_type == "none":
+                filePath, _ = QFileDialog.getSaveFileName(
+                    self, "Save File", saved_path,
+                    "PDF Files (*.pdf);;CSV Files (*.csv);;Excel Files (*.xls);;Text Files (*.txt);;Word Files (*.doc);;JSON Files (*.json)",
+                    options=options)
+            else:
+                options |= QFileDialog.DontConfirmOverwrite  # Don't ask for confirmation if file exists
+                filePath, _ = QFileDialog.getSaveFileName(
+                    self, "Save File", saved_path,
+                    f"{file_type.capitalize()} Files (*{file_type});;",
+                    # Set file_type as default filter
+                    options=options)
             print(f"File path selected: {filePath}")
 
-            if filePath:
-                ext = os.path.splitext(filePath)[1].lower()
-                print(f"File extension: {ext}")
-                try:
-                    if os.path.exists(filePath):  # Check if the file already exists
-                        if sys.platform.startswith('win'):
-                            subprocess.Popen(['explorer', filePath.replace("/", "\\")])
-                        elif sys.platform.startswith('linux'):
-                            subprocess.Popen(['xdg-open', os.path.dirname(filePath)])
-                        elif sys.platform.startswith('darwin'):
-                            subprocess.Popen(['open', os.path.dirname(filePath)])
-                        else:
-                            print("Unsupported platform.")
-                    else:
-                        if ext == ".pdf":
-                            self.export_to_pdf(filePath)
-                        elif ext == ".csv":
-                            self.export_to_csv(filePath)
-                        elif ext == ".xls":
-                            self.export_to_excel(filePath)
-                        elif ext == ".txt":
-                            self.export_to_txt(filePath)
-                        elif ext == ".doc":
-                            if DOCX_AVAILABLE:
-                                self.export_to_doc(filePath)
-                            else:
-                                print("DOCX export not available. Please install python-docx.")
-                        elif ext == ".json":
-                            self.export_to_json(filePath)
-                except Exception as e:
-                    print(f"Error during export: {e}")
-                    print("Failed to export data.")
+            # Pre-select the export function based on the file type
+            export_function = None
+            if file_type == ".pdf":
+                export_function = self.export_to_pdf
+            elif file_type == ".csv":
+                export_function = self.export_to_csv
+            elif file_type == ".xls":
+                export_function = self.export_to_excel
+            elif file_type == ".txt":
+                export_function = self.export_to_txt
+            elif file_type == ".doc":
+                if DOCX_AVAILABLE:
+                    export_function = self.export_to_doc
+                else:
+                    print("DOCX export not available. Please install python-docx.")
+            elif file_type == ".json":
+                export_function = self.export_to_json
+            else:
+                print(f"Error: Unsupported file type: {file_type}")
+
+            # If a valid export function is found, directly call it with the saved path
+            if export_function is not None:
+                export_function(filePath)
+            else:
+                print("Error: No export function found for the specified file type.")
+
         except Exception as e:
             print(f"Unexpected error: {e}")
-
 
     def export_data(self):
         """Export the displayed data to a file."""
