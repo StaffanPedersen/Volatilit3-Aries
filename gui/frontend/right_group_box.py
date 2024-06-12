@@ -24,15 +24,6 @@ except ImportError:
 
 from PyQt5.QtWidgets import QLabel, QHBoxLayout, QWidget
 
-class CustomTableWidgetItem(QTableWidgetItem):
-    def __lt__(self, other):
-        try:
-            return int(self.text()) < int(other.text())
-        except ValueError:
-            return self.text() < other.text()
-
-from PyQt5.QtWidgets import QLabel, QHBoxLayout, QWidget, QTableWidgetItem
-from PyQt5.QtGui import QMovie
 
 class CustomTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
