@@ -71,7 +71,7 @@ class SettingsWindowGUI(QWidget):
         text_size_layout.addWidget(text_size_label)
 
         self.text_size_combobox = QComboBox(main_content)
-        self.text_size_combobox.addItem("Default")
+        # self.text_size_combobox.addItem("Default")
         self.text_size_combobox.addItems([str(i) for i in range(8, 31)])
         self.text_size_combobox.setStyleSheet("font-size: 16px;")
         text_size_layout.addWidget(self.text_size_combobox)
