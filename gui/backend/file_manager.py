@@ -30,7 +30,7 @@ class FileManager(QWidget):
                 print(f"FileManager: Unsupported file selected - {file_extension}")
                 self.selected_file = fileName
                 self.show_warning_popup()
-                return None
+                return fileName
         else:
             print("FileManager: No file selected")
             return None
