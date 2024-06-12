@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextEdit, QSizePolicy,
                              QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QProgressBar, QCheckBox)
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtGui import QFont, QIcon, QCursor
 from gui.frontend.utils import create_transparent_button, setup_button_style
 from gui.frontend.pluginAsideGUI import PluginAsideWindow
 from gui.backend.volatility_thread import VolatilityThread
@@ -57,6 +57,8 @@ class LeftGroupBox(QGroupBox):
 
         # Create and configure buttons and text edit
         self.selectFileButton = create_transparent_button(self, "filmappe.png", "    Select file")
+        self.selectFileButton.setCursor(QCursor(Qt.PointingHandCursor))
+
         self.metaDataWindow = QTextEdit(self)
         self.metaDataWindow.setStyleSheet("""
                     QTextEdit {
@@ -90,11 +92,45 @@ class LeftGroupBox(QGroupBox):
         setup_button_style(self.selectPluginButton, "Select plugin")
         self.selectPluginButton.clicked.connect(self.open_plugin_window)
         self.selectPluginButton.setFixedSize(330, 50)
+        self.selectPluginButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.selectPluginButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 8px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
 
         self.runButton = QPushButton(self)
         setup_button_style(self.runButton, "Run")
         self.runButton.clicked.connect(self.run_volatility_scan)
         self.runButton.setFixedSize(100, 50)
+        self.runButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.runButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 8px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
 
         self.pidCheckBox = QCheckBox("Run with PID", self)
         self.pidCheckBox.setStyleSheet("""
@@ -110,6 +146,7 @@ class LeftGroupBox(QGroupBox):
 
         self.clearButton = QPushButton(self)
         self.clearButton.setFixedSize(330, 50)
+        self.clearButton.setCursor(QCursor(Qt.PointingHandCursor))
         setup_button_style(self.clearButton, "Clear Workspace")
         self.clearButton.clicked.connect(self.clear_workspace)
         self.clearButton.setStyleSheet("""
@@ -121,9 +158,13 @@ class LeftGroupBox(QGroupBox):
                     font: 20pt "Inter_FXH";
                     font-weight: 500;
                 }
+                
+                QPushButton:hover {
+                    background-color: #FC4444;
+                }
 
                 QPushButton:pressed {
-                    background-color: #ab1b1b; 
+                    background-color: #FC5B5B; 
                     border: 2px solid #ab1b1b;
                 }
 
@@ -137,6 +178,23 @@ class LeftGroupBox(QGroupBox):
         setup_button_style(self.toggleButton, "Toggle View")
         self.toggleButton.clicked.connect(self.toggle_view)
         self.toggleButton.setFixedSize(220, 50)
+        self.toggleButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.toggleButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 10px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
 
         # Define the selected plugin text box
         self.selectedPluginTextBox = QLabel(self)
