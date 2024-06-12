@@ -10,13 +10,11 @@ from gui.backend.file_manager import FileManager  # Import the new FileManager c
 import os  # Ensure os is imported
 from PyQt5.QtGui import QMovie
 
-
 from gui.frontend.widgets.loading_window import LoadingWindow
 
 
 class LeftGroupBox(QGroupBox):
     command_signal = pyqtSignal(str)
-
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -25,7 +23,7 @@ class LeftGroupBox(QGroupBox):
         self.existing_widgets = None
         self.pluginAsideWindow = None
 
-        #self.volatility_thread.progress_signal.connect(self.handle_progress)
+        # self.volatility_thread.progress_signal.connect(self.handle_progress)
 
         self.selected_file = None
         self.selected_plugin = None
@@ -55,7 +53,11 @@ class LeftGroupBox(QGroupBox):
         left_layout.setSpacing(10)
 
         # Create and configure buttons and text edit
-        self.selectFileButton = create_transparent_button(self, "filmappe.png", "    Select file")
+        self.selectFileButton = create_transparent_button(self, "filmappe.png", "")
+        self.selectFileLabel = QLabel("Select File", self)
+        self.selectFileLabel.setStyleSheet(
+            "color: white; padding-left: 5px;")  # Add padding to the left to adjust spacing
+
         self.metaDataWindow = QTextEdit(self)
         self.metaDataWindow.setStyleSheet("""
                     QTextEdit {
@@ -83,9 +85,7 @@ class LeftGroupBox(QGroupBox):
                 """)
         self.terminalWindow.hide()  # Initially hide the terminal window
 
-        self.selectFileButton.clicked.connect(self.clear_workspace)
         self.selectFileButton.clicked.connect(self.handle_file_selection)
-
 
         self.selectPluginButton = QPushButton(self)
         setup_button_style(self.selectPluginButton, "Select plugin")
@@ -169,7 +169,13 @@ class LeftGroupBox(QGroupBox):
         self.selectedPluginTextBox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         # Add buttons and text edit to the layout
-        left_layout.addWidget(self.selectFileButton)
+        file_layout = QHBoxLayout()
+        file_layout.addWidget(self.selectFileButton)
+        file_layout.addWidget(self.selectFileLabel)
+        file_layout.setContentsMargins(0, 5, 0, 5)  # Adjust the margins to fine-tune the alignment
+        file_layout.setSpacing(5)  # Adjust the spacing between the button and the label
+
+        left_layout.addLayout(file_layout)
         left_layout.addWidget(self.create_spacer(10, ''))
         left_layout.addWidget(self.selectPluginButton)
         left_layout.addWidget(self.selectedPluginTextBox)
@@ -209,8 +215,9 @@ class LeftGroupBox(QGroupBox):
         if fileName:
             print(f"LeftGroupBox: File selected - {fileName}")
             self.selected_file = fileName
-            self.selectFileButton.setText(f"    {os.path.basename(fileName)}")
+            self.selectFileLabel.setText(os.path.basename(fileName))
             self.metaDataWindow.setText(f'Selected file: {fileName}')
+            self.adjust_font_size()
             self.run_initial_scan(fileName)
 
     def handle_file_selection(self):
@@ -219,8 +226,9 @@ class LeftGroupBox(QGroupBox):
         selected_file = self.file_manager.open_file_dialog()
         if selected_file:
             self.selected_file = selected_file
-            self.selectFileButton.setText(f"    {os.path.basename(selected_file)}")
+            self.selectFileLabel.setText(os.path.basename(selected_file))
             self.metaDataWindow.setText(f'Selected file: {selected_file}')
+            self.adjust_font_size()
             self.run_initial_scan(selected_file)
 
         else:
@@ -231,8 +239,9 @@ class LeftGroupBox(QGroupBox):
         print("LeftGroupBox: Handling unsupported file type")
         if self.file_manager.selected_file:
             self.selected_file = self.file_manager.selected_file
-            self.selectFileButton.setText(f"    {os.path.basename(self.selected_file)}")
+            self.selectFileLabel.setText(os.path.basename(self.selected_file))
             self.metaDataWindow.setText(f'Selected file: {self.selected_file}')
+            self.adjust_font_size()
             self.run_initial_scan(self.selected_file)
         else:
             print("LeftGroupBox: No valid file to handle")
@@ -291,20 +300,20 @@ class LeftGroupBox(QGroupBox):
             # Incorporate selected data and PID into the command if necessary
             selected_data_text = f" with data {self.selected_data}" if self.selected_data else ""
             selected_pid_text = f" and PID {self.selected_pid}" if self.pidCheckBox.isChecked() and self.selected_pid else ""
-            self.log_to_terminal(f"Running {self.selected_plugin} on {self.selected_file}{selected_data_text}{selected_pid_text}")
-            self.volatility_thread = VolatilityThread(self.selected_file, self.selected_plugin, parent=self, pid=self.selected_pid if self.pidCheckBox.isChecked() else None)
+            self.log_to_terminal(
+                f"Running {self.selected_plugin} on {self.selected_file}{selected_data_text}{selected_pid_text}")
+            self.volatility_thread = VolatilityThread(self.selected_file, self.selected_plugin, parent=self,
+                                                      pid=self.selected_pid if self.pidCheckBox.isChecked() else None)
             self.volatility_thread.command_signal.connect(self.parent().groupBox_right.update_command_info)
             self.volatility_thread.output_signal.connect(self.display_result)
             self.volatility_thread.log_signal.connect(self.log_to_terminal)
             self.volatility_thread.progress_signal.connect(self.update_progress_bar)
             self.volatility_thread.progress_signal.connect(self.show_loading_image)
-
             self.parent().groupBox_right.show_progress_bar()
             self.volatility_thread.start()
         except Exception as e:
             error_message = f"LeftGroupBox: Error running Volatility scan: {str(e)}"
             self.log_to_terminal(error_message)
-            show_error_message(self, "Error", error_message)
             show_error_message(self, "Error", error_message)
 
     def show_loading_image(self, value):
@@ -419,7 +428,7 @@ class LeftGroupBox(QGroupBox):
         self.selected_plugin = None
         self.selected_pid = None
         self.selected_data = None  # Clear selected_data
-        self.selectFileButton.setText("    Select file")
+        self.selectFileLabel.setText("Select File")
         self.selectedPluginTextBox.setText(">")
         self.metaDataWindow.setText("")
         self.terminalWindow.setText("")
@@ -448,3 +457,19 @@ class LeftGroupBox(QGroupBox):
             return f'<span style="color:white;">{message}</span>'
         else:
             return message
+
+    def adjust_font_size(self):
+        """Adjust the font size of the selectFileLabel based on the length of the file name."""
+        max_length = 30  # Maximum length before reducing font size
+        default_font_size = 14  # Default font size
+
+        file_name = os.path.basename(self.selected_file)
+        if len(file_name) > max_length:
+            scale_factor = max_length / len(file_name)
+            font_size = default_font_size * scale_factor
+        else:
+            font_size = default_font_size
+
+        font = self.selectFileLabel.font()
+        font.setPointSize(int(font_size))
+        self.selectFileLabel.setFont(font)
