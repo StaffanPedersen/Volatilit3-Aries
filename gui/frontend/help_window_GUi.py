@@ -2,7 +2,7 @@ import os
 import sys
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QCursor
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QPushButton
 
 
@@ -17,6 +17,8 @@ class helpWindowGui(QWidget):
         self.setFixedSize(1600, 900)
         #self.setGeometry(100, 100, 800, 300)
         self.setStyleSheet('background-color: #353535;')
+
+        layout = QVBoxLayout()
 
 
         """ DIR """
@@ -39,6 +41,39 @@ class helpWindowGui(QWidget):
         settings_icon.setPixmap(settings_pixmap.scaled(1600, 900, Qt.KeepAspectRatio))
         settings_icon.setStyleSheet('border: none;')
         settings_icon.setAlignment(Qt.AlignCenter)
+
+        # Add the image label to the layout
+        layout.addWidget(settings_icon)
+
+        # Create the Exit button
+        exit_button = QPushButton('Exit', self)
+        exit_button.setFixedSize(330, 50)
+        exit_button.setCursor(QCursor(Qt.PointingHandCursor))
+        exit_button.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 8px; 
+                color: black;
+                font-size:28px;
+                margin: 0 auto;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
+        exit_button.clicked.connect(self.close)
+
+        # Add the Exit button to the layout
+        layout.addWidget(exit_button)
+
+        # Set the layout for the QWidget
+        self.setLayout(layout)
 
 
 
