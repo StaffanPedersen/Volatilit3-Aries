@@ -1,11 +1,11 @@
 import configparser
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QFrame, \
-    QTextEdit, QFileDialog, QMessageBox
+    QSpacerItem, QSizePolicy, QTextEdit, QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
 
 from gui.frontend.theme import get_theme
-
 
 class SettingsWindowGUI(QWidget):
     def __init__(self):
@@ -17,15 +17,6 @@ class SettingsWindowGUI(QWidget):
         self.setWindowTitle('Settings Window')
         self.resize(1024, 768)
         self.setStyleSheet("background-color: black;")
-
-        # Set the window to be frameless
-        self.setWindowFlags(Qt.FramelessWindowHint)
-
-        # Center the window on the screen
-        screen_geometry = QApplication.desktop().screenGeometry()
-        x = (screen_geometry.width() - self.frameSize().width()) / 2
-        y = (screen_geometry.height() - self.frameSize().height()) / 2
-        self.move(int(x), int(y))
 
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -53,32 +44,6 @@ class SettingsWindowGUI(QWidget):
         main_content_layout.addWidget(line)
 
         main_content_layout.addSpacing(20)
-
-        top_layout = QHBoxLayout()
-        top_layout.addStretch()
-        close_button = QPushButton("Close", self)
-        close_button.setFixedWidth(100)
-        close_button.setStyleSheet("""
-                   QPushButton {
-                       background-color: #FF8956;
-                       border: 1px solid black;
-                       padding: 5px;
-                       border-radius: 15px;
-                       color: black;
-                   }
-
-                   QPushButton:hover {
-                       background-color: #FA7B43;
-                   }
-
-                   QPushButton:pressed {
-                       background-color: #F79368;
-                   }
-               """)
-
-        close_button.clicked.connect(self.close)
-        top_layout.addWidget(close_button)
-        main_content_layout.addLayout(top_layout)
 
         header_theme_settings = QLabel("Theme Settings", main_content)
         header_theme_settings.setStyleSheet(
@@ -140,6 +105,9 @@ class SettingsWindowGUI(QWidget):
         self.upload_combobox.setStyleSheet("font-size: 16px;")
         upload_layout.addWidget(self.upload_combobox)
         main_content_layout.addLayout(upload_layout)'''
+
+
+
 
         # Default Upload Folder Section
         upload_layout = QHBoxLayout()
@@ -225,14 +193,14 @@ class SettingsWindowGUI(QWidget):
 
         self.load_settings()
 
-    def save_settings(self, theme, text_size, text_style, upload_path, memdump_path, file_type):
+    def save_settings(self, theme, text_size, text_style,  upload_path, memdump_path, file_type):
         try:
             config = configparser.ConfigParser()
             config['DEFAULT'] = {
                 'Theme': theme,
                 'TextSize': text_size,
                 'TextStyle': text_style,
-                'Upload': upload_path,
+                'Upload':  upload_path,
                 'MemdumpPath': memdump_path,  # Lagrer filstien til mappen
                 'FileType': file_type  # Legg til filtypen
             }
@@ -274,6 +242,7 @@ class SettingsWindowGUI(QWidget):
                 f"<b>Memdump Path:</b> {memdump_path}<br/>"
                 f"<b>File Type:</b> {file_type}"
                 f"</font>"
+
 
             )
         except Exception as e:
@@ -328,3 +297,8 @@ class SettingsWindowGUI(QWidget):
             print(f"Error clearing upload path: {e}")
 
 
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    settings_window = SettingsWindowGUI()
+    settings_window.show()
+    sys.exit(app.exec_())
