@@ -1,13 +1,19 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QSpacerItem, QSizePolicy
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QSpacerItem, \
+    QSizePolicy, QDialog
 from PyQt5.QtGui import QFont, QMouseEvent
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint, pyqtSignal, QTimer
 
-class ErrorNotSelected(QWidget):
+
+class ErrorNotSelected(QDialog):
+    ok_signal = pyqtSignal()
     def __init__(self):
         super().__init__()
         self.initUI()
         self.dragging = False
+        self.flash_timer = QTimer(self)
+        self.flash_timer.timeout.connect(self.toggle_flash)
+        self.is_flashing_red = False
 
     def initUI(self):
         # Set window properties
@@ -15,6 +21,7 @@ class ErrorNotSelected(QWidget):
         self.setGeometry(100, 100, 800, 300)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setStyleSheet('background-color: #262626;')
+        self.setModal(True)
 
         layout = QVBoxLayout()
 
@@ -61,6 +68,7 @@ class ErrorNotSelected(QWidget):
 
     def okAction(self):
         print('Confirmed error message')
+        self.ok_signal.emit()
         self.close()
 
     def mousePressEvent(self, event: QMouseEvent):
@@ -78,6 +86,16 @@ class ErrorNotSelected(QWidget):
         if event.button() == Qt.LeftButton:
             self.dragging = False
             event.accept()
+
+    def flash_background(self):
+        self.flash_timer.start(500)
+
+    def toggle_flash(self):
+        if self.is_flashing_red:
+            self.setStyleSheet('background-color: #262626;')
+        else:
+            self.setStyleSheet('background-color: #FF0000;')
+        self.is_flashing_red = not self.is_flashing_red
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

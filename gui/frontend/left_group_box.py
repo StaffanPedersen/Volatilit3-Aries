@@ -2,6 +2,8 @@ from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextE
                              QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QProgressBar, QCheckBox)
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont, QIcon, QCursor
+
+from gui.frontend.error_not_selected_X import ErrorNotSelected
 from gui.frontend.utils import create_transparent_button, setup_button_style
 from gui.frontend.pluginAsideGUI import PluginAsideWindow
 from gui.backend.volatility_thread import VolatilityThread
@@ -331,7 +333,7 @@ class LeftGroupBox(QGroupBox):
         """Run the Volatility scan with the selected file and plugin."""
         if not self.selected_file or not self.selected_plugin:
             self.log_to_terminal("LeftGroupBox: File or plugin not selected")
-            show_error_message(self, "Error", "File or plugin not selected")
+            self.show_error_not_selected_X_popup()
             return
 
         try:
@@ -458,6 +460,17 @@ class LeftGroupBox(QGroupBox):
             modified_data.append(modified_row)
 
         self.parent().groupBox_right.display_output(headers, modified_data)
+
+    def show_error_not_selected_X_popup(self):
+        print(f"Error popup, not selected file or plugin")
+        self.error_not_selected_popup = ErrorNotSelected()
+        self.error_not_selected_popup.ok_signal.connect(self.confirm_not_selected_error)
+        self.error_not_selected_popup.flash_background()
+        self.error_not_selected_popup.exec_()
+
+    def confirm_not_selected_error(self):
+        print(f"Confirmed error message workspace")
+
 
     def clear_workspace(self):
         print(f"Calling warning for clearing workspace")
