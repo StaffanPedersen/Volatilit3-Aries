@@ -1,11 +1,10 @@
 import configparser
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QFrame, \
-    QSpacerItem, QSizePolicy, QTextEdit, QFileDialog, QMessageBox
+    QTextEdit, QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
 
-from gui.frontend.theme import get_theme
+from gui.backend.theme_manager import get_theme
 
 class SettingsWindowGUI(QWidget):
     def __init__(self):

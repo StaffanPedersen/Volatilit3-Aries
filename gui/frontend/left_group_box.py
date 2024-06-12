@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextEdit, QSizePolicy,
-                             QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QProgressBar, QCheckBox)
+                             QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QCheckBox)
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont, QIcon, QCursor
 
