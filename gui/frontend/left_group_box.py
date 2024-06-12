@@ -269,7 +269,7 @@ class LeftGroupBox(QGroupBox):
 
     def handle_file_selection(self):
         # print("LeftGroupBox: handle_file_selection method called")
-        selected_file = self.file_manager.open_file_dialog()
+
         self.confirm_clear()
         if self.default_upload_path:
             selected_file = self.default_upload_path
