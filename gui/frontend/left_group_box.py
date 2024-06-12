@@ -10,17 +10,18 @@ from gui.backend.file_manager import FileManager  # Import the new FileManager c
 import os  # Ensure os is imported
 from PyQt5.QtGui import QMovie
 
-
+from gui.frontend.warning_clear_all import WarningClearWSPopup
 from gui.frontend.widgets.loading_window import LoadingWindow
 
 
 class LeftGroupBox(QGroupBox):
     command_signal = pyqtSignal(str)
-
+    clear_workspace_signal = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
 
+        self.warning_clear_popup = None
         self.groupBox_right = None
         self.existing_widgets = None
         self.pluginAsideWindow = None
@@ -409,18 +410,35 @@ class LeftGroupBox(QGroupBox):
         self.parent().groupBox_right.display_output(headers, modified_data)
 
     def clear_workspace(self):
-        """Clear the workspace by resetting the selected file and plugin."""
+        print(f"Warning for clearing workspace")
+        self.show_warning_popup()
+
+    def show_warning_popup(self):
+        print(f"FileManager: Showing warning popup")
+        self.warning_clear_popup = WarningClearWSPopup()
+        self.warning_clear_popup.confirm_signal.connect(self.confirm_clear)
+        self.warning_clear_popup.exit_signal.connect(self.exit_clear)
+        self.warning_clear_popup.show()
+
+    def confirm_clear(self):
+        print(f"FileManager: User confirmed clearing workspace")
+        self.execute_clear_workspace()
+
+    def exit_clear(self):
+        print(f"FileManager: User exited the warning popup")
+
+
+    def execute_clear_workspace(self):
         print("LeftGroupBox: Clearing workspace")
         self.selected_file = None
         self.selected_plugin = None
         self.selected_pid = None
-        self.selected_data = None  # Clear selected_data
+        self.selected_data = None
         self.selectFileButton.setText("    Select file")
         self.selectedPluginTextBox.setText(">")
         self.metaDataWindow.setText("")
         self.terminalWindow.setText("")
         self.parent().groupBox_right.clear_output()
-
     def toggle_view(self):
         """Toggle between the metadata window and the terminal window."""
         self.showing_metadata = not self.showing_metadata
