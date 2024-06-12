@@ -83,7 +83,9 @@ class LeftGroupBox(QGroupBox):
                 """)
         self.terminalWindow.hide()  # Initially hide the terminal window
 
+        self.selectFileButton.clicked.connect(self.clear_workspace)
         self.selectFileButton.clicked.connect(self.handle_file_selection)
+
 
         self.selectPluginButton = QPushButton(self)
         setup_button_style(self.selectPluginButton, "Select plugin")
@@ -302,6 +304,7 @@ class LeftGroupBox(QGroupBox):
         except Exception as e:
             error_message = f"LeftGroupBox: Error running Volatility scan: {str(e)}"
             self.log_to_terminal(error_message)
+            show_error_message(self, "Error", error_message)
             show_error_message(self, "Error", error_message)
 
     def show_loading_image(self, value):
