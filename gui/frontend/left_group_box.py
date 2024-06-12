@@ -7,6 +7,7 @@ from gui.frontend.pluginAsideGUI import PluginAsideWindow
 from gui.backend.volatility_thread import VolatilityThread
 from gui.frontend.error_handler_GUI import show_error_message
 from gui.backend.file_manager import FileManager  # Import the new FileManager class
+
 import os  # Ensure os is imported
 from PyQt5.QtGui import QMovie
 
@@ -25,6 +26,9 @@ class LeftGroupBox(QGroupBox):
         self.groupBox_right = None
         self.existing_widgets = None
         self.pluginAsideWindow = None
+
+        #self.volatility_thread.progress_signal.connect(self.handle_progress)
+
         self.selected_file = None
         self.selected_plugin = None
         self.selected_pid = None
@@ -32,9 +36,12 @@ class LeftGroupBox(QGroupBox):
         self.plugin_window = None
         self.volatility_thread = None
 
+
         self.loading_window = LoadingWindow()
         self.file_manager = FileManager(self)  # Initialize the FileManager
         self.file_manager = FileManager(self)
+        self.loading_window = LoadingWindow()
+        self.file_manager = FileManager(self)  # Initialize the FileManager
         self.file_manager.unsupported_file_signal.connect(self.handle_unsupported_file)
         self.setObjectName("groupBox_left")
         self.setStyleSheet("QWidget { background-color: #353535; }")
@@ -111,6 +118,7 @@ class LeftGroupBox(QGroupBox):
         setup_button_style(self.runButton, "Run")
         self.runButton.clicked.connect(self.run_volatility_scan)
         self.runButton.setFixedSize(100, 50)
+
         self.runButton.setCursor(QCursor(Qt.PointingHandCursor))
         self.runButton.setStyleSheet("""
             QPushButton {
@@ -129,6 +137,23 @@ class LeftGroupBox(QGroupBox):
             }
         """)
         # self.runButton.clicked.connect(self.handle_run_button_click)
+        self.runButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.runButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 8px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
 
         self.pidCheckBox = QCheckBox("Run with PID", self)
         self.pidCheckBox.setStyleSheet("""
