@@ -6,6 +6,8 @@ import io
 import os
 import traceback
 from datetime import datetime
+import threading
+import signal
 
 
 class VolatilityThread(QThread):
@@ -13,6 +15,7 @@ class VolatilityThread(QThread):
     progress_signal = pyqtSignal(int)
     command_signal = pyqtSignal(str)
     log_signal = pyqtSignal(str)
+
 
     def __init__(self, memory_dump, plugin, parent=None, pid=None):
         super().__init__(parent)
@@ -22,7 +25,6 @@ class VolatilityThread(QThread):
             self.plugin = (plugin.lower())
         self.pid = pid
         self.vol_path = find_volatility_file(os.getcwd())
-
 
     def run(self):
         try:
@@ -53,10 +55,14 @@ class VolatilityThread(QThread):
 
     def run_volatility_scan(self, command):
         try:
-            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                       universal_newlines=True, bufsize=1)
-            output, error = process.communicate()
-            if process.returncode != 0:
+            self.process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                            universal_newlines=True, bufsize=1)
+            while True:
+                if self.process.poll() is not None:  # Check if the process has completed
+                    break  # If the process has completed, break the loop
+                self.msleep(100)  # Sleep for a short time to reduce CPU usage
+            output, error = self.process.communicate()
+            if self.process.returncode != 0:
                 error_message = f"Error: {error}"
                 self.log_signal.emit(self.format_log_message("error", error_message))
                 return error_message
@@ -66,6 +72,14 @@ class VolatilityThread(QThread):
             error_message = f"Exception: {str(e)}"
             self.log_signal.emit(self.format_log_message("error", error_message))
             return error_message
+
+    def stop(self):
+        if self.process:
+            print(f"Stopping process with PID: {self.process.pid}")
+            stop_thread = threading.Thread(target=self.process.terminate)
+            # os.kill(self.process.pid, signal.SIGTERM)
+            stop_thread.start()
+
 
     def parse_output(self, output):
         headers = []

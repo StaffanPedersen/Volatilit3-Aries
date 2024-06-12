@@ -26,9 +26,6 @@ class LeftGroupBox(QGroupBox):
         self.groupBox_right = None
         self.existing_widgets = None
         self.pluginAsideWindow = None
-
-        #self.volatility_thread.progress_signal.connect(self.handle_progress)
-
         self.selected_file = None
         self.selected_plugin = None
         self.selected_pid = None
@@ -116,28 +113,9 @@ class LeftGroupBox(QGroupBox):
 
         self.runButton = QPushButton(self)
         setup_button_style(self.runButton, "Run")
-        self.runButton.clicked.connect(self.run_volatility_scan)
         self.runButton.setFixedSize(100, 50)
-
         self.runButton.setCursor(QCursor(Qt.PointingHandCursor))
-        self.runButton.setStyleSheet("""
-            QPushButton {
-                background-color: #FF8956; 
-                border: 2px solid black; 
-                border-radius: 8px; 
-                color: black;
-            }
-
-            QPushButton:hover {
-                background-color: #FA7B43;
-            }
-
-            QPushButton:pressed {
-                background-color: #FC6a2B;
-            }
-        """)
-        # self.runButton.clicked.connect(self.handle_run_button_click)
-        self.runButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.runButton.clicked.connect(self.handle_run_button_click)
         self.runButton.setStyleSheet("""
             QPushButton {
                 background-color: #FF8956; 
@@ -360,11 +338,6 @@ class LeftGroupBox(QGroupBox):
         self.selected_plugin = plugin_name
         self.selectedPluginTextBox.setText("> " + plugin_name)
 
-    def handle_run_button_click(self):
-        if self.runButton.text() == "Cancel" and self.volatility_thread is not None:
-            self.volatility_thread.terminate()  # or any other method to stop the thread
-            # self.runButton.setText("Run")
-
     def run_volatility_scan(self):
         """Run the Volatility scan with the selected file and plugin."""
         # If the button text is "Cancel", do not start a new scan
@@ -410,6 +383,21 @@ class LeftGroupBox(QGroupBox):
 
     def reset_run_button(self):
         self.runButton.setText("Run")
+
+    def handle_run_button_click(self):
+        if self.runButton.text() == "Run":
+            self.runButton.clicked.connect(self.run_volatility_scan)
+
+        if self.runButton.text() == "Cancel" and self.volatility_thread is not None:
+            self.volatility_thread.stop()
+            # self.volatility_thread.scan_canceled_signal.connect(self.handle_scan_canceled)  # Connect the signal to the slot
+            print("attempt to stop scan (Button clicked)")
+
+    # def handle_scan_canceled(self):
+    #     # Handle the cancellation of the scan
+    #     self.runButton.setText("Run")
+    #     self.log_to_terminal("Scan canceled")
+    #     self.parent().groupBox_right.clear_output()
 
     def show_loading_image(self, value):
         if value < 100:
