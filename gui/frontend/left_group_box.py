@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextEdit, QSizePolicy,
                              QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QProgressBar, QCheckBox)
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtGui import QFont, QIcon, QCursor
 from gui.frontend.utils import create_transparent_button, setup_button_style
 from gui.frontend.pluginAsideGUI import PluginAsideWindow
 from gui.backend.volatility_thread import VolatilityThread
@@ -10,29 +10,29 @@ from gui.backend.file_manager import FileManager  # Import the new FileManager c
 import os  # Ensure os is imported
 from PyQt5.QtGui import QMovie
 
-
+from gui.frontend.warning_clear_all import WarningClearWSPopup
 from gui.frontend.widgets.loading_window import LoadingWindow
 
 
 class LeftGroupBox(QGroupBox):
     command_signal = pyqtSignal(str)
 
-
     def __init__(self, parent):
         super().__init__(parent)
 
+        self.warning_clear_popup = None
         self.groupBox_right = None
         self.existing_widgets = None
         self.pluginAsideWindow = None
 
-        #self.volatility_thread.progress_signal.connect(self.handle_progress)
-
         self.selected_file = None
         self.selected_plugin = None
         self.selected_pid = None
-        self.selected_data = None  # Ensure selected_data is defined
+        self.selected_data = None
         self.plugin_window = None
         self.volatility_thread = None
+
+        self.warning_clear_all = WarningClearWSPopup()
 
         self.loading_window = LoadingWindow()
         self.file_manager = FileManager(self)  # Initialize the FileManager
@@ -40,22 +40,21 @@ class LeftGroupBox(QGroupBox):
         self.setObjectName("groupBox_left")
         self.setStyleSheet("QWidget { background-color: #353535; }")
         self.setFlat(True)
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # Set the size policy to Fixed
-        self.setFixedSize(350, 900)  # Adjust the fixed size as needed
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.setFixedSize(350, 900)
 
-        self.showing_metadata = True  # Track which window is being shown
-
+        self.showing_metadata = True
         self.initialize_ui()
 
     def initialize_ui(self):
-        """Initialize the user interface for the left group box."""
         print("LeftGroupBox: Initializing UI")
         left_layout = QVBoxLayout(self)
-        left_layout.setContentsMargins(10, 0, 10, 10)  # Adjust the top margin to 0
+        left_layout.setContentsMargins(10, 0, 10, 10)
         left_layout.setSpacing(10)
 
-        # Create and configure buttons and text edit
-        self.selectFileButton = create_transparent_button(self, "filmappe.png", "    Select file")
+        self.selectFileButton = create_transparent_button(self, "filmappe.png", "Select file")
+        self.selectFileButton.setCursor(QCursor(Qt.PointingHandCursor))
+
         self.metaDataWindow = QTextEdit(self)
         self.metaDataWindow.setStyleSheet("""
                     QTextEdit {
@@ -81,19 +80,52 @@ class LeftGroupBox(QGroupBox):
                         color: white;
                     }
                 """)
-        self.terminalWindow.hide()  # Initially hide the terminal window
-
+        self.terminalWindow.hide()
         self.selectFileButton.clicked.connect(self.handle_file_selection)
 
         self.selectPluginButton = QPushButton(self)
         setup_button_style(self.selectPluginButton, "Select plugin")
         self.selectPluginButton.clicked.connect(self.open_plugin_window)
         self.selectPluginButton.setFixedSize(330, 50)
+        self.selectPluginButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.selectPluginButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 8px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
 
         self.runButton = QPushButton(self)
         setup_button_style(self.runButton, "Run")
         self.runButton.clicked.connect(self.run_volatility_scan)
         self.runButton.setFixedSize(100, 50)
+        self.runButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.runButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 8px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
 
         self.pidCheckBox = QCheckBox("Run with PID", self)
         self.pidCheckBox.setStyleSheet("""
@@ -109,6 +141,7 @@ class LeftGroupBox(QGroupBox):
 
         self.clearButton = QPushButton(self)
         self.clearButton.setFixedSize(330, 50)
+        self.clearButton.setCursor(QCursor(Qt.PointingHandCursor))
         setup_button_style(self.clearButton, "Clear Workspace")
         self.clearButton.clicked.connect(self.clear_workspace)
         self.clearButton.setStyleSheet("""
@@ -120,9 +153,13 @@ class LeftGroupBox(QGroupBox):
                     font: 20pt "Inter_FXH";
                     font-weight: 500;
                 }
+                
+                QPushButton:hover {
+                    background-color: #FC4444;
+                }
 
                 QPushButton:pressed {
-                    background-color: #ab1b1b; 
+                    background-color: #FC5B5B; 
                     border: 2px solid #ab1b1b;
                 }
 
@@ -136,6 +173,23 @@ class LeftGroupBox(QGroupBox):
         setup_button_style(self.toggleButton, "Toggle View")
         self.toggleButton.clicked.connect(self.toggle_view)
         self.toggleButton.setFixedSize(220, 50)
+        self.toggleButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.toggleButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 10px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
 
         # Define the selected plugin text box
         self.selectedPluginTextBox = QLabel(self)
@@ -166,13 +220,11 @@ class LeftGroupBox(QGroupBox):
         self.selectedPluginTextBox.setAlignment(Qt.AlignCenter)
         self.selectedPluginTextBox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        # Add buttons and text edit to the layout
         left_layout.addWidget(self.selectFileButton)
         left_layout.addWidget(self.create_spacer(10, ''))
         left_layout.addWidget(self.selectPluginButton)
         left_layout.addWidget(self.selectedPluginTextBox)
 
-        # Wrap runButton and toggleButton in a QHBoxLayout to align them to the right
         run_button_layout = QHBoxLayout()
         run_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         run_button_layout.addWidget(self.toggleButton)
@@ -191,16 +243,14 @@ class LeftGroupBox(QGroupBox):
         self.setLayout(left_layout)
 
     def create_spacer(self, height, color):
-        """Create a spacer widget with the specified height and color."""
-        print(f"LeftGroupBox: Creating spacer with height {height} and color {color}")
+        #print(f"LeftGroupBox: Creating spacer with height {height} and color {color}")
         spacer = QWidget()
         spacer.setFixedHeight(height)
         spacer.setStyleSheet(f"background-color: {color};")
         return spacer
 
     def open_file_dialog(self):
-        """Open a file dialog to select a memory dump file."""
-        print("LeftGroupBox: open_file_dialog method called")
+        #print("LeftGroupBox: open_file_dialog method called")
         options = QFileDialog.Options()
         fileName, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump File", "",
                                                   "All Files (*);;Memory Files (*.mem)", options=options)
@@ -212,9 +262,9 @@ class LeftGroupBox(QGroupBox):
             self.run_initial_scan(fileName)
 
     def handle_file_selection(self):
-        """Handle the file selection using FileManager."""
-        print("LeftGroupBox: handle_file_selection method called")
+        #print("LeftGroupBox: handle_file_selection method called")
         selected_file = self.file_manager.open_file_dialog()
+        self.confirm_clear()
         if selected_file:
             self.selected_file = selected_file
             self.selectFileButton.setText(f"    {os.path.basename(selected_file)}")
@@ -245,7 +295,6 @@ class LeftGroupBox(QGroupBox):
         self.selected_pid = pid
         self.metaDataWindow.append(f'Selected PID: {pid}')  # Display the selected PID
 
-    # Logic for opening the plugin window and closing it as a widget in the left group box
     def open_plugin_window(self):
         if not self.pluginAsideWindow:
             self.pluginAsideWindow = PluginAsideWindow(self.width(), self)
@@ -289,8 +338,10 @@ class LeftGroupBox(QGroupBox):
             # Incorporate selected data and PID into the command if necessary
             selected_data_text = f" with data {self.selected_data}" if self.selected_data else ""
             selected_pid_text = f" and PID {self.selected_pid}" if self.pidCheckBox.isChecked() and self.selected_pid else ""
-            self.log_to_terminal(f"Running {self.selected_plugin} on {self.selected_file}{selected_data_text}{selected_pid_text}")
-            self.volatility_thread = VolatilityThread(self.selected_file, self.selected_plugin, parent=self, pid=self.selected_pid if self.pidCheckBox.isChecked() else None)
+            self.log_to_terminal(
+                f"Running {self.selected_plugin} on {self.selected_file}{selected_data_text}{selected_pid_text}")
+            self.volatility_thread = VolatilityThread(self.selected_file, self.selected_plugin, parent=self,
+                                                      pid=self.selected_pid if self.pidCheckBox.isChecked() else None)
             self.volatility_thread.command_signal.connect(self.parent().groupBox_right.update_command_info)
             self.volatility_thread.output_signal.connect(self.display_result)
             self.volatility_thread.log_signal.connect(self.log_to_terminal)
@@ -409,12 +460,29 @@ class LeftGroupBox(QGroupBox):
         self.parent().groupBox_right.display_output(headers, modified_data)
 
     def clear_workspace(self):
-        """Clear the workspace by resetting the selected file and plugin."""
+        print(f"Warning for clearing workspace")
+        self.show_warning_popup()
+
+    def show_warning_popup(self):
+        print(f"FileManager: Showing warning popup")
+        self.warning_clear_popup = WarningClearWSPopup()
+        self.warning_clear_popup.confirm_signal.connect(self.confirm_clear)
+        self.warning_clear_popup.exit_signal.connect(self.exit_clear)
+        self.warning_clear_popup.show()
+
+    def confirm_clear(self):
+        print(f"FileManager: User confirmed clearing workspace")
+        self.execute_clear_workspace()
+
+    def exit_clear(self):
+        print(f"FileManager: User exited the warning popup")
+
+    def execute_clear_workspace(self):
         print("LeftGroupBox: Clearing workspace")
         self.selected_file = None
         self.selected_plugin = None
         self.selected_pid = None
-        self.selected_data = None  # Clear selected_data
+        self.selected_data = None
         self.selectFileButton.setText("    Select file")
         self.selectedPluginTextBox.setText(">")
         self.metaDataWindow.setText("")
@@ -422,7 +490,6 @@ class LeftGroupBox(QGroupBox):
         self.parent().groupBox_right.clear_output()
 
     def toggle_view(self):
-        """Toggle between the metadata window and the terminal window."""
         self.showing_metadata = not self.showing_metadata
         if self.showing_metadata:
             self.metaDataWindow.show()
@@ -432,12 +499,10 @@ class LeftGroupBox(QGroupBox):
             self.terminalWindow.show()
 
     def log_to_terminal(self, message):
-        """Log a message to the terminal window."""
         formatted_message = self.format_log_message(message)
-        self.terminalWindow.append(formatted_message + "<br>")  # Add line break after each message
+        self.terminalWindow.append(formatted_message + "<br>")
 
     def format_log_message(self, message):
-        """Format log message for better readability."""
         if "[ERROR]" in message:
             return f'<span style="color:red;">{message}</span>'
         elif "[INFO]" in message:
