@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QPixmap, QPalette, QColor
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QSpacerItem, QSizePolicy
 
+from gui.frontend.help_window_GUi import helpWindowGui
 from gui.frontend.settings_window_GUI import SettingsWindowGUI
 
 
@@ -110,7 +111,8 @@ class HomeScreen(QWidget):
         help_button.setLayout(help_button_layout)
         smaller_buttons_layout.addWidget(help_button)
 
-        # Adjust settings button
+
+
         settings_button = QPushButton('', self)
         settings_button.setFixedSize(125, 125)
         settings_button.setStyleSheet(
@@ -143,12 +145,10 @@ class HomeScreen(QWidget):
         self.setLayout(layout)
 
     def show_help_window(self):
-        """Show the help window."""
-        self.settings_window = SettingsWindowGUI()
-        self.settings_window.show()
+        self.help_window_GUI = helpWindowGui()
+        self.help_window_GUI.show()
 
     def show_settings_window(self):
-        """Show the settings window when the settings button is clicked."""
         self.settings_window = SettingsWindowGUI()
         self.settings_window.show()
 
