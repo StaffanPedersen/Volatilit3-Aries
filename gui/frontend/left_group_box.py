@@ -16,7 +16,6 @@ from gui.frontend.widgets.loading_window import LoadingWindow
 
 class LeftGroupBox(QGroupBox):
     command_signal = pyqtSignal(str)
-    clear_workspace_signal = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -26,14 +25,14 @@ class LeftGroupBox(QGroupBox):
         self.existing_widgets = None
         self.pluginAsideWindow = None
 
-        #self.volatility_thread.progress_signal.connect(self.handle_progress)
-
         self.selected_file = None
         self.selected_plugin = None
         self.selected_pid = None
-        self.selected_data = None  # Ensure selected_data is defined
+        self.selected_data = None
         self.plugin_window = None
         self.volatility_thread = None
+
+        self.warning_clear_all = WarningClearWSPopup()
 
         self.loading_window = LoadingWindow()
         self.file_manager = FileManager(self)  # Initialize the FileManager
@@ -41,21 +40,18 @@ class LeftGroupBox(QGroupBox):
         self.setObjectName("groupBox_left")
         self.setStyleSheet("QWidget { background-color: #353535; }")
         self.setFlat(True)
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # Set the size policy to Fixed
-        self.setFixedSize(350, 900)  # Adjust the fixed size as needed
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.setFixedSize(350, 900)
 
-        self.showing_metadata = True  # Track which window is being shown
-
+        self.showing_metadata = True
         self.initialize_ui()
 
     def initialize_ui(self):
-        """Initialize the user interface for the left group box."""
         print("LeftGroupBox: Initializing UI")
         left_layout = QVBoxLayout(self)
-        left_layout.setContentsMargins(10, 0, 10, 10)  # Adjust the top margin to 0
+        left_layout.setContentsMargins(10, 0, 10, 10)
         left_layout.setSpacing(10)
 
-        # Create and configure buttons and text edit
         self.selectFileButton = create_transparent_button(self, "filmappe.png", "    Select file")
         self.selectFileButton.setCursor(QCursor(Qt.PointingHandCursor))
 
@@ -84,8 +80,7 @@ class LeftGroupBox(QGroupBox):
                         color: white;
                     }
                 """)
-        self.terminalWindow.hide()  # Initially hide the terminal window
-
+        self.terminalWindow.hide()
         self.selectFileButton.clicked.connect(self.handle_file_selection)
 
         self.selectPluginButton = QPushButton(self)
@@ -225,13 +220,11 @@ class LeftGroupBox(QGroupBox):
         self.selectedPluginTextBox.setAlignment(Qt.AlignCenter)
         self.selectedPluginTextBox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        # Add buttons and text edit to the layout
         left_layout.addWidget(self.selectFileButton)
         left_layout.addWidget(self.create_spacer(10, ''))
         left_layout.addWidget(self.selectPluginButton)
         left_layout.addWidget(self.selectedPluginTextBox)
 
-        # Wrap runButton and toggleButton in a QHBoxLayout to align them to the right
         run_button_layout = QHBoxLayout()
         run_button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         run_button_layout.addWidget(self.toggleButton)
@@ -250,16 +243,14 @@ class LeftGroupBox(QGroupBox):
         self.setLayout(left_layout)
 
     def create_spacer(self, height, color):
-        """Create a spacer widget with the specified height and color."""
-        print(f"LeftGroupBox: Creating spacer with height {height} and color {color}")
+        #print(f"LeftGroupBox: Creating spacer with height {height} and color {color}")
         spacer = QWidget()
         spacer.setFixedHeight(height)
         spacer.setStyleSheet(f"background-color: {color};")
         return spacer
 
     def open_file_dialog(self):
-        """Open a file dialog to select a memory dump file."""
-        print("LeftGroupBox: open_file_dialog method called")
+        #print("LeftGroupBox: open_file_dialog method called")
         options = QFileDialog.Options()
         fileName, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump File", "",
                                                   "All Files (*);;Memory Files (*.mem)", options=options)
@@ -271,9 +262,9 @@ class LeftGroupBox(QGroupBox):
             self.run_initial_scan(fileName)
 
     def handle_file_selection(self):
-        """Handle the file selection using FileManager."""
-        print("LeftGroupBox: handle_file_selection method called")
+        #print("LeftGroupBox: handle_file_selection method called")
         selected_file = self.file_manager.open_file_dialog()
+        self.confirm_clear()
         if selected_file:
             self.selected_file = selected_file
             self.selectFileButton.setText(f"    {os.path.basename(selected_file)}")
@@ -304,7 +295,6 @@ class LeftGroupBox(QGroupBox):
         self.selected_pid = pid
         self.metaDataWindow.append(f'Selected PID: {pid}')  # Display the selected PID
 
-    # Logic for opening the plugin window and closing it as a widget in the left group box
     def open_plugin_window(self):
         if not self.pluginAsideWindow:
             self.pluginAsideWindow = PluginAsideWindow(self.width(), self)
@@ -348,8 +338,10 @@ class LeftGroupBox(QGroupBox):
             # Incorporate selected data and PID into the command if necessary
             selected_data_text = f" with data {self.selected_data}" if self.selected_data else ""
             selected_pid_text = f" and PID {self.selected_pid}" if self.pidCheckBox.isChecked() and self.selected_pid else ""
-            self.log_to_terminal(f"Running {self.selected_plugin} on {self.selected_file}{selected_data_text}{selected_pid_text}")
-            self.volatility_thread = VolatilityThread(self.selected_file, self.selected_plugin, parent=self, pid=self.selected_pid if self.pidCheckBox.isChecked() else None)
+            self.log_to_terminal(
+                f"Running {self.selected_plugin} on {self.selected_file}{selected_data_text}{selected_pid_text}")
+            self.volatility_thread = VolatilityThread(self.selected_file, self.selected_plugin, parent=self,
+                                                      pid=self.selected_pid if self.pidCheckBox.isChecked() else None)
             self.volatility_thread.command_signal.connect(self.parent().groupBox_right.update_command_info)
             self.volatility_thread.output_signal.connect(self.display_result)
             self.volatility_thread.log_signal.connect(self.log_to_terminal)
@@ -485,7 +477,6 @@ class LeftGroupBox(QGroupBox):
     def exit_clear(self):
         print(f"FileManager: User exited the warning popup")
 
-
     def execute_clear_workspace(self):
         print("LeftGroupBox: Clearing workspace")
         self.selected_file = None
@@ -497,8 +488,8 @@ class LeftGroupBox(QGroupBox):
         self.metaDataWindow.setText("")
         self.terminalWindow.setText("")
         self.parent().groupBox_right.clear_output()
+
     def toggle_view(self):
-        """Toggle between the metadata window and the terminal window."""
         self.showing_metadata = not self.showing_metadata
         if self.showing_metadata:
             self.metaDataWindow.show()
@@ -508,12 +499,10 @@ class LeftGroupBox(QGroupBox):
             self.terminalWindow.show()
 
     def log_to_terminal(self, message):
-        """Log a message to the terminal window."""
         formatted_message = self.format_log_message(message)
-        self.terminalWindow.append(formatted_message + "<br>")  # Add line break after each message
+        self.terminalWindow.append(formatted_message + "<br>")
 
     def format_log_message(self, message):
-        """Format log message for better readability."""
         if "[ERROR]" in message:
             return f'<span style="color:red;">{message}</span>'
         elif "[INFO]" in message:
