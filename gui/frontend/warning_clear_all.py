@@ -1,12 +1,9 @@
-import sys
-
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QMouseEvent, QFont
-from PyQt5.QtWidgets import QApplication, QPushButton, QSizePolicy, QHBoxLayout, QSpacerItem, QLabel, QVBoxLayout, \
-    QWidget
+from PyQt5.QtCore import pyqtSignal, Qt, QTimer
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QPushButton, QLabel, QHBoxLayout, QSpacerItem, QSizePolicy
 
 
-class WarningClearWSPopup(QWidget):
+class WarningClearWSPopup(QDialog):
     confirm_signal = pyqtSignal()
     exit_signal = pyqtSignal()
 
@@ -14,12 +11,15 @@ class WarningClearWSPopup(QWidget):
         super().__init__()
         self.initUI()
         self.dragging = False
+        self.flash_timer = QTimer(self)
+        self.flash_timer.timeout.connect(self.toggle_flash)
+        self.is_flashing_red = False
 
     def initUI(self):
-        # Set window properties
         self.setWindowTitle('Warning')
         self.setGeometry(100, 100, 800, 300)
-        self.setWindowFlags(Qt.FramelessWindowHint)  # Remove window header
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setModal(True)
         self.setStyleSheet('background-color: #262626;')
 
         layout = QVBoxLayout()
@@ -49,7 +49,6 @@ class WarningClearWSPopup(QWidget):
         message_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(message_label, alignment=Qt.AlignCenter)
 
-
         layout.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
         button_layout = QHBoxLayout()
@@ -72,7 +71,6 @@ class WarningClearWSPopup(QWidget):
         button_layout.addWidget(exit_button)
 
         layout.addLayout(button_layout)
-
         self.setLayout(layout)
 
     def on_confirm(self):
@@ -83,24 +81,28 @@ class WarningClearWSPopup(QWidget):
         self.exit_signal.emit()
         self.close()
 
-    def mousePressEvent(self, event: QMouseEvent):
+    def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.dragging = True
             self.drag_start_position = event.globalPos() - self.frameGeometry().topLeft()
             event.accept()
 
-    def mouseMoveEvent(self, event: QMouseEvent):
+    def mouseMoveEvent(self, event):
         if self.dragging:
             self.move(event.globalPos() - self.drag_start_position)
             event.accept()
 
-    def mouseReleaseEvent(self, event: QMouseEvent):
+    def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.dragging = False
             event.accept()
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = WarningClearWSPopup()
-    ex.show()
-    sys.exit(app.exec_())
+    def flash_background(self):
+        self.flash_timer.start(500)
+
+    def toggle_flash(self):
+        if self.is_flashing_red:
+            self.setStyleSheet('background-color: #262626;')
+        else:
+            self.setStyleSheet('background-color: #FF0000;')
+        self.is_flashing_red = not self.is_flashing_red

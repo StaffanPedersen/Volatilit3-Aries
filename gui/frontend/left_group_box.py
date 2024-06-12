@@ -460,25 +460,26 @@ class LeftGroupBox(QGroupBox):
         self.parent().groupBox_right.display_output(headers, modified_data)
 
     def clear_workspace(self):
-        print(f"Warning for clearing workspace")
+        print(f"Calling warning for clearing workspace")
         self.show_warning_popup()
 
     def show_warning_popup(self):
-        print(f"FileManager: Showing warning popup")
+        print(f"Warning popup")
         self.warning_clear_popup = WarningClearWSPopup()
         self.warning_clear_popup.confirm_signal.connect(self.confirm_clear)
         self.warning_clear_popup.exit_signal.connect(self.exit_clear)
-        self.warning_clear_popup.show()
+        self.warning_clear_popup.flash_background()
+        self.warning_clear_popup.exec_()
 
     def confirm_clear(self):
-        print(f"FileManager: User confirmed clearing workspace")
+        print(f"Confirmed clearing workspace")
         self.execute_clear_workspace()
 
     def exit_clear(self):
-        print(f"FileManager: User exited the warning popup")
+        print(f"Exited warning popup")
 
     def execute_clear_workspace(self):
-        print("LeftGroupBox: Clearing workspace")
+        print("Clearing workspace")
         self.selected_file = None
         self.selected_plugin = None
         self.selected_pid = None
