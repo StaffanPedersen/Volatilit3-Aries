@@ -114,15 +114,12 @@ class PluginAsideWindow(QtWidgets.QWidget):
             plugin_data = get_all_plugins()
             self.pluginNames = []
 
-            # Prioritize Community plugins
+            # Prioritize Community plugins and group by folder
+            plugins_by_folder = {}
             for os_name, plugins in plugin_data:
-                if os_name == 'Community':
-                    self.pluginNames.extend([f"{plugin}" for plugin in plugins])
-
-            # Add other plugins
-            for os_name, plugins in plugin_data:
-                if os_name != 'Community':
-                    self.pluginNames.extend([f"{plugin}" for plugin in plugins])
+                if os_name not in plugins_by_folder:
+                    plugins_by_folder[os_name] = []
+                plugins_by_folder[os_name].extend(plugins)
 
             print("Plugin data loaded successfully:", self.pluginNames)
         except Exception as e:
@@ -150,22 +147,28 @@ class PluginAsideWindow(QtWidgets.QWidget):
             if child.widget():
                 child.widget().deleteLater()
 
-        for name in self.pluginNames:
-            element = QtWidgets.QWidget()
-            elementLayout = QtWidgets.QHBoxLayout()
-            element.setLayout(elementLayout)
-            checkbox = QtWidgets.QCheckBox(name)
-            checkbox.setStyleSheet("background-color: #353535; color: #fff; font-size: 14px;")
-            checkbox.setMinimumSize(220, 20)
-            checkbox.setMaximumSize(280, 20)
-            self.buttonGroup.addButton(checkbox)
-            checkbox.stateChanged.connect(self.update_checked_plugins)
+        for os_name, plugins in plugins_by_folder.items():
+            # Add folder header
+            header = QtWidgets.QLabel(f"{os_name} Plugins")
+            header.setStyleSheet("background-color: #FF8956; color: black; font-size: 18px; font-weight: bold;")
+            self.scrollLayout.addWidget(header)
 
-            tooltip_text = descriptions.get(name, "Description for " + name)
-            checkbox.setToolTip(tooltip_text)
+            for plugin in plugins:
+                element = QtWidgets.QWidget()
+                elementLayout = QtWidgets.QHBoxLayout()
+                element.setLayout(elementLayout)
+                checkbox = QtWidgets.QCheckBox(plugin)
+                checkbox.setStyleSheet("background-color: #353535; color: #fff; font-size: 14px;")
+                checkbox.setMinimumSize(220, 20)
+                checkbox.setMaximumSize(280, 20)
+                self.buttonGroup.addButton(checkbox)
+                checkbox.stateChanged.connect(self.update_checked_plugins)
 
-            elementLayout.addWidget(checkbox)
-            self.scrollLayout.addWidget(element)
+                tooltip_text = descriptions.get(plugin, "Description for " + plugin)
+                checkbox.setToolTip(tooltip_text)
+
+                elementLayout.addWidget(checkbox)
+                self.scrollLayout.addWidget(element)
 
         self.scrollLayout.addStretch()  # Add stretch to push all elements to the top
 
