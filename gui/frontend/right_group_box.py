@@ -1,3 +1,7 @@
+import configparser
+import subprocess
+import sys
+
 from PyQt5.QtWidgets import QTableWidgetItem, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, \
     QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog, QLineEdit, QDialog, QCheckBox, QScrollArea, QProgressBar
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
@@ -173,7 +177,8 @@ class RightGroupBox(QGroupBox):
         self.exportButton.setFixedSize(330, 50)
         setup_button_style(self.exportButton, "Export to...")
         self.exportButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.exportButton.clicked.connect(self.export_data)  # Connect the export button
+        #self.exportButton.clicked.connect(self.export_data)  # Connect the export button
+        self.exportButton.clicked.connect(self.check_memdump_path)
 
         self.filterButton = QPushButton(self)
         setup_button_style(self.filterButton, "Filter")
@@ -280,6 +285,89 @@ class RightGroupBox(QGroupBox):
     def open_help(self):
         """Open the help URL in the web browser."""
         webbrowser.open("https://github.com/volatilityfoundation/volatility/wiki/Command-Reference")
+    def get_settings_values(self):
+        try:
+            config = configparser.ConfigParser()
+            config.read('settings.ini')
+
+            theme = config['DEFAULT'].get('Theme', 'Light')
+            text_size = config['DEFAULT'].get('TextSize', '12')
+            text_style = config['DEFAULT'].get('TextStyle', 'Normal')
+            memdump_path = config['DEFAULT'].get('MemdumpPath', '')  # Read file path
+
+            return theme, text_size, text_style, memdump_path
+        except Exception as e:
+            print(f"Error loading settings: {e}")
+
+
+    def check_memdump_path(self):
+        try:
+            theme, text_size, text_style, memdump_path = self.get_settings_values()
+            if memdump_path:  # If memdump_path is not empty
+                self.eksport_to_file()
+            else:  # If memdump_path is empty
+                self.export_data()
+        except Exception as e:
+            print(f"Error while checking memdump path: {e}")
+
+    def eksport_to_file(self):
+        """Export the displayed data to a file."""
+        try:
+            print("Starting export process")
+
+            # Get settings values
+            theme, text_size, text_style, memdump_path = self.get_settings_values()
+            print(f"Memdump path from settings: {memdump_path}")
+
+            # If no saved file path, let the user choose one
+            if not memdump_path:
+                print("Error: Memdump path is missing in settings.")
+                return
+
+            saved_path = memdump_path  # Get saved file path
+            print(f"Saved file path: {saved_path}")
+
+            options = QFileDialog.Options()
+            filePath, _ = QFileDialog.getSaveFileName(self, "Save File", saved_path,
+                                                      "PDF Files (*.pdf);;CSV Files (*.csv);;Excel Files (*.xls);;Text Files (*.txt);;Word Files (*.doc);;JSON Files (*.json)",
+                                                      options=options)
+            print(f"File path selected: {filePath}")
+
+            if filePath:
+                ext = os.path.splitext(filePath)[1].lower()
+                print(f"File extension: {ext}")
+                try:
+                    if os.path.exists(filePath):  # Check if the file already exists
+                        if sys.platform.startswith('win'):
+                            subprocess.Popen(['explorer', filePath.replace("/", "\\")])
+                        elif sys.platform.startswith('linux'):
+                            subprocess.Popen(['xdg-open', os.path.dirname(filePath)])
+                        elif sys.platform.startswith('darwin'):
+                            subprocess.Popen(['open', os.path.dirname(filePath)])
+                        else:
+                            print("Unsupported platform.")
+                    else:
+                        if ext == ".pdf":
+                            self.export_to_pdf(filePath)
+                        elif ext == ".csv":
+                            self.export_to_csv(filePath)
+                        elif ext == ".xls":
+                            self.export_to_excel(filePath)
+                        elif ext == ".txt":
+                            self.export_to_txt(filePath)
+                        elif ext == ".doc":
+                            if DOCX_AVAILABLE:
+                                self.export_to_doc(filePath)
+                            else:
+                                print("DOCX export not available. Please install python-docx.")
+                        elif ext == ".json":
+                            self.export_to_json(filePath)
+                except Exception as e:
+                    print(f"Error during export: {e}")
+                    print("Failed to export data.")
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+
 
     def export_data(self):
         """Export the displayed data to a file."""
@@ -310,6 +398,9 @@ class RightGroupBox(QGroupBox):
                     self.export_to_json(filePath)
             except Exception as e:
                 print(f"Error during export: {e}")
+
+
+
 
     def export_to_pdf(self, filePath):
         """Export the data to a PDF file."""
