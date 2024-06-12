@@ -296,6 +296,7 @@ class LeftGroupBox(QGroupBox):
             self.volatility_thread.log_signal.connect(self.log_to_terminal)
             self.volatility_thread.progress_signal.connect(self.update_progress_bar)
             self.volatility_thread.progress_signal.connect(self.show_loading_image)
+
             self.parent().groupBox_right.show_progress_bar()
             self.volatility_thread.start()
         except Exception as e:

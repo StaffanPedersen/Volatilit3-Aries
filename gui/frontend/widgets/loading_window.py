@@ -11,7 +11,7 @@ class LoadingWindow(QDialog):
         self.movie_label = None
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setModal(True)
+        self.setModal(False)
         self.init_ui()
 
     def init_ui(self):
