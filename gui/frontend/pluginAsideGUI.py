@@ -6,6 +6,7 @@ import os
 
 from gui.backend.plugin_manager import get_all_plugins
 
+
 class PluginAsideWindow(QtWidgets.QWidget):
     plugin_stored = QtCore.pyqtSignal(str)
     closed = pyqtSignal()
@@ -170,8 +171,7 @@ class PluginAsideWindow(QtWidgets.QWidget):
 
     def open_file_dialog(self):
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        file_path, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+        file_path, _ = QFileDialog.getOpenFileName(self, "Upload plugin", "",
                                                    "Python Files (*.py);;All Files (*)", options=options)
         if file_path:
             self.save_plugin_to_community(file_path)
