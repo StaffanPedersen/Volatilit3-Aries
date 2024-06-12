@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextEdit, QSizePolicy,
                              QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QProgressBar, QCheckBox)
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QFont, QIcon, QCursor
 from gui.frontend.utils import create_transparent_button, setup_button_style
 from gui.frontend.pluginAsideGUI import PluginAsideWindow
@@ -12,6 +12,7 @@ from PyQt5.QtGui import QMovie
 
 from gui.frontend.warning_clear_all import WarningClearWSPopup
 from gui.frontend.widgets.loading_window import LoadingWindow
+
 
 
 class LeftGroupBox(QGroupBox):
@@ -31,31 +32,30 @@ class LeftGroupBox(QGroupBox):
         self.selected_file = None
         self.selected_plugin = None
         self.selected_pid = None
-        self.selected_data = None  # Ensure selected_data is defined
+        self.selected_data = None
         self.plugin_window = None
         self.volatility_thread = None
 
+        self.file_manager = FileManager(self)
         self.loading_window = LoadingWindow()
         self.file_manager = FileManager(self)  # Initialize the FileManager
         self.file_manager.unsupported_file_signal.connect(self.handle_unsupported_file)
         self.setObjectName("groupBox_left")
         self.setStyleSheet("QWidget { background-color: #353535; }")
         self.setFlat(True)
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # Set the size policy to Fixed
-        self.setFixedSize(350, 900)  # Adjust the fixed size as needed
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.setFixedSize(350, 900)
 
-        self.showing_metadata = True  # Track which window is being shown
+        self.showing_metadata = True
 
         self.initialize_ui()
 
     def initialize_ui(self):
-        """Initialize the user interface for the left group box."""
         print("LeftGroupBox: Initializing UI")
         left_layout = QVBoxLayout(self)
-        left_layout.setContentsMargins(10, 0, 10, 10)  # Adjust the top margin to 0
+        left_layout.setContentsMargins(10, 0, 10, 10)
         left_layout.setSpacing(10)
 
-        # Create and configure buttons and text edit
         self.selectFileButton = create_transparent_button(self, "filmappe.png", "    Select file")
         self.selectFileButton.setCursor(QCursor(Qt.PointingHandCursor))
 
@@ -114,6 +114,8 @@ class LeftGroupBox(QGroupBox):
         setup_button_style(self.runButton, "Run")
         self.runButton.clicked.connect(self.run_volatility_scan)
         self.runButton.setFixedSize(100, 50)
+
+        # self.runButton.clicked.connect(self.handle_run_button_click)
         self.runButton.setCursor(QCursor(Qt.PointingHandCursor))
         self.runButton.setStyleSheet("""
             QPushButton {
@@ -337,19 +339,40 @@ class LeftGroupBox(QGroupBox):
         self.selected_plugin = plugin_name
         self.selectedPluginTextBox.setText("> " + plugin_name)
 
+    def handle_run_button_click(self):
+        if self.runButton.text() == "Cancel" and self.volatility_thread is not None:
+            self.volatility_thread.terminate()  # or any other method to stop the thread
+            # self.runButton.setText("Run")
+
     def run_volatility_scan(self):
         """Run the Volatility scan with the selected file and plugin."""
+        # If the button text is "Cancel", do not start a new scan
+        if self.runButton.text() == "Cancel":
+            return
+
         if not self.selected_file or not self.selected_plugin:
             self.log_to_terminal("LeftGroupBox: File or plugin not selected")
             show_error_message(self, "Error", "File or plugin not selected")
             return
 
         try:
-            # Incorporate selected data and PID into the command if necessary
+            self.runButton.setText("Cancel")
+            QTimer.singleShot(100, self.start_volatility_scan)  # Delay the start of the scan
+        except Exception as e:
+            error_message = f"LeftGroupBox: Error preparing Volatility scan: {str(e)}"
+            self.log_to_terminal(error_message)
+            show_error_message(self, "Error", error_message)
+            self.runButton.setText("Run")
+
+    def start_volatility_scan(self):
+        """Start the Volatility scan."""
+        try:
             selected_data_text = f" with data {self.selected_data}" if self.selected_data else ""
             selected_pid_text = f" and PID {self.selected_pid}" if self.pidCheckBox.isChecked() and self.selected_pid else ""
-            self.log_to_terminal(f"Running {self.selected_plugin} on {self.selected_file}{selected_data_text}{selected_pid_text}")
-            self.volatility_thread = VolatilityThread(self.selected_file, self.selected_plugin, parent=self, pid=self.selected_pid if self.pidCheckBox.isChecked() else None)
+            self.log_to_terminal(
+                f"Running {self.selected_plugin} on {self.selected_file}{selected_data_text}{selected_pid_text}")
+            self.volatility_thread = VolatilityThread(self.selected_file, self.selected_plugin, parent=self,
+                                                      pid=self.selected_pid if self.pidCheckBox.isChecked() else None)
             self.volatility_thread.command_signal.connect(self.parent().groupBox_right.update_command_info)
             self.volatility_thread.output_signal.connect(self.display_result)
             self.volatility_thread.log_signal.connect(self.log_to_terminal)
@@ -357,10 +380,15 @@ class LeftGroupBox(QGroupBox):
             self.volatility_thread.progress_signal.connect(self.show_loading_image)
             self.parent().groupBox_right.show_progress_bar()
             self.volatility_thread.start()
+            self.volatility_thread.finished.connect(self.reset_run_button)
         except Exception as e:
             error_message = f"LeftGroupBox: Error running Volatility scan: {str(e)}"
             self.log_to_terminal(error_message)
             show_error_message(self, "Error", error_message)
+            self.runButton.setText("Run")
+
+    def reset_run_button(self):
+        self.runButton.setText("Run")
 
     def show_loading_image(self, value):
         if value < 100:
