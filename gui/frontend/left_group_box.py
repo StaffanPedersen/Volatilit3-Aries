@@ -271,6 +271,10 @@ class LeftGroupBox(QGroupBox):
 
     def run_volatility_scan(self):
         """Run the Volatility scan with the selected file and plugin."""
+        # If the button text is "Cancel", do not start a new scan
+        if self.runButton.text() == "Cancel":
+            return
+
         if not self.selected_file or not self.selected_plugin:
             self.log_to_terminal("LeftGroupBox: File or plugin not selected")
             show_error_message(self, "Error", "File or plugin not selected")
