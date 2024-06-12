@@ -1,3 +1,6 @@
+import configparser
+import subprocess
+import sys
 from PyQt5.QtWidgets import QTableWidgetItem, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, \
     QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog, QLineEdit, QDialog, QCheckBox, QScrollArea, QProgressBar
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
@@ -9,6 +12,8 @@ import webbrowser
 from gui.frontend.settings_window import SettingsWindow  # Correct the import path
 from functools import partial
 import json
+from PyQt5.QtGui import QMovie, QCursor
+
 
 # Check for optional library
 try:
@@ -17,12 +22,63 @@ try:
 except ImportError:
     DOCX_AVAILABLE = False
 
+from PyQt5.QtWidgets import QLabel, QHBoxLayout, QWidget
+
 class CustomTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
         try:
             return int(self.text()) < int(other.text())
         except ValueError:
             return self.text() < other.text()
+
+from PyQt5.QtWidgets import QLabel, QHBoxLayout, QWidget, QTableWidgetItem
+from PyQt5.QtGui import QMovie
+
+class CustomTableWidgetItem(QTableWidgetItem):
+    def __lt__(self, other):
+        try:
+            return int(self.text()) < int(other.text())
+        except ValueError:
+            return self.text() < other.text()
+
+def display_output(self, headers, data):
+    """Display the output data in the table."""
+    print("Displaying output in table")
+    self.headers = headers
+    self.data = data
+
+    self.outputTable.setColumnCount(len(headers))
+    self.outputTable.setHorizontalHeaderLabels(headers)
+    self.outputTable.setRowCount(len(data))
+
+    for row_idx, row_data in enumerate(data):
+        for col_idx, col_data in enumerate(row_data):
+            if isinstance(col_data, QMovie):
+                # Create a QLabel to display the movie
+                label = QLabel()
+                label.setAlignment(Qt.AlignCenter)
+                label.setMovie(col_data)
+                col_data.start()  # Start the movie
+
+                # Create a QWidget to hold the QLabel
+                cell_widget = QWidget()
+                layout = QHBoxLayout(cell_widget)
+                layout.addWidget(label)
+                layout.setAlignment(Qt.AlignCenter)
+                layout.setContentsMargins(0, 0, 0, 0)
+                cell_widget.setLayout(layout)
+
+                self.outputTable.setCellWidget(row_idx, col_idx, cell_widget)
+            else:
+                item = CustomTableWidgetItem(str(col_data))
+                item.setTextAlignment(Qt.AlignCenter)  # Center the text alignment
+                self.outputTable.setItem(row_idx, col_idx, item)
+
+    for col in range(len(headers)):
+        self.sort_orders[col] = Qt.DescendingOrder
+
+
+
 
 class RightGroupBox(QGroupBox):
     back_to_home_signal = pyqtSignal()  # Signal to go back to home screen
@@ -53,6 +109,10 @@ class RightGroupBox(QGroupBox):
         self.helpButton = create_transparent_button(self, "help.png", "")
         self.settingsButton = create_transparent_button(self, "settings.png", "")
 
+        self.terminalButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.helpButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.settingsButton.setCursor(QCursor(Qt.PointingHandCursor))
+
         button_size = QSize(64, 64)  # Adjust these values to get the desired size
         self.terminalButton.setFixedSize(button_size)
         self.helpButton.setFixedSize(button_size)
@@ -67,9 +127,52 @@ class RightGroupBox(QGroupBox):
         buttonLayout = QHBoxLayout(buttonHolder)
         buttonLayout.setContentsMargins(0, 0, 0, 0)
         buttonLayout.setSpacing(10)  # Set the space between buttons here
+        buttonLayout.addWidget(self.terminalButton)
         buttonLayout.addWidget(self.helpButton)
         buttonLayout.addWidget(self.settingsButton)
-        buttonLayout.addWidget(self.terminalButton)
+        #buttonLayout.addWidget(self.terminalButton)
+
+        self.terminalButton.setStyleSheet("""
+        QWidget {
+            background-color: #202020;
+            border: 2px solid #FF8956;
+            border-radius: 10px;
+        }
+        QWidget:hover {
+            background-color: #282828;
+        }
+        QWidget:focus {
+            background-color: #101010;
+        }
+        """)
+
+        self.helpButton.setStyleSheet("""
+        QWidget {
+            background-color: #202020;
+            border: 2px solid #FF8956;
+            border-radius: 10px;
+        }
+        QWidget:hover {
+            background-color: #282828;
+        }
+        QWidget:focus {
+            background-color: #101010;
+        }
+        """)
+
+        self.settingsButton.setStyleSheet("""
+        QWidget {
+            background-color: #202020;
+            border: 2px solid #FF8956;
+            border-radius: 10px;
+        }
+        QWidget:hover {
+            background-color: #282828;
+        }
+        QWidget:focus {
+            background-color: #101010;
+        }
+        """)
 
         # Align buttons to the right side
         topLayout.addStretch()
@@ -171,15 +274,51 @@ class RightGroupBox(QGroupBox):
         # Create and configure the export and filter buttons
         self.exportButton = QPushButton(self)
         self.exportButton.setFixedSize(330, 50)
+        self.exportButton.setCursor(QCursor(Qt.PointingHandCursor))
         setup_button_style(self.exportButton, "Export to...")
         self.exportButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.exportButton.clicked.connect(self.export_data)  # Connect the export button
+        self.exportButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 8px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
+
+        self.exportButton.clicked.connect(self.check_memdump_path)
 
         self.filterButton = QPushButton(self)
         setup_button_style(self.filterButton, "Filter")
         self.filterButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.filterButton.setFixedSize(330, 50)
+        self.filterButton.setCursor(QCursor(Qt.PointingHandCursor))
         self.filterButton.clicked.connect(self.show_filter_window)  # Connect the filter button
+        self.filterButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 8px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
 
         # Wrap exportButton and filterButton in a QHBoxLayout to align them to the center
         button_layout = QHBoxLayout()
@@ -228,7 +367,7 @@ class RightGroupBox(QGroupBox):
         for row_idx, row_data in enumerate(data):
             for col_idx, col_data in enumerate(row_data):
                 item = CustomTableWidgetItem(str(col_data))
-                item.setTextAlignment(Qt.AlignCenter)
+                item.setTextAlignment(Qt.AlignCenter)  # Center the text alignment
                 self.outputTable.setItem(row_idx, col_idx, item)
 
         for col in range(len(headers)):
@@ -280,6 +419,89 @@ class RightGroupBox(QGroupBox):
     def open_help(self):
         """Open the help URL in the web browser."""
         webbrowser.open("https://github.com/volatilityfoundation/volatility/wiki/Command-Reference")
+    def get_settings_values(self):
+        try:
+            config = configparser.ConfigParser()
+            config.read('settings.ini')
+
+            theme = config['DEFAULT'].get('Theme', 'Light')
+            text_size = config['DEFAULT'].get('TextSize', '12')
+            text_style = config['DEFAULT'].get('TextStyle', 'Normal')
+            memdump_path = config['DEFAULT'].get('MemdumpPath', '')  # Read file path
+
+            return theme, text_size, text_style, memdump_path
+        except Exception as e:
+            print(f"Error loading settings: {e}")
+
+
+    def check_memdump_path(self):
+        try:
+            theme, text_size, text_style, memdump_path = self.get_settings_values()
+            if memdump_path:  # If memdump_path is not empty
+                self.eksport_to_file()
+            else:  # If memdump_path is empty
+                self.export_data()
+        except Exception as e:
+            print(f"Error while checking memdump path: {e}")
+
+    def eksport_to_file(self):
+        """Export the displayed data to a file."""
+        try:
+            print("Starting export process")
+
+            # Get settings values
+            theme, text_size, text_style, memdump_path = self.get_settings_values()
+            print(f"Memdump path from settings: {memdump_path}")
+
+            # If no saved file path, let the user choose one
+            if not memdump_path:
+                print("Error: Memdump path is missing in settings.")
+                return
+
+            saved_path = memdump_path  # Get saved file path
+            print(f"Saved file path: {saved_path}")
+
+            options = QFileDialog.Options()
+            filePath, _ = QFileDialog.getSaveFileName(self, "Save File", saved_path,
+                                                      "PDF Files (*.pdf);;CSV Files (*.csv);;Excel Files (*.xls);;Text Files (*.txt);;Word Files (*.doc);;JSON Files (*.json)",
+                                                      options=options)
+            print(f"File path selected: {filePath}")
+
+            if filePath:
+                ext = os.path.splitext(filePath)[1].lower()
+                print(f"File extension: {ext}")
+                try:
+                    if os.path.exists(filePath):  # Check if the file already exists
+                        if sys.platform.startswith('win'):
+                            subprocess.Popen(['explorer', filePath.replace("/", "\\")])
+                        elif sys.platform.startswith('linux'):
+                            subprocess.Popen(['xdg-open', os.path.dirname(filePath)])
+                        elif sys.platform.startswith('darwin'):
+                            subprocess.Popen(['open', os.path.dirname(filePath)])
+                        else:
+                            print("Unsupported platform.")
+                    else:
+                        if ext == ".pdf":
+                            self.export_to_pdf(filePath)
+                        elif ext == ".csv":
+                            self.export_to_csv(filePath)
+                        elif ext == ".xls":
+                            self.export_to_excel(filePath)
+                        elif ext == ".txt":
+                            self.export_to_txt(filePath)
+                        elif ext == ".doc":
+                            if DOCX_AVAILABLE:
+                                self.export_to_doc(filePath)
+                            else:
+                                print("DOCX export not available. Please install python-docx.")
+                        elif ext == ".json":
+                            self.export_to_json(filePath)
+                except Exception as e:
+                    print(f"Error during export: {e}")
+                    print("Failed to export data.")
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+
 
     def export_data(self):
         """Export the displayed data to a file."""
@@ -310,6 +532,9 @@ class RightGroupBox(QGroupBox):
                     self.export_to_json(filePath)
             except Exception as e:
                 print(f"Error during export: {e}")
+
+
+
 
     def export_to_pdf(self, filePath):
         """Export the data to a PDF file."""

@@ -1,30 +1,44 @@
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextEdit, QSizePolicy,
                              QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QProgressBar, QCheckBox)
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon, QCursor
 from gui.frontend.utils import create_transparent_button, setup_button_style
 from gui.frontend.pluginAsideGUI import PluginAsideWindow
 from gui.backend.volatility_thread import VolatilityThread
 from gui.frontend.error_handler_GUI import show_error_message
 from gui.backend.file_manager import FileManager  # Import the new FileManager class
-import os
+import os  # Ensure os is imported
+from PyQt5.QtGui import QMovie
+
+from gui.frontend.warning_clear_all import WarningClearWSPopup
+from gui.frontend.widgets.loading_window import LoadingWindow
+
 
 
 class LeftGroupBox(QGroupBox):
     command_signal = pyqtSignal(str)
+    clear_workspace_signal = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
 
+        self.warning_clear_popup = None
+        self.groupBox_right = None
         self.existing_widgets = None
         self.pluginAsideWindow = None
+
+        #self.volatility_thread.progress_signal.connect(self.handle_progress)
+
         self.selected_file = None
         self.selected_plugin = None
         self.selected_pid = None
         self.selected_data = None
         self.plugin_window = None
         self.volatility_thread = None
+
         self.file_manager = FileManager(self)
+        self.loading_window = LoadingWindow()
+        self.file_manager = FileManager(self)  # Initialize the FileManager
         self.file_manager.unsupported_file_signal.connect(self.handle_unsupported_file)
         self.setObjectName("groupBox_left")
         self.setStyleSheet("QWidget { background-color: #353535; }")
@@ -43,6 +57,8 @@ class LeftGroupBox(QGroupBox):
         left_layout.setSpacing(10)
 
         self.selectFileButton = create_transparent_button(self, "filmappe.png", "    Select file")
+        self.selectFileButton.setCursor(QCursor(Qt.PointingHandCursor))
+
         self.metaDataWindow = QTextEdit(self)
         self.metaDataWindow.setStyleSheet("""
                     QTextEdit {
@@ -76,12 +92,47 @@ class LeftGroupBox(QGroupBox):
         setup_button_style(self.selectPluginButton, "Select plugin")
         self.selectPluginButton.clicked.connect(self.open_plugin_window)
         self.selectPluginButton.setFixedSize(330, 50)
+        self.selectPluginButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.selectPluginButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 8px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
 
         self.runButton = QPushButton(self)
         setup_button_style(self.runButton, "Run")
         self.runButton.clicked.connect(self.run_volatility_scan)
         self.runButton.setFixedSize(100, 50)
+
         # self.runButton.clicked.connect(self.handle_run_button_click)
+        self.runButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.runButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 8px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
 
         self.pidCheckBox = QCheckBox("Run with PID", self)
         self.pidCheckBox.setStyleSheet("""
@@ -97,6 +148,7 @@ class LeftGroupBox(QGroupBox):
 
         self.clearButton = QPushButton(self)
         self.clearButton.setFixedSize(330, 50)
+        self.clearButton.setCursor(QCursor(Qt.PointingHandCursor))
         setup_button_style(self.clearButton, "Clear Workspace")
         self.clearButton.clicked.connect(self.clear_workspace)
         self.clearButton.setStyleSheet("""
@@ -108,9 +160,13 @@ class LeftGroupBox(QGroupBox):
                     font: 20pt "Inter_FXH";
                     font-weight: 500;
                 }
+                
+                QPushButton:hover {
+                    background-color: #FC4444;
+                }
 
                 QPushButton:pressed {
-                    background-color: #ab1b1b; 
+                    background-color: #FC5B5B; 
                     border: 2px solid #ab1b1b;
                 }
 
@@ -124,6 +180,23 @@ class LeftGroupBox(QGroupBox):
         setup_button_style(self.toggleButton, "Toggle View")
         self.toggleButton.clicked.connect(self.toggle_view)
         self.toggleButton.setFixedSize(220, 50)
+        self.toggleButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.toggleButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF8956; 
+                border: 2px solid black; 
+                border-radius: 10px; 
+                color: black;
+            }
+
+            QPushButton:hover {
+                background-color: #FA7B43;
+            }
+
+            QPushButton:pressed {
+                background-color: #FC6a2B;
+            }
+        """)
 
         # Define the selected plugin text box
         self.selectedPluginTextBox = QLabel(self)
@@ -255,6 +328,8 @@ class LeftGroupBox(QGroupBox):
             self.pluginAsideWindow.deleteLater()
             self.pluginAsideWindow = None
             for widget in self.existing_widgets:
+                if self.showing_metadata:
+                    self.metaDataWindow.hide()
                 if widget is not None:
                     widget.show()
 
@@ -302,6 +377,7 @@ class LeftGroupBox(QGroupBox):
             self.volatility_thread.output_signal.connect(self.display_result)
             self.volatility_thread.log_signal.connect(self.log_to_terminal)
             self.volatility_thread.progress_signal.connect(self.update_progress_bar)
+            self.volatility_thread.progress_signal.connect(self.show_loading_image)
             self.parent().groupBox_right.show_progress_bar()
             self.volatility_thread.start()
             self.volatility_thread.finished.connect(self.reset_run_button)
@@ -314,8 +390,18 @@ class LeftGroupBox(QGroupBox):
     def reset_run_button(self):
         self.runButton.setText("Run")
 
+    def show_loading_image(self, value):
+        if value < 100:
+            self.loading_window.show()
+
+            print(value)
+        else:
+            print(value)
+            self.loading_window.close()
+            print("done scanning")
+
     def update_progress_bar(self, value):
-        """Update the progress bar value based on the type of scan."""
+
         self.parent().groupBox_right.update_progress_bar(value)
 
     def run_initial_scan(self, fileName):
@@ -394,21 +480,51 @@ class LeftGroupBox(QGroupBox):
     def display_result(self, headers, data):
         """Display the scan result in the right group box output table."""
         print("LeftGroupBox: Displaying result in RightGroupBox output table")
-        self.parent().groupBox_right.display_output(headers, data)
+
+        # Assuming the movie is part of the data, modify it to include the QMovie instance
+        modified_data = []
+        for row in data:
+            modified_row = []
+            for item in row:
+                if item == 'some_condition_to_identify_movie':  # Replace this condition with the actual one
+                    movie = QMovie('path_to_movie.gif')  # Adjust the path as needed
+                    modified_row.append(movie)
+                else:
+                    modified_row.append(item)
+            modified_data.append(modified_row)
+
+        self.parent().groupBox_right.display_output(headers, modified_data)
 
     def clear_workspace(self):
-        """Clear the workspace by resetting the selected file and plugin."""
+        print(f"Warning for clearing workspace")
+        self.show_warning_popup()
+
+    def show_warning_popup(self):
+        print(f"FileManager: Showing warning popup")
+        self.warning_clear_popup = WarningClearWSPopup()
+        self.warning_clear_popup.confirm_signal.connect(self.confirm_clear)
+        self.warning_clear_popup.exit_signal.connect(self.exit_clear)
+        self.warning_clear_popup.show()
+
+    def confirm_clear(self):
+        print(f"FileManager: User confirmed clearing workspace")
+        self.execute_clear_workspace()
+
+    def exit_clear(self):
+        print(f"FileManager: User exited the warning popup")
+
+
+    def execute_clear_workspace(self):
         print("LeftGroupBox: Clearing workspace")
         self.selected_file = None
         self.selected_plugin = None
         self.selected_pid = None
-        self.selected_data = None  # Clear selected_data
+        self.selected_data = None
         self.selectFileButton.setText("    Select file")
         self.selectedPluginTextBox.setText(">")
         self.metaDataWindow.setText("")
         self.terminalWindow.setText("")
         self.parent().groupBox_right.clear_output()
-
     def toggle_view(self):
         """Toggle between the metadata window and the terminal window."""
         self.showing_metadata = not self.showing_metadata

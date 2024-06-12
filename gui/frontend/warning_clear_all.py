@@ -6,8 +6,9 @@ from PyQt5.QtWidgets import QApplication, QPushButton, QSizePolicy, QHBoxLayout,
     QWidget
 
 
-class WarningPopup(QWidget):
+class WarningClearWSPopup(QWidget):
     confirm_signal = pyqtSignal()
+    exit_signal = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -30,7 +31,7 @@ class WarningPopup(QWidget):
         close_button.setStyleSheet('color: #FF5656; border: none; background: none;')
         close_button.setFixedSize(30, 30)
         close_button.setFlat(True)
-        close_button.clicked.connect(self.exitAction)
+        close_button.clicked.connect(self.on_exit)
         close_button_layout.addWidget(close_button, alignment=Qt.AlignRight)
         layout.addLayout(close_button_layout)
 
@@ -48,7 +49,7 @@ class WarningPopup(QWidget):
         message_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(message_label, alignment=Qt.AlignCenter)
 
-        # Add a spacer to push the buttons to the bottom
+
         layout.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
         button_layout = QHBoxLayout()
@@ -59,7 +60,7 @@ class WarningPopup(QWidget):
         confirm_button.setStyleSheet('background-color: #FF8956; border: none; color: black')
         confirm_button.setFlat(True)
         confirm_button.setFixedSize(100, 40)
-        confirm_button.clicked.connect(self.confirmAction)
+        confirm_button.clicked.connect(self.on_confirm)
         button_layout.addWidget(confirm_button)
 
         exit_button = QPushButton('EXIT', self)
@@ -67,20 +68,19 @@ class WarningPopup(QWidget):
         exit_button.setStyleSheet('background-color: #FF5656; border: none; color: black')
         exit_button.setFlat(True)
         exit_button.setFixedSize(100, 40)
-        exit_button.clicked.connect(self.exitAction)
+        exit_button.clicked.connect(self.on_exit)
         button_layout.addWidget(exit_button)
 
         layout.addLayout(button_layout)
 
         self.setLayout(layout)
 
-    def confirmAction(self):
-        print('Confirmed warning message')
+    def on_confirm(self):
         self.confirm_signal.emit()
         self.close()
 
-    def exitAction(self):
-        print('Exit warning message')
+    def on_exit(self):
+        self.exit_signal.emit()
         self.close()
 
     def mousePressEvent(self, event: QMouseEvent):
@@ -101,6 +101,6 @@ class WarningPopup(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = WarningPopup()
+    ex = WarningClearWSPopup()
     ex.show()
     sys.exit(app.exec_())
