@@ -2,7 +2,7 @@ import configparser
 import subprocess
 import sys
 from PyQt5.QtWidgets import QTableWidgetItem, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, \
-    QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog, QLineEdit, QDialog, QCheckBox, QScrollArea
+    QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog, QLineEdit, QDialog, QCheckBox, QScrollArea, QProgressBar
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from gui.frontend.utils import create_transparent_button, setup_button_style
 import pandas as pd
@@ -262,6 +262,13 @@ class RightGroupBox(QGroupBox):
         self.outputTable.clicked.connect(self.row_clicked)
         search_and_table_layout.addWidget(self.outputTable)
 
+        # Add the progress bar for the output table
+        self.outputProgressBar = QProgressBar(self)
+        self.outputProgressBar.setRange(0, 100)
+        self.outputProgressBar.setValue(0)
+        self.outputProgressBar.setVisible(False)
+        search_and_table_layout.addWidget(self.outputProgressBar)
+
         right_layout.addLayout(search_and_table_layout)
 
         right_layout.addWidget(self.create_spacer(10, ''))
@@ -408,6 +415,8 @@ class RightGroupBox(QGroupBox):
         """)
         self.outputTable.setRowCount(0)
         self.outputTable.setColumnCount(0)
+        self.outputProgressBar.setVisible(False)
+        self.outputProgressBar.setValue(0)
 
     def open_help(self):
         """Open the help URL in the web browser."""
@@ -765,4 +774,10 @@ class RightGroupBox(QGroupBox):
             if checkbox not in [source_checkbox, other_checkbox]:
                 checkbox.setChecked(check_state)
 
+    def show_progress_bar(self):
+        """Show the progress bar for the table view."""
+        self.outputProgressBar.setVisible(True)
 
+    def update_progress_bar(self, value):
+        """Update the progress bar value for the table view."""
+        self.outputProgressBar.setValue(value)

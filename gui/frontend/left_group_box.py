@@ -269,7 +269,6 @@ class LeftGroupBox(QGroupBox):
 
     def handle_file_selection(self):
         # print("LeftGroupBox: handle_file_selection method called")
-
         self.confirm_clear()
         if self.default_upload_path:
             selected_file = self.default_upload_path
@@ -278,7 +277,7 @@ class LeftGroupBox(QGroupBox):
 
         if selected_file:
             self.selected_file = selected_file
-            self.selectFileButton.setText(f"    {os.path.basename(selected_file)}")
+            self.selectFileButton.setText(f"{os.path.basename(selected_file)}")
             self.metaDataWindow.setText(f'Selected file: {selected_file}')
             self.run_initial_scan(selected_file)
 
@@ -290,7 +289,7 @@ class LeftGroupBox(QGroupBox):
         print("LeftGroupBox: Handling unsupported file type")
         if self.file_manager.selected_file:
             self.selected_file = self.file_manager.selected_file
-            self.selectFileButton.setText(f"    {os.path.basename(self.selected_file)}")
+            self.selectFileButton.setText(f"{os.path.basename(self.selected_file)}")
             self.metaDataWindow.setText(f'Selected file: {self.selected_file}')
             self.run_initial_scan(self.selected_file)
         else:
@@ -505,7 +504,7 @@ class LeftGroupBox(QGroupBox):
         self.selected_plugin = None
         self.selected_pid = None
         self.selected_data = None
-        self.selectFileButton.setText("    Select file")
+        self.selectFileButton.setText("Select file")
         self.selectedPluginTextBox.setText(">")
         self.metaDataWindow.setText("")
         self.terminalWindow.setText("")
