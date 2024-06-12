@@ -95,7 +95,7 @@ class SettingsWindowGUI(QWidget):
         main_content_layout.addWidget(header_directory_settings)
 
         # Default Upload Folder Section
-        upload_layout = QHBoxLayout()
+        '''upload_layout = QHBoxLayout()
         upload_label = QLabel("Default Upload Folder", main_content)
         upload_label.setStyleSheet("font-size: 20px; color: black; background-color: #ff8956;")
         upload_layout.addWidget(upload_label)
@@ -104,11 +104,40 @@ class SettingsWindowGUI(QWidget):
         self.upload_combobox.addItems(["none", "ADD FOLDER LOCATION"])
         self.upload_combobox.setStyleSheet("font-size: 16px;")
         upload_layout.addWidget(self.upload_combobox)
+        main_content_layout.addLayout(upload_layout)'''
+
+
+
+
+        # Default Upload Folder Section
+        upload_layout = QHBoxLayout()
+        upload_label = QLabel("Default Upload Folder", main_content)
+        upload_label.setStyleSheet("font-size: 20px; color: black; background-color: #ff8956;")
+        upload_layout.addWidget(upload_label)
+
+        self.upload_path = QLabel("", main_content)  # Label to display chosen file path
+        self.upload_path.setStyleSheet("font-size: 20px; color: white;")  # Style the label
+        upload_layout.addWidget(self.upload_path)
+
+        choose_folder_button = QPushButton("Choose Folder", main_content)
+        choose_folder_button.setStyleSheet(
+            "font-size: 16px; background-color: #ff8956; border: none; color: black;"
+        )
+        choose_folder_button.clicked.connect(self.open_upload_folder_explorer)
+        upload_layout.addWidget(choose_folder_button)
+
+        clear_upload_button = QPushButton("Clear Upload Path", main_content)
+        clear_upload_button.setStyleSheet(
+            "font-size: 16px; background-color: #ff8956; border: none; color: black;"
+        )
+        clear_upload_button.clicked.connect(self.clear_upload_path)
+        upload_layout.addWidget(clear_upload_button)
+
         main_content_layout.addLayout(upload_layout)
 
         # Default Export Folder Section
         export_layout = QHBoxLayout()
-        export_label = QLabel("Default file upload folder", main_content)
+        export_label = QLabel("Default Export folder", main_content)
         export_label.setStyleSheet("font-size: 20px; color: black; background-color: #ff8956;")
         export_layout.addWidget(export_label)
 
@@ -164,14 +193,14 @@ class SettingsWindowGUI(QWidget):
 
         self.load_settings()
 
-    def save_settings(self, theme, text_size, text_style, export, memdump_path, file_type):
+    def save_settings(self, theme, text_size, text_style,  upload_path, memdump_path, file_type):
         try:
             config = configparser.ConfigParser()
             config['DEFAULT'] = {
                 'Theme': theme,
                 'TextSize': text_size,
                 'TextStyle': text_style,
-                'Export': export,
+                'Upload':  upload_path,
                 'MemdumpPath': memdump_path,  # Lagrer filstien til mappen
                 'FileType': file_type  # Legg til filtypen
             }
@@ -189,7 +218,7 @@ class SettingsWindowGUI(QWidget):
             theme = config['DEFAULT'].get('Theme', 'Light')
             text_size = config['DEFAULT'].get('TextSize', '12')
             text_style = config['DEFAULT'].get('TextStyle', 'Normal')
-            upload = config['DEFAULT'].get('Upload', 'none')
+            upload_path = config['DEFAULT'].get('Upload', 'none')
             memdump_path = config['DEFAULT'].get('MemdumpPath', '')
             file_type = config['DEFAULT'].get('FileType', 'none')
 
@@ -197,7 +226,7 @@ class SettingsWindowGUI(QWidget):
             self.theme_combobox.setCurrentText(theme)
             self.text_size_combobox.setCurrentText(text_size)
             self.text_style_selection.setCurrentText(text_style)
-            self.upload_combobox.setCurrentText(upload)
+            self.upload_path.setText(upload_path)
             self.memdump_path.setText(memdump_path)
             self.file_type_combobox.setCurrentText(file_type)
 
@@ -209,7 +238,7 @@ class SettingsWindowGUI(QWidget):
                 f"<b>Theme:</b> {theme}<br/>"
                 f"<b>Text Size:</b> {text_size}<br/>"
                 f"<b>Text Style:</b> {text_style}<br/>"
-                f"<b>Upload Folder:</b> {upload}<br/>"
+                f"<b>Upload Folder:</b> {upload_path}<br/>"
                 f"<b>Memdump Path:</b> {memdump_path}<br/>"
                 f"<b>File Type:</b> {file_type}"
                 f"</font>"
@@ -224,11 +253,11 @@ class SettingsWindowGUI(QWidget):
             theme = self.theme_combobox.currentText()
             text_size = self.text_size_combobox.currentText()
             text_style = self.text_style_selection.currentText()
-            upload = self.upload_combobox.currentText()
+            upload_path = self.upload_path.text()
             memdump_path = self.memdump_path.text()
             file_type = self.file_type_combobox.currentText()
 
-            self.save_settings(theme, text_size, text_style, upload, memdump_path, file_type)
+            self.save_settings(theme, text_size, text_style, upload_path, memdump_path, file_type)
         except Exception as e:
             print(f"Error during save_current_settings: {e}")
 
@@ -236,22 +265,37 @@ class SettingsWindowGUI(QWidget):
         try:
             chosen_folder = QFileDialog.getExistingDirectory(self, "Choose Default File Upload Folder")
             if chosen_folder:
-
                 self.memdump_path.setText(chosen_folder)
+                self.save_current_settings()
+        except Exception as e:
+            print(f"Error opening file explorer: {e}")
 
-                # Lagrer den valgte filstien
+    def open_upload_folder_explorer(self):
+        try:
+            chosen_folder = QFileDialog.getExistingDirectory(self, "Choose Default File Upload Folder")
+            if chosen_folder:
+                self.upload_path.setText(chosen_folder)
                 self.save_current_settings()
         except Exception as e:
             print(f"Error opening file explorer: {e}")
 
     def clear_file_path(self):
         try:
-            self.memdump_path.setText("")  # Tømmer filstien
-            self.save_current_settings()  # Lagrer de oppdaterte innstillingene
+            self.memdump_path.setText("")
+            self.save_current_settings()
             QMessageBox.information(self, "Path Cleared",
                                     "<font color='white'>File path has been cleared.</font>")
         except Exception as e:
             print(f"Error clearing file path: {e}")
+
+    def clear_upload_path(self):
+        try:
+            self.upload_path.setText("")
+            self.save_current_settings()
+            QMessageBox.information(self, "Path Cleared", "<font color='white'>Upload path has been cleared.</font>")
+        except Exception as e:
+            print(f"Error clearing upload path: {e}")
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
