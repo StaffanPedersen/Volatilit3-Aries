@@ -18,3 +18,5 @@ ENV/
 *.vmem
 *.img
 
+settings.ini
+

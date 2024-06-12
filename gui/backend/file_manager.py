@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget
 from PyQt5.QtCore import pyqtSignal
 import os
-from gui.frontend.warning_memdumpGUI import WarningPopup  # Ensure correct import path
+from gui.frontend.warning_memdumpGUI import WarningPopup
 
 class FileManager(QWidget):
     unsupported_file_signal = pyqtSignal()
@@ -11,7 +11,6 @@ class FileManager(QWidget):
         self.selected_file = None
 
     def open_file_dialog(self):
-        """Open a file dialog to select a memory dump file."""
         print("FileManager: open_file_dialog method called")
         options = QFileDialog.Options()
         file_filter = ("Supported Memory Dump Files (*.dmp *.mem *.vmem *.raw *.bin *.img *.hpak *.lime *.elf *.json);;"
@@ -37,13 +36,17 @@ class FileManager(QWidget):
             return None
 
     def show_warning_popup(self):
-        """Show the warning popup."""
         print(f"FileManager: Showing warning popup")
         self.warning_popup = WarningPopup()
         self.warning_popup.confirm_signal.connect(self.confirm_unsupported_file)
         self.warning_popup.show()
+        self.warning_popup.exit_signal.connect(self.exit_clear)
+        self.warning_popup.flash_background()
+        self.warning_popup.exec_()
 
     def confirm_unsupported_file(self):
-        """Handle confirmation of unsupported file."""
         print(f"FileManager: User confirmed use of unsupported file")
         self.unsupported_file_signal.emit()
+
+    def exit_clear(self):
+        print(f"Exited warning popup")

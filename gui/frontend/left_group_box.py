@@ -52,7 +52,7 @@ class LeftGroupBox(QGroupBox):
         left_layout.setContentsMargins(10, 0, 10, 10)
         left_layout.setSpacing(10)
 
-        self.selectFileButton = create_transparent_button(self, "filmappe.png", "    Select file")
+        self.selectFileButton = create_transparent_button(self, "filmappe.png", "Select file")
         self.selectFileButton.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.metaDataWindow = QTextEdit(self)

@@ -98,7 +98,7 @@ class WarningClearWSPopup(QDialog):
             event.accept()
 
     def flash_background(self):
-        self.flash_timer.start(500)  # Change the color every 500 ms
+        self.flash_timer.start(500)
 
     def toggle_flash(self):
         if self.is_flashing_red:
