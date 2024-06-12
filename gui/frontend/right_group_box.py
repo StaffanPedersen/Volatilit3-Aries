@@ -2,14 +2,14 @@ import configparser
 import subprocess
 import sys
 from PyQt5.QtWidgets import QTableWidgetItem, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, \
-    QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog, QLineEdit, QDialog, QCheckBox, QScrollArea, QProgressBar
+    QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog, QLineEdit, QDialog, QCheckBox, QScrollArea
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from gui.frontend.utils import create_transparent_button, setup_button_style
 import pandas as pd
 from fpdf import FPDF
 import os
 import webbrowser
-from gui.frontend.settings_window import SettingsWindow  # Correct the import path
+from gui.frontend.settings_window_GUI import SettingsWindowGUI  # Correct the import path
 from gui.frontend.help_window_GUi import helpWindowGui
 from functools import partial
 import json
@@ -262,13 +262,6 @@ class RightGroupBox(QGroupBox):
         self.outputTable.clicked.connect(self.row_clicked)
         search_and_table_layout.addWidget(self.outputTable)
 
-        # Add the progress bar for the output table
-        self.outputProgressBar = QProgressBar(self)
-        self.outputProgressBar.setRange(0, 100)
-        self.outputProgressBar.setValue(0)
-        self.outputProgressBar.setVisible(False)
-        search_and_table_layout.addWidget(self.outputProgressBar)
-
         right_layout.addLayout(search_and_table_layout)
 
         right_layout.addWidget(self.create_spacer(10, ''))
@@ -279,7 +272,7 @@ class RightGroupBox(QGroupBox):
         self.exportButton.setCursor(QCursor(Qt.PointingHandCursor))
         setup_button_style(self.exportButton, "Export to...")
         self.exportButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.exportButton.clicked.connect(self.export_data)  # Connect the export button
+        #self.exportButton.clicked.connect(self.export_data)  # Connect the export button
         self.exportButton.setStyleSheet("""
             QPushButton {
                 background-color: #FF8956; 
@@ -415,8 +408,6 @@ class RightGroupBox(QGroupBox):
         """)
         self.outputTable.setRowCount(0)
         self.outputTable.setColumnCount(0)
-        self.outputProgressBar.setVisible(False)
-        self.outputProgressBar.setValue(0)
 
     def open_help(self):
         """Open the help URL in the web browser."""
@@ -657,12 +648,11 @@ class RightGroupBox(QGroupBox):
 
     def show_help_window(self):
         """Show the help window."""
-        self.settings_window = SettingsWindow()
+        self.settings_window = SettingsWindowGUI()
         self.settings_window.show()
 
     def show_settings_window(self):
-        """Show the settings window when the settings button is clicked."""
-        self.settings_window = SettingsWindow()
+        self.settings_window = SettingsWindowGUI()
         self.settings_window.show()
 
     def show_help_window(self):
@@ -775,10 +765,4 @@ class RightGroupBox(QGroupBox):
             if checkbox not in [source_checkbox, other_checkbox]:
                 checkbox.setChecked(check_state)
 
-    def show_progress_bar(self):
-        """Show the progress bar for the table view."""
-        self.outputProgressBar.setVisible(True)
 
-    def update_progress_bar(self, value):
-        """Update the progress bar value for the table view."""
-        self.outputProgressBar.setValue(value)

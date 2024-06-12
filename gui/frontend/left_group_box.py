@@ -15,6 +15,8 @@ from PyQt5.QtGui import QMovie
 from gui.frontend.warning_clear_all import WarningClearWSPopup
 from gui.frontend.widgets.loading_window import LoadingWindow
 
+import configparser
+
 
 class LeftGroupBox(QGroupBox):
     command_signal = pyqtSignal(str)
@@ -48,6 +50,8 @@ class LeftGroupBox(QGroupBox):
         self.showing_metadata = True
         self.initialize_ui()
 
+        self.load_settings()
+
     def initialize_ui(self):
         print("LeftGroupBox: Initializing UI")
         left_layout = QVBoxLayout(self)
@@ -56,6 +60,7 @@ class LeftGroupBox(QGroupBox):
 
         self.selectFileButton = create_transparent_button(self, "filmappe.png", "Select file")
         self.selectFileButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.selectFileButton.clicked.connect(self.handle_file_selection)
 
         self.metaDataWindow = QTextEdit(self)
         self.metaDataWindow.setStyleSheet("""
@@ -83,7 +88,6 @@ class LeftGroupBox(QGroupBox):
                     }
                 """)
         self.terminalWindow.hide()
-        self.selectFileButton.clicked.connect(self.handle_file_selection)
 
         self.selectPluginButton = QPushButton(self)
         setup_button_style(self.selectPluginButton, "Select plugin")
@@ -155,7 +159,7 @@ class LeftGroupBox(QGroupBox):
                     font: 20pt "Inter_FXH";
                     font-weight: 500;
                 }
-                
+
                 QPushButton:hover {
                     background-color: #FC4444;
                 }
@@ -245,28 +249,33 @@ class LeftGroupBox(QGroupBox):
         self.setLayout(left_layout)
 
     def create_spacer(self, height, color):
-        #print(f"LeftGroupBox: Creating spacer with height {height} and color {color}")
+        # print(f"LeftGroupBox: Creating spacer with height {height} and color {color}")
         spacer = QWidget()
         spacer.setFixedHeight(height)
         spacer.setStyleSheet(f"background-color: {color};")
         return spacer
 
-    def open_file_dialog(self):
-        #print("LeftGroupBox: open_file_dialog method called")
-        options = QFileDialog.Options()
-        fileName, _ = QFileDialog.getOpenFileName(self, "Select Memory Dump File", "",
-                                                  "All Files (*);;Memory Files (*.mem)", options=options)
-        if fileName:
-            print(f"LeftGroupBox: File selected - {fileName}")
-            self.selected_file = fileName
-            self.selectFileButton.setText(f"    {os.path.basename(fileName)}")
-            self.metaDataWindow.setText(f'Selected file: {fileName}')
-            self.run_initial_scan(fileName)
+    def load_settings(self):
+        try:
+            config = configparser.ConfigParser()
+            config.read('settings.ini')
+
+            self.default_upload_path = config['DEFAULT'].get('Upload', '')
+            self.default_memdump_path = config['DEFAULT'].get('MemdumpPath', '')
+            self.default_file_type = config['DEFAULT'].get('FileType', '')
+
+        except Exception as e:
+            print(f"Error loading settings: {e}")
 
     def handle_file_selection(self):
-        #print("LeftGroupBox: handle_file_selection method called")
-        selected_file = self.file_manager.open_file_dialog()
+        # print("LeftGroupBox: handle_file_selection method called")
+
         self.confirm_clear()
+        if self.default_upload_path:
+            selected_file = self.default_upload_path
+        else:
+            selected_file = self.file_manager.open_file_dialog()
+
         if selected_file:
             self.selected_file = selected_file
             self.selectFileButton.setText(f"    {os.path.basename(selected_file)}")
@@ -471,7 +480,6 @@ class LeftGroupBox(QGroupBox):
     def confirm_not_selected_error(self):
         print(f"Confirmed error message workspace")
 
-
     def clear_workspace(self):
         print(f"Calling warning for clearing workspace")
         self.show_warning_popup()
@@ -523,3 +531,5 @@ class LeftGroupBox(QGroupBox):
             return f'<span style="color:white;">{message}</span>'
         else:
             return message
+
+# Additional methods for SettingsWindowGUI would remain unchanged.

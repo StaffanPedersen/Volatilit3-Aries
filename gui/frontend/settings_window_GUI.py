@@ -7,6 +7,7 @@ from PyQt5.QtGui import QColor
 
 from gui.frontend.theme import get_theme
 
+
 class SettingsWindowGUI(QWidget):
     def __init__(self):
         super().__init__()
@@ -89,75 +90,70 @@ class SettingsWindowGUI(QWidget):
         text_style_layout.addWidget(self.text_style_selection)
         main_content_layout.addLayout(text_style_layout)
 
-        header_directory_settings = QLabel("Directory Settings", main_content)
+        header_directory_settings = QLabel("Default Settings", main_content)
         header_directory_settings.setStyleSheet(
             "font-size: 30px; color: white; border: none; margin-top: 20px; background-color: transparent;")
         main_content_layout.addWidget(header_directory_settings)
 
         # Default Upload Folder Section
-        '''upload_layout = QHBoxLayout()
+        upload_layout = QVBoxLayout()
+
+        upload_horizontal_layout = QHBoxLayout()
+
         upload_label = QLabel("Default Upload Folder", main_content)
         upload_label.setStyleSheet("font-size: 20px; color: black; background-color: #ff8956;")
-        upload_layout.addWidget(upload_label)
-
-        self.upload_combobox = QComboBox(main_content)
-        self.upload_combobox.addItems(["none", "ADD FOLDER LOCATION"])
-        self.upload_combobox.setStyleSheet("font-size: 16px;")
-        upload_layout.addWidget(self.upload_combobox)
-        main_content_layout.addLayout(upload_layout)'''
-
-
-
-
-        # Default Upload Folder Section
-        upload_layout = QHBoxLayout()
-        upload_label = QLabel("Default Upload Folder", main_content)
-        upload_label.setStyleSheet("font-size: 20px; color: black; background-color: #ff8956;")
-        upload_layout.addWidget(upload_label)
-
-        self.upload_path = QLabel("", main_content)  # Label to display chosen file path
-        self.upload_path.setStyleSheet("font-size: 20px; color: white;")  # Style the label
-        upload_layout.addWidget(self.upload_path)
+        upload_horizontal_layout.addWidget(upload_label)
 
         choose_folder_button = QPushButton("Choose Folder", main_content)
         choose_folder_button.setStyleSheet(
             "font-size: 16px; background-color: #ff8956; border: none; color: black;"
         )
         choose_folder_button.clicked.connect(self.open_upload_folder_explorer)
-        upload_layout.addWidget(choose_folder_button)
+        upload_horizontal_layout.addWidget(choose_folder_button)
 
         clear_upload_button = QPushButton("Clear Upload Path", main_content)
         clear_upload_button.setStyleSheet(
             "font-size: 16px; background-color: #ff8956; border: none; color: black;"
         )
         clear_upload_button.clicked.connect(self.clear_upload_path)
-        upload_layout.addWidget(clear_upload_button)
+        upload_horizontal_layout.addWidget(clear_upload_button)
+
+        upload_layout.addLayout(upload_horizontal_layout)
+
+        self.upload_path = QLabel("", main_content)  # Label to display chosen file path
+        self.upload_path.setStyleSheet("font-size: 20px; color: white;")  # Style the label
+        upload_layout.addWidget(self.upload_path)
 
         main_content_layout.addLayout(upload_layout)
 
         # Default Export Folder Section
-        export_layout = QHBoxLayout()
+        export_layout = QVBoxLayout()
+
+        export_horizontal_layout = QHBoxLayout()
+
         export_label = QLabel("Default Export folder", main_content)
         export_label.setStyleSheet("font-size: 20px; color: black; background-color: #ff8956;")
-        export_layout.addWidget(export_label)
-
-        self.memdump_path = QLabel("", main_content)  # Label to display chosen file path
-        self.memdump_path.setStyleSheet("font-size: 20px; color: white;")  # Style the label
-        export_layout.addWidget(self.memdump_path)
+        export_horizontal_layout.addWidget(export_label)
 
         choose_file_button = QPushButton("Choose Folder", main_content)
         choose_file_button.setStyleSheet(
             "font-size: 16px; background-color: #ff8956; border: none; color: black;"
         )
         choose_file_button.clicked.connect(self.open_file_explorer)
-        export_layout.addWidget(choose_file_button)
+        export_horizontal_layout.addWidget(choose_file_button)
 
         clear_button = QPushButton("Clear Path", main_content)
         clear_button.setStyleSheet(
             "font-size: 16px; background-color: #ff8956; border: none; color: black;"
         )
         clear_button.clicked.connect(self.clear_file_path)
-        export_layout.addWidget(clear_button)
+        export_horizontal_layout.addWidget(clear_button)
+
+        export_layout.addLayout(export_horizontal_layout)
+
+        self.memdump_path = QLabel("", main_content)  # Label to display chosen file path
+        self.memdump_path.setStyleSheet("font-size: 20px; color: white;")  # Style the label
+        export_layout.addWidget(self.memdump_path)
 
         main_content_layout.addLayout(export_layout)
 
@@ -179,7 +175,9 @@ class SettingsWindowGUI(QWidget):
             "font-size: 30px; color: white; border: none; margin-top: 20px; background-color: transparent;")
         main_content_layout.addWidget(header_about)
 
-        text_box = QTextEdit("bla bla bla bla", main_content)
+        text_box = QTextEdit(
+            "VOLATUITION is a GUI designed to increase the user friendliness, and decrease time usage for the user, for the Volatility 3 memory forensics tool. Developed by Team Aries, students from Kristiania, in Python. Team Aries is composed of three cybersecurity students, three frontend and mobile development students, and two programming students. Volatuition was made during the agile project course, based on the project case by product owner Mnemonic.",
+            main_content)
         text_box.setStyleSheet("font-size: 20px; color: white; border: none; background-color: #262626;")
         main_content_layout.addWidget(text_box)
 
@@ -193,14 +191,14 @@ class SettingsWindowGUI(QWidget):
 
         self.load_settings()
 
-    def save_settings(self, theme, text_size, text_style,  upload_path, memdump_path, file_type):
+    def save_settings(self, theme, text_size, text_style, upload_path, memdump_path, file_type):
         try:
             config = configparser.ConfigParser()
             config['DEFAULT'] = {
                 'Theme': theme,
                 'TextSize': text_size,
                 'TextStyle': text_style,
-                'Upload':  upload_path,
+                'Upload': upload_path,
                 'MemdumpPath': memdump_path,  # Lagrer filstien til mappen
                 'FileType': file_type  # Legg til filtypen
             }
@@ -242,7 +240,6 @@ class SettingsWindowGUI(QWidget):
                 f"<b>Memdump Path:</b> {memdump_path}<br/>"
                 f"<b>File Type:</b> {file_type}"
                 f"</font>"
-
 
             )
         except Exception as e:
