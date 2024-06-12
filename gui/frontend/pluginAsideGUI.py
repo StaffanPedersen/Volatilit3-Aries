@@ -148,27 +148,33 @@ class PluginAsideWindow(QtWidgets.QWidget):
                 child.widget().deleteLater()
 
         for os_name, plugins in plugins_by_folder.items():
-            # Add folder header
-            header = QtWidgets.QLabel(f"{os_name} Plugins")
-            header.setStyleSheet("background-color: #FF8956; color: black; font-size: 18px; font-weight: bold;")
-            self.scrollLayout.addWidget(header)
+            if plugins:  # Only add header if there are plugins in the folder
+                # Add folder header
+                if os_name == 'Community':
+                    header_text = "Custom Header"
+                else:
+                    header_text = f"{os_name} Plugins"
 
-            for plugin in plugins:
-                element = QtWidgets.QWidget()
-                elementLayout = QtWidgets.QHBoxLayout()
-                element.setLayout(elementLayout)
-                checkbox = QtWidgets.QCheckBox(plugin)
-                checkbox.setStyleSheet("background-color: #353535; color: #fff; font-size: 14px;")
-                checkbox.setMinimumSize(220, 20)
-                checkbox.setMaximumSize(280, 20)
-                self.buttonGroup.addButton(checkbox)
-                checkbox.stateChanged.connect(self.update_checked_plugins)
+                header = QtWidgets.QLabel(header_text)
+                header.setStyleSheet("background-color: #FF8956; color: black; font-size: 18px; font-weight: bold;")
+                self.scrollLayout.addWidget(header)
 
-                tooltip_text = descriptions.get(plugin, "Description for " + plugin)
-                checkbox.setToolTip(tooltip_text)
+                for plugin in plugins:
+                    element = QtWidgets.QWidget()
+                    elementLayout = QtWidgets.QHBoxLayout()
+                    element.setLayout(elementLayout)
+                    checkbox = QtWidgets.QCheckBox(plugin)
+                    checkbox.setStyleSheet("background-color: #353535; color: #fff; font-size: 14px;")
+                    checkbox.setMinimumSize(220, 20)
+                    checkbox.setMaximumSize(280, 20)
+                    self.buttonGroup.addButton(checkbox)
+                    checkbox.stateChanged.connect(self.update_checked_plugins)
 
-                elementLayout.addWidget(checkbox)
-                self.scrollLayout.addWidget(element)
+                    tooltip_text = descriptions.get(plugin, "Description for " + plugin)
+                    checkbox.setToolTip(tooltip_text)
+
+                    elementLayout.addWidget(checkbox)
+                    self.scrollLayout.addWidget(element)
 
         self.scrollLayout.addStretch()  # Add stretch to push all elements to the top
 
@@ -177,23 +183,23 @@ class PluginAsideWindow(QtWidgets.QWidget):
         file_path, _ = QFileDialog.getOpenFileName(self, "Upload plugin", "",
                                                    "Python Files (*.py);;All Files (*)", options=options)
         if file_path:
-            self.save_plugin_to_community(file_path)
+            self.save_plugin_to_custom(file_path)
 
-    def save_plugin_to_community(self, file_path):
+    def save_plugin_to_custom(self, file_path):
         try:
-            # Define the community directory
-            community_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'volatility3',
+            # Define the custom directory
+            custom_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'volatility3',
                                          'framework', 'plugins', 'community')
-            print(community_dir)
-            if not os.path.exists(community_dir):
-                os.makedirs(community_dir)
+            print(custom_dir)
+            if not os.path.exists(custom_dir):
+                os.makedirs(custom_dir)
             base_name = os.path.basename(file_path)
-            dest_path = os.path.join(community_dir, base_name)
-            # Copy the file to the community directory
+            dest_path = os.path.join(custom_dir, base_name)
+            # Copy the file to the custom directory
             with open(file_path, 'rb') as fsrc:
                 with open(dest_path, 'wb') as fdst:
                     fdst.write(fsrc.read())
-            print(f"Plugin {base_name} saved to community directory.")
+            print(f"Plugin {base_name} saved to custom directory.")
             self.load_plugins()  # Refresh the plugin list
         except Exception as e:
             print(f"Error saving plugin: {e}")
