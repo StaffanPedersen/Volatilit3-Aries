@@ -17,40 +17,31 @@ def get_all_plugins(filepath=None, os_name=None):
         plugin_directories = {
             'Windows': os.path.join(base_dir, 'volatility3', 'framework', 'plugins', 'windows'),
             'Linux': os.path.join(base_dir, 'volatility3', 'framework', 'plugins', 'linux'),
-            'Mac': os.path.join(base_dir, 'volatility3', 'framework', 'plugins', 'mac')
+            'Mac': os.path.join(base_dir, 'volatility3', 'framework', 'plugins', 'mac'),
+            'Community': os.path.join(base_dir, 'volatility3', 'framework', 'plugins', 'community')
         }
         plugin_list = []
 
-        if os_name is not None:
-            print(f"OS is defined: {os_name}")
-            dir_path = plugin_directories.get(os_name)
-            if dir_path:
-                print(f"Checking directory for {os_name}: {dir_path}")
-                if os.path.exists(dir_path) and os.path.isdir(dir_path):
-                    print(f"Directory {dir_path} exists and is a directory.")
-                    plugins = [f"{os_name.lower()}.{os.path.splitext(f)[0]}" for f in os.listdir(dir_path) if
-                               os.path.isfile(os.path.join(dir_path, f)) and f.endswith('.py')]
-                    plugin_list.append((os_name, plugins))
-                else:
-                    print(f"Directory {dir_path} does not exist or is not a directory.")
-            else:
-                print(f"OS name {os_name} is not in the plugin directories.")
+        # Fetch plugins for the Community folder first
+        if os_name is None or os_name == 'Community':
+            dir_path = plugin_directories.get('Community')
+            if dir_path and os.path.exists(dir_path) and os.path.isdir(dir_path):
+                plugins = [f"community.{os.path.splitext(f)[0]}" for f in os.listdir(dir_path) if
+                           os.path.isfile(os.path.join(dir_path, f)) and f.endswith('.py')]
+                plugin_list.append(('Community', plugins))
 
-        # Fetch plugins for all OSes
+        # Fetch plugins for specified OS or all OSes excluding 'Community'
         for current_os_name, dir_path in plugin_directories.items():
-            if os_name is None or current_os_name != os_name:
-                print(f"Additional plugins checking directory for {current_os_name}: {dir_path}")
-                if os.path.exists(dir_path) and os.path.isdir(dir_path):
-                    print(f"Directory {dir_path} exists and is a directory.")
+            if current_os_name != 'Community' and (os_name is None or current_os_name == os_name):
+                if dir_path and os.path.exists(dir_path) and os.path.isdir(dir_path):
                     plugins = [f"{current_os_name.lower()}.{os.path.splitext(f)[0]}" for f in os.listdir(dir_path) if
                                os.path.isfile(os.path.join(dir_path, f)) and f.endswith('.py')]
                     plugin_list.append((current_os_name, plugins))
-                else:
-                    print(f"Directory {dir_path} does not exist or is not a directory.")
 
-        print("Final plugin list:", plugin_list)
         return plugin_list
 
     except Exception as e:
         print("Exception occurred while fetching plugins:", str(e))
         return []
+
+
