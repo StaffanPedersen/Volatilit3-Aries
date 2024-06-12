@@ -10,15 +10,14 @@ from gui.backend.theme_manager import ThemeManager
 class SettingsWindowGUI(QDialog):
     def __init__(self):
         super().__init__()
-        self.theme_manager = ThemeManager(self)
+        self.theme_manager = ThemeManager()
         self.initUI()
+        self.load_settings()
 
     def initUI(self):
         self.setWindowTitle('Settings Window')
         self.resize(1024, 768)
         self.setStyleSheet("background-color: black;")
-
-
 
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -187,10 +186,10 @@ class SettingsWindowGUI(QDialog):
 
         # save knapp
         save_button = QPushButton("Save Settings", self)
+        save_button.setStyleSheet(
+            "background-color: #FF8956; color: #262626; height: 50px; width: 150px;")  # Adjust the width as needed
         main_content_layout.addWidget(save_button)
         save_button.clicked.connect(self.save_current_settings)
-
-        self.load_settings()
 
     def save_settings(self, theme, text_size, text_style, upload_path, memdump_path, file_type):
         try:
@@ -200,8 +199,8 @@ class SettingsWindowGUI(QDialog):
                 'TextSize': text_size,
                 'TextStyle': text_style,
                 'Upload': upload_path,
-                'MemdumpPath': memdump_path,  # Lagrer filstien til mappen
-                'FileType': file_type  # Legg til filtypen
+                'MemdumpPath': memdump_path,
+                'FileType': file_type
             }
 
             with open('settings.ini', 'w') as configfile:
@@ -256,6 +255,8 @@ class SettingsWindowGUI(QDialog):
             file_type = self.file_type_combobox.currentText()
 
             self.save_settings(theme, text_size, text_style, upload_path, memdump_path, file_type)
+
+            # Show the save_status_label and update its text
         except Exception as e:
             print(f"Error during save_current_settings: {e}")
 

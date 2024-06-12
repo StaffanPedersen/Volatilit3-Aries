@@ -4,6 +4,7 @@ from PyQt5.QtGui import QMovie
 import sys
 import os
 
+
 class LoadingWindow(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -20,8 +21,7 @@ class LoadingWindow(QDialog):
         # Create a QLabel to display the spinning GIF
         self.movie_label = QLabel()
         self.movie_label.setAlignment(Qt.AlignCenter)
-        self.movie_label.setStyleSheet("background-color: transparent;") # Transparent background
-
+        self.movie_label.setStyleSheet("background-color: transparent;")  # Transparent background
 
         # Use a relative path to the GIF
         gif_path = os.path.join(os.path.dirname(__file__), '..', 'images', 'aries_logo.gif')
@@ -55,6 +55,7 @@ class LoadingWindow(QDialog):
         if self.movie.isValid():
             self.movie.stop()  # Stop the movie when the window is closed
         super().closeEvent(event)
+
 
 '''if __name__ == "__main__":
     app = QApplication(sys.argv)

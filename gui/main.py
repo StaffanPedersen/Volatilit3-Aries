@@ -1,9 +1,7 @@
-from PyQt5.QtGui import QIcon
+import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget
-import ctypes
-
 from PyQt5 import QtGui
-
+from gui.backend.theme_manager import load_theme
 from gui.frontend.home_screen_GUI import HomeScreen
 from gui.frontend.scan_screen_GUI import ScanScreen
 
@@ -14,8 +12,6 @@ class Main(QMainWindow):
         self.setWindowTitle("Volatuition")
         self.setWindowIcon(QtGui.QIcon("../gui/frontend/images/ariesLogoHomeScreen.png"))
         self.setFixedSize(1600, 900)
-
-
 
         # Create a stacked widget
         self.stack = QStackedWidget(self)
@@ -43,7 +39,8 @@ class Main(QMainWindow):
 
 
 def main():
-    app = QApplication([])
+    app = QApplication(sys.argv)
+    load_theme()
     main_window = Main()
     main_window.show()
     app.exec_()

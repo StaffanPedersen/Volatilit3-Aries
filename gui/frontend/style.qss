@@ -1,0 +1,37 @@
+ QWidget {
+    background-color: default_color;
+}
+
+QPushButton {
+    border-radius: 10px;
+    color: default_color;
+}
+
+QLabel {
+    color: default_color;
+    background-color: default_color;
+}
+
+QLineEdit {
+    background-color: default_color;
+    color: default_color;
+    border: 1px solid default_color;
+}
+
+QTextEdit {
+    background-color: default_color;
+    color: default_color;
+    border: 1px solid default_color;
+}
+
+QTableWidget {
+    background-color: default_color;
+    color: default_color;
+    border: 1px solid default_color;
+}
+
+QProgressBar {
+    background-color: default_color;
+    color: default_color;
+    border: 1px solid default_color;
+}
