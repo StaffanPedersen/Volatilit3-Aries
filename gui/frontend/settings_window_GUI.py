@@ -1,21 +1,24 @@
 import configparser
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QFrame, \
-    QTextEdit, QFileDialog, QMessageBox
+    QTextEdit, QFileDialog, QMessageBox, QDialog
 from PyQt5.QtCore import Qt
 
-from gui.backend.theme_manager import get_theme
+from gui.backend.theme_manager import ThemeManager
 
-class SettingsWindowGUI(QWidget):
+
+class SettingsWindowGUI(QDialog):
     def __init__(self):
         super().__init__()
+        self.theme_manager = ThemeManager(self)
         self.initUI()
-        self.load_settings()
 
     def initUI(self):
         self.setWindowTitle('Settings Window')
         self.resize(1024, 768)
         self.setStyleSheet("background-color: black;")
+
+
 
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -56,7 +59,7 @@ class SettingsWindowGUI(QWidget):
         theme_layout.addWidget(theme_label)
 
         self.theme_combobox = QComboBox(main_content)
-        theme_names = get_theme().keys()
+        theme_names = self.theme_manager.get_theme().keys()
         for theme_name in theme_names:
             self.theme_combobox.addItem(theme_name)
         self.theme_combobox.setStyleSheet("font-size: 16px;")
@@ -104,9 +107,6 @@ class SettingsWindowGUI(QWidget):
         self.upload_combobox.setStyleSheet("font-size: 16px;")
         upload_layout.addWidget(self.upload_combobox)
         main_content_layout.addLayout(upload_layout)'''
-
-
-
 
         # Default Upload Folder Section
         upload_layout = QHBoxLayout()
@@ -192,14 +192,14 @@ class SettingsWindowGUI(QWidget):
 
         self.load_settings()
 
-    def save_settings(self, theme, text_size, text_style,  upload_path, memdump_path, file_type):
+    def save_settings(self, theme, text_size, text_style, upload_path, memdump_path, file_type):
         try:
             config = configparser.ConfigParser()
             config['DEFAULT'] = {
                 'Theme': theme,
                 'TextSize': text_size,
                 'TextStyle': text_style,
-                'Upload':  upload_path,
+                'Upload': upload_path,
                 'MemdumpPath': memdump_path,  # Lagrer filstien til mappen
                 'FileType': file_type  # Legg til filtypen
             }
@@ -241,7 +241,6 @@ class SettingsWindowGUI(QWidget):
                 f"<b>Memdump Path:</b> {memdump_path}<br/>"
                 f"<b>File Type:</b> {file_type}"
                 f"</font>"
-
 
             )
         except Exception as e:

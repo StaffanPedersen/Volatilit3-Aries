@@ -1,5 +1,5 @@
-FONT_FAMILY = "Arial"
-FONT_SIZE = "14px"
+import configparser
+from PyQt5.QtWidgets import QWidget
 
 themes = {
     "default": {
@@ -40,8 +40,46 @@ themes = {
 }
 
 
-def get_theme(theme_name=None):
-    """Return the theme dictionary for the given theme name."""
-    if theme_name is None:
-        return themes
-    return themes.get(theme_name)
+class ThemeManager:
+    def __init__(self, widget: QWidget):
+        self.widget = widget
+
+    def get_theme(self, theme_name=None):
+        """Return the theme dictionary for the given theme name."""
+        if theme_name is None:
+            return themes
+        return themes.get(theme_name)
+
+    def load_theme(self):
+        config = configparser.ConfigParser()
+        config.read('settings.ini')
+        theme_name = config['DEFAULT'].get('Theme', 'default')
+        return theme_name
+
+    def save_theme(self, theme_name):
+        config = configparser.ConfigParser()
+        config['DEFAULT'] = {'Theme': theme_name}
+        with open('settings.ini', 'w') as configfile:
+            config.write(configfile)
+
+    def apply_theme(self, theme_name):
+        theme = self.get_theme(theme_name)
+        if theme is not None:
+            self.widget.setStyleSheet(f"""
+                QWidget {{
+                    background-color: {theme['BLACK']};
+                    color: {theme['FONT_COLOR']};
+                }}
+                QPushButton {{
+                    background-color: {theme['PRIMARY_COLOR']};
+                    border: 4px solid {theme['BORDER_COLOR']};
+                    border-radius: 15px;
+                    color: {theme['FONT_COLOR']};
+                }}
+                QPushButton:hover {{
+                    background-color: {theme['SECONDARY_COLOR']};
+                }}
+                QPushButton:pressed {{
+                    background-color: {theme['PRIMARY_COLOR']};
+                }}
+            """)
