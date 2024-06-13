@@ -109,7 +109,7 @@ class SettingsWindowGUI(QWidget):
         choose_folder_button.clicked.connect(self.open_upload_folder_explorer)
         upload_horizontal_layout.addWidget(choose_folder_button)
 
-        clear_upload_button = QPushButton("Clear Upload Path", main_content)
+        clear_upload_button = QPushButton("Clear Path", main_content)
         clear_upload_button.setStyleSheet(
             "font-size: 16px; background-color: #ff8956; border: none; color: black;"
         )
@@ -118,8 +118,8 @@ class SettingsWindowGUI(QWidget):
 
         upload_layout.addLayout(upload_horizontal_layout)
 
-        self.upload_path = QLabel("", main_content)  # Label to display chosen file path
-        self.upload_path.setStyleSheet("font-size: 20px; color: white;")  # Style the label
+        self.upload_path = QLabel("", main_content)
+        self.upload_path.setStyleSheet("font-size: 20px; color: white;")
         upload_layout.addWidget(self.upload_path)
 
         main_content_layout.addLayout(upload_layout)
@@ -149,8 +149,8 @@ class SettingsWindowGUI(QWidget):
 
         export_layout.addLayout(export_horizontal_layout)
 
-        self.memdump_path = QLabel("", main_content)  # Label to display chosen file path
-        self.memdump_path.setStyleSheet("font-size: 20px; color: white;")  # Style the label
+        self.memdump_path = QLabel("", main_content)
+        self.memdump_path.setStyleSheet("font-size: 20px; color: white;")
         export_layout.addWidget(self.memdump_path)
 
         main_content_layout.addLayout(export_layout)
@@ -176,7 +176,14 @@ class SettingsWindowGUI(QWidget):
         header_about = QLabel("About", main_content)
         header_about.setStyleSheet(
             "font-size: 30px; color: white; border: none; margin-top: 20px; background-color: transparent;")
+        header_about.setAlignment(Qt.AlignCenter)
         main_content_layout.addWidget(header_about)
+
+        line = QFrame(main_content)
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        line.setStyleSheet("background-color: #ff8956; border: none; height: 2px;")
+        main_content_layout.addWidget(line)
 
         text_box = QTextEdit(
             "VOLATUITION is a GUI designed to increase the user friendliness, and decrease time usage for the user, for the Volatility 3 memory forensics tool. Developed by Team Aries, students from Kristiania, in Python. Team Aries is composed of three cybersecurity students, three frontend and mobile development students, and two programming students. Volatuition was made during the agile project course, based on the project case by product owner Mnemonic.",
@@ -188,9 +195,31 @@ class SettingsWindowGUI(QWidget):
         main_content_layout.addStretch()
 
         # save knapp
-        save_button = QPushButton("Save Settings", self)
-        save_button.setStyleSheet("color: black; background: #34ebdb; font-weight: bold; font-size: 20;")
+        """save_button = QPushButton("Save Settings", self)
+        save_button.setFixedSize(150, 50)
+        save_button.setStyleSheet("color: black; background: #F66600; border: none; font-weight: bold; font-size: 40;")
         main_content_layout.addWidget(save_button)
+        save_button.clicked.connect(self.save_and_close)"""
+
+        self.setStyleSheet("background-color: #353535;")
+        button_layout = QHBoxLayout()
+        save_button = QPushButton("Save Settings", self)
+        save_button.setStyleSheet(
+            "color: black; "
+            "background-color: #F66600; "
+            "border: none; "
+            "font-weight: bold; "
+            "font-size: 20px;"
+        )
+        save_button.setFixedSize(150, 50)
+
+        spacer = QLabel(self)
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        spacer.setStyleSheet("background-color: transparent; border: none;")
+        button_layout.addWidget(spacer)
+        button_layout.addWidget(save_button)
+        main_content_layout.addLayout(button_layout)
+        self.setLayout(main_content_layout)
         save_button.clicked.connect(self.save_and_close)
 
         self.load_settings()
@@ -224,7 +253,6 @@ class SettingsWindowGUI(QWidget):
             memdump_path = config['DEFAULT'].get('MemdumpPath', '')
             file_type = config['DEFAULT'].get('FileType', 'none')
 
-            # Set interface elements based on loaded settings
             self.theme_combobox.setCurrentText(theme)
             self.text_size_combobox.setCurrentText(text_size)
             self.text_style_selection.setCurrentText(text_style)
@@ -232,7 +260,7 @@ class SettingsWindowGUI(QWidget):
             self.memdump_path.setText(memdump_path)
             self.file_type_combobox.setCurrentText(file_type)
 
-            # Save the last selected settings
+            # Save selected settings
             self.save_current_settings()
 
             QMessageBox.settings_info = (
