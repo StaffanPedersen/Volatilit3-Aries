@@ -80,7 +80,7 @@ class HomeScreen(QWidget):
             }
 
             QPushButton:pressed {
-                background-color: #F79368;
+                background-color: #fa6828;
             }
         
         """)
@@ -132,7 +132,7 @@ class HomeScreen(QWidget):
             }
 
             QPushButton:pressed {
-                background-color: #F79368;
+                background-color: #fa6828;
             }
 
         """)
@@ -176,7 +176,7 @@ class HomeScreen(QWidget):
             }
 
             QPushButton:pressed {
-                background-color: #F79368;
+                background-color: #fa6828;
             }
 
         """)
