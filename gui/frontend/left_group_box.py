@@ -17,6 +17,25 @@ from gui.frontend.widgets.loading_window import LoadingWindow
 
 import configparser
 
+import configparser
+import os
+from PyQt5.QtWidgets import QFileDialog, QGroupBox, QVBoxLayout, QPushButton, QTextEdit, QSizePolicy, QHBoxLayout, QSpacerItem, QWidget, QCheckBox, QLabel
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QCursor, QFont
+
+import configparser
+import os
+from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QTextEdit, QSizePolicy,
+                             QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QCheckBox, QLabel)
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QCursor, QFont
+
+# Assuming other necessary imports are already here
+from gui.frontend.utils import create_transparent_button, setup_button_style
+from gui.backend.volatility_thread import VolatilityThread
+from gui.frontend.error_handler_GUI import show_error_message
+from gui.backend.file_manager import FileManager  # Import the new FileManager class
+
 
 class LeftGroupBox(QGroupBox):
     command_signal = pyqtSignal(str)
@@ -24,10 +43,12 @@ class LeftGroupBox(QGroupBox):
     def __init__(self, parent):
         super().__init__(parent)
 
+
         self.warning_clear_popup = None
         self.groupBox_right = None
         self.existing_widgets = None
         self.pluginAsideWindow = None
+        self.load_settings()
 
         self.selected_file = None
         self.selected_plugin = None
@@ -249,7 +270,6 @@ class LeftGroupBox(QGroupBox):
         self.setLayout(left_layout)
 
     def create_spacer(self, height, color):
-        # print(f"LeftGroupBox: Creating spacer with height {height} and color {color}")
         spacer = QWidget()
         spacer.setFixedHeight(height)
         spacer.setStyleSheet(f"background-color: {color};")
@@ -268,21 +288,26 @@ class LeftGroupBox(QGroupBox):
             print(f"Error loading settings: {e}")
 
     def handle_file_selection(self):
-        # print("LeftGroupBox: handle_file_selection method called")
-        self.confirm_clear()
-        if self.default_upload_path:
-            selected_file = self.default_upload_path
-        else:
-            selected_file = self.file_manager.open_file_dialog()
+        print("LeftGroupBox: handle_file_selection method called")
+        self.load_settings()
 
-        if selected_file:
-            self.selected_file = selected_file
-            self.selectFileButton.setText(f"{os.path.basename(selected_file)}")
-            self.metaDataWindow.setText(f'Selected file: {selected_file}')
-            self.run_initial_scan(selected_file)
+        # Set the initial directory to the value from the settings file
+        initial_directory = self.default_upload_path if self.default_upload_path else os.path.expanduser('~')
 
+        options = QFileDialog.Options()
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select File", initial_directory,
+                                                   "Memory Dumps (*.dmp *.img *.bin *.vmem *.raw *.elf *.hpak *.lime *.vhd *.vhdx *.vmdk *.vmsn *.vmss *.hsv *.hpa *.core *.crash *.mem);;All Files (*)"
+, options=options)
+
+        if file_name:
+            self.selected_file = file_name
+            self.selectFileButton.setText(os.path.basename(file_name))
+            self.metaDataWindow.setText(f'Selected file: {file_name}')
+            self.run_initial_scan(file_name)
         else:
             print("LeftGroupBox: No valid file selected")
+
+    # ... other methods ...
 
     def handle_unsupported_file(self):
         """Handle the use of an unsupported file type."""
@@ -375,7 +400,6 @@ class LeftGroupBox(QGroupBox):
             print("done scanning")
 
     def update_progress_bar(self, value):
-
         self.parent().groupBox_right.update_progress_bar(value)
 
     def run_initial_scan(self, fileName):

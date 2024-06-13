@@ -1,1 +1,1 @@
-{"all_checked": true, "none_checked": false, "columns": {"PID": true, "PPID": true, "ImageFileName": true, "Offset(V)": true, "Threads": true, "Handles": true, "SessionId": true, "Wow64": true, "CreateTime": true, "ExitTime": true, "File output": true}}
+{"all_checked": false, "none_checked": true, "columns": {"PID": false, "PPID": false, "ImageFileName": false, "Offset(V)": false, "Threads": true, "Handles": false, "SessionId": true, "Wow64": false, "CreateTime": false, "ExitTime": false, "File output": false}}

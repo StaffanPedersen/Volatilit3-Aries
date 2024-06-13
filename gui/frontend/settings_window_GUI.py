@@ -164,7 +164,12 @@ class SettingsWindowGUI(QWidget):
         file_type_layout.addWidget(file_type_label)
 
         self.file_type_combobox = QComboBox(main_content)
-        self.file_type_combobox.addItems(["none", ".doc", ".pdf", ".csv", ".xls", ".txt", ".cls", ".json"])
+        self.file_type_combobox.addItems([
+            "none", ".doc", ".pdf", ".csv", ".xls", ".txt", ".cls", ".json",  # Common document types
+            ".dmp", ".img", ".bin", ".vmem", ".raw", ".elf", ".hpak",  # Volatility 3 supported types
+            ".lime", ".vhd", ".vhdx", ".vmdk", ".vmsn", ".vmss", ".hsv", ".hpa", ".hpak", ".vmem",
+            ".core", ".crash", ".hiberfil.sys", ".pagefile.sys", ".swapfile.sys"
+        ])
         self.file_type_combobox.setStyleSheet("font-size: 16px;")
         file_type_layout.addWidget(self.file_type_combobox)
         main_content_layout.addLayout(file_type_layout)
@@ -187,7 +192,7 @@ class SettingsWindowGUI(QWidget):
         # save knapp
         save_button = QPushButton("Save Settings", self)
         main_content_layout.addWidget(save_button)
-        save_button.clicked.connect(self.save_current_settings)
+        save_button.clicked.connect(self.save_and_close)
 
         self.load_settings()
 
@@ -255,8 +260,16 @@ class SettingsWindowGUI(QWidget):
             file_type = self.file_type_combobox.currentText()
 
             self.save_settings(theme, text_size, text_style, upload_path, memdump_path, file_type)
+
         except Exception as e:
             print(f"Error during save_current_settings: {e}")
+
+    def save_and_close(self):
+        try:
+            self.save_current_settings()
+            self.close()
+        except Exception as e:
+            print(f"Error during save_and_close: {e}")
 
     def open_file_explorer(self):
         try:
