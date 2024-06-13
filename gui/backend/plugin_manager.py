@@ -1,9 +1,9 @@
 import os
 from .volatility_finder import find_volatility_file
 
-
+ #  get all available plugins for the specified OS or all if OS is not specified
 def get_all_plugins(filepath=None, os_name=None):
-    """Fetch all available plugins for the specified OS or all if OS is not specified."""
+
     try:
         start_path = os.path.dirname(os.path.realpath(__file__))
         volatility_file = find_volatility_file(start_path) if filepath is None else filepath
@@ -22,7 +22,7 @@ def get_all_plugins(filepath=None, os_name=None):
         }
         plugin_list = []
 
-        # Fetch plugins for the Community folder first
+        # get plugins for the Community folder first
         if os_name is None or os_name == 'Community':
             dir_path = plugin_directories.get('Community')
             if dir_path and os.path.exists(dir_path) and os.path.isdir(dir_path):
@@ -30,7 +30,7 @@ def get_all_plugins(filepath=None, os_name=None):
                            os.path.isfile(os.path.join(dir_path, f)) and f.endswith('.py')]
                 plugin_list.append(('Community', plugins))
 
-        # Fetch plugins for specified OS or all OSes excluding 'Community'
+        # get plugins for specified OS or all OSes excluding
         for current_os_name, dir_path in plugin_directories.items():
             if current_os_name != 'Community' and (os_name is None or current_os_name == os_name):
                 if dir_path and os.path.exists(dir_path) and os.path.isdir(dir_path):
