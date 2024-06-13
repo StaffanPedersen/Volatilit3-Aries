@@ -23,13 +23,11 @@ class LeftGroupBox(QGroupBox):
 
     def __init__(self, parent):
         super().__init__(parent)
-
         self.warning_clear_popup = None
         self.groupBox_right = None
         self.existing_widgets = None
         self.pluginAsideWindow = None
         self.load_settings()
-
         self.selected_file = None
         self.selected_plugin = None
         self.selected_pid = None
@@ -175,7 +173,6 @@ class LeftGroupBox(QGroupBox):
             }
         """)
 
-
         self.toggleButton = QPushButton(self)
         setup_button_style(self.toggleButton, "Toggle View")
         self.toggleButton.clicked.connect(self.toggle_view)
@@ -219,7 +216,7 @@ class LeftGroupBox(QGroupBox):
                 color: green;
             }
         """)
-        self.selectedPluginTextBox.setText(">")  # change this for new text
+        self.selectedPluginTextBox.setText(">")
         self.selectedPluginTextBox.setAlignment(Qt.AlignCenter)
         self.selectedPluginTextBox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
@@ -271,7 +268,7 @@ class LeftGroupBox(QGroupBox):
         options = QFileDialog.Options()
         file_name, _ = QFileDialog.getOpenFileName(self, "Select File", initial_directory,
                                                    "Memory Dumps (*.dmp *.img *.bin *.vmem *.raw *.elf *.hpak *.lime *.vhd *.vhdx *.vmdk *.vmsn *.vmss *.hsv *.hpa *.core *.crash *.mem);;All Files (*)"
-, options=options)
+                                                   , options=options)
 
         if file_name:
             self.selected_file = file_name
@@ -295,12 +292,12 @@ class LeftGroupBox(QGroupBox):
     def set_selected_data(self, data):
         """Set the selected data for a new scan."""
         self.selected_data = data
-        self.metaDataWindow.setText(f'Selected data: {data}')  # Display the selected data
+        self.metaDataWindow.setText(f'Selected data: {data}')
 
     def set_selected_pid(self, pid):
         """Set the selected PID for a new scan."""
         self.selected_pid = pid
-        self.metaDataWindow.append(f'Selected PID: {pid}')  # Display the selected PID
+        self.metaDataWindow.append(f'Selected PID: {pid}')
 
     def open_plugin_window(self):
         if not self.pluginAsideWindow:
@@ -342,7 +339,6 @@ class LeftGroupBox(QGroupBox):
             return
 
         try:
-            # Incorporate selected data and PID into the command if necessary
             selected_data_text = f" with data {self.selected_data}" if self.selected_data else ""
             selected_pid_text = f" and PID {self.selected_pid}" if self.pidCheckBox.isChecked() and self.selected_pid else ""
             self.log_to_terminal(
@@ -353,7 +349,7 @@ class LeftGroupBox(QGroupBox):
             self.volatility_thread.output_signal.connect(self.display_result)
             self.volatility_thread.log_signal.connect(self.log_to_terminal)
             self.volatility_thread.progress_signal.connect(self.show_loading_image)
-            self.volatility_thread.error_signal.connect(self.show_error_incompatible_popup)  # Connect error signal
+            self.volatility_thread.error_signal.connect(self.show_error_incompatible_popup)
 
             self.volatility_thread.start()
         except Exception as e:
@@ -368,10 +364,8 @@ class LeftGroupBox(QGroupBox):
         self.incompatible_popup.flash_background()
         self.incompatible_popup.exec_()
 
-
     def confirm_incompatible_error(self):
         print(f"Confirmed incompatible OS popup")
-        
 
     def run_initial_scan(self, fileName):
         """Run an initial scan with a default plugin on the selected file."""
@@ -392,11 +386,9 @@ class LeftGroupBox(QGroupBox):
         try:
             print("LeftGroupBox: Displaying initial scan result in metaDataWindow")
 
-            # Validate data format
             if not isinstance(data, list):
                 raise ValueError("Data should be a list of lists.")
 
-            # Extract OS information from the data
             os_info = {
                 "NTBuildLab": "N/A",
                 "NtMajorVersion": "N/A",
@@ -408,10 +400,9 @@ class LeftGroupBox(QGroupBox):
             formatted_rows = []
             for row in data:
                 if not isinstance(row, (list, tuple)) or len(row) < 2:
-                    print(f"Skipping invalid row: {row}")  # Debug statement
+                    print(f"Skipping invalid row: {row}")
                     continue
 
-                # Debug: print the current row being processed
                 print(f"Processing row: {row}")
 
                 # Update os_info if applicable
@@ -430,15 +421,13 @@ class LeftGroupBox(QGroupBox):
 
                 formatted_rows.append(row)
 
-            # Combine OS type and version into one line
             os_details = (f"> OS: {os_info['OSType']} {os_info['NtMajorVersion']}.{os_info['NtMinorVersion']}\n\n"
                           f"> Build: {os_info['NTBuildLab']}\n\n"
                           f"> CSD Version: {os_info['CSDVersion']}")
 
-            # Format the scan results with the OS details on its own line and two line breaks
             result_text = f"{os_details}\n\n" + "\n\n".join(["> " + "\n".join(row) for row in formatted_rows])
 
-            # Display the result in the metadata window
+            # Displays the result in the metadata window
             if not hasattr(self, 'metaDataWindow') or not callable(getattr(self.metaDataWindow, 'setText', None)):
                 raise AttributeError("metaDataWindow is not properly set up or lacks the setText method.")
 
@@ -451,13 +440,12 @@ class LeftGroupBox(QGroupBox):
         """Display the scan result in the right group box output table."""
         print("LeftGroupBox: Displaying result in RightGroupBox output table")
 
-        # Assuming the movie is part of the data, modify it to include the QMovie instance
         modified_data = []
         for row in data:
             modified_row = []
             for item in row:
-                if item == 'some_condition_to_identify_movie':  # Replace this condition with the actual one
-                    movie = QMovie('path_to_movie.gif')  # Adjust the path as needed
+                if item == 'some_condition_to_identify_movie':
+                    movie = QMovie('path_to_movie.gif')
                     modified_row.append(movie)
                 else:
                     modified_row.append(item)
