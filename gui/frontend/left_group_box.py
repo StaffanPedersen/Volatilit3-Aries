@@ -381,7 +381,6 @@ class LeftGroupBox(QGroupBox):
             self.volatility_thread.command_signal.connect(self.parent().groupBox_right.update_command_info)
             self.volatility_thread.output_signal.connect(self.display_result)
             self.volatility_thread.log_signal.connect(self.log_to_terminal)
-            self.volatility_thread.progress_signal.connect(self.update_progress_bar)
             self.volatility_thread.progress_signal.connect(self.show_loading_image)
             self.parent().groupBox_right.show_progress_bar()
             self.volatility_thread.start()
@@ -400,8 +399,6 @@ class LeftGroupBox(QGroupBox):
             self.loading_window.close()
             print("done scanning")
 
-    def update_progress_bar(self, value):
-        self.parent().groupBox_right.update_progress_bar(value)
 
     def run_initial_scan(self, fileName):
         """Run an initial scan with a default plugin on the selected file."""
