@@ -60,14 +60,13 @@ pip3 install requirements-minimal.txt
 
 In CMD/terminal, navigate to the desired folder for placing Volatuition
 ```
-1. 
-	cd C:/desired_path/desktop
+1. 	cd C:/desired_path/desktop
 
-2.
-	git clone https://github.com/StaffanPedersen/Volatilit3-Aries.git
+2.	git clone https://github.com/StaffanPedersen/Volatilit3-Aries.git
 
-3.
-	pip3 install -r requirements.txt
+3.	cd Volatilit3-Aries/
+
+4.	pip3 install -r requirements.txt
 ```
 
 ##### Download manually
