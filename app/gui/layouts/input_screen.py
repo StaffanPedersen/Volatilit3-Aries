@@ -2,10 +2,10 @@ from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextE
                              QFileDialog, QHBoxLayout, QSpacerItem, QWidget)
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont
-# from gui.frontend.utils import create_transparent_button, setup_button_style
-# from gui.frontend.pluginAsideGUI import PluginAsideWindow
-# from gui.backend.volatility_thread import VolatilityThread
-# from gui.frontend.error_handler_GUI import show_error_message
+from gui.frontend.utils import create_transparent_button, setup_button_style
+from gui.frontend.pluginAsideGUI import PluginAsideWindow
+from gui.backend.volatility_thread import VolatilityThread
+from gui.frontend.error_handler_GUI import show_error_message
 import os
 
 class InputScreen(QGroupBox):

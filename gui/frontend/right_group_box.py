@@ -9,7 +9,8 @@ import pandas as pd
 from fpdf import FPDF
 import os
 import webbrowser
-from gui.frontend.settings_window import SettingsWindow  # Correct the import path
+from gui.frontend.settings_window_GUI import SettingsWindowGUI  # Correct the import path
+from gui.frontend.help_window_GUi import helpWindowGui
 from functools import partial
 import json
 from PyQt5.QtGui import QMovie, QCursor
@@ -114,6 +115,8 @@ class RightGroupBox(QGroupBox):
         #self.helpButton.clicked.connect(self.show_help_window)
         self.settingsButton.clicked.connect(self.show_settings_window)  # Connect the settings button
 
+        self.helpButton.clicked.connect(self.show_help_window)
+
         buttonHolder = QWidget(self)
         buttonLayout = QHBoxLayout(buttonHolder)
         buttonLayout.setContentsMargins(0, 0, 0, 0)
@@ -121,7 +124,6 @@ class RightGroupBox(QGroupBox):
         buttonLayout.addWidget(self.terminalButton)
         buttonLayout.addWidget(self.helpButton)
         buttonLayout.addWidget(self.settingsButton)
-        #buttonLayout.addWidget(self.terminalButton)
 
         self.terminalButton.setStyleSheet("""
         QWidget {
@@ -268,7 +270,7 @@ class RightGroupBox(QGroupBox):
         self.exportButton.setCursor(QCursor(Qt.PointingHandCursor))
         setup_button_style(self.exportButton, "Export to...")
         self.exportButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.exportButton.clicked.connect(self.export_data)  # Connect the export button
+        #self.exportButton.clicked.connect(self.export_data)  # Connect the export button
         self.exportButton.setStyleSheet("""
             QPushButton {
                 background-color: #FF8956; 
@@ -646,13 +648,16 @@ class RightGroupBox(QGroupBox):
 
     def show_help_window(self):
         """Show the help window."""
-        self.settings_window = SettingsWindow()
+        self.settings_window = SettingsWindowGUI()
         self.settings_window.show()
 
     def show_settings_window(self):
-        """Show the settings window when the settings button is clicked."""
-        self.settings_window = SettingsWindow()
+        self.settings_window = SettingsWindowGUI()
         self.settings_window.show()
+
+    def show_help_window(self):
+        self.help_window_GUi = helpWindowGui()
+        self.help_window_GUi.show()
 
     def go_back_to_home(self):
         """Emit signal to go back to home screen."""
