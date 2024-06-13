@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QDialog, QLabel, QVBoxLayout
+from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QMovie
 import sys

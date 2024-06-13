@@ -1,8 +1,8 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QSpacerItem, \
+from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QSpacerItem, \
     QSizePolicy, QDialog
 from PyQt5.QtGui import QFont, QMouseEvent
-from PyQt5.QtCore import Qt, QPoint, pyqtSignal, QTimer
+from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 
 
 class ErrorNotSelected(QDialog):

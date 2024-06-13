@@ -13,6 +13,7 @@ class VolatilityThread(QThread):
     progress_signal = pyqtSignal(int)
     command_signal = pyqtSignal(str)
     log_signal = pyqtSignal(str)
+    error_signal = pyqtSignal(str)  # Add this signal
 
     def __init__(self, memory_dump, plugin, parent=None, pid=None):
         super().__init__(parent)
@@ -22,7 +23,6 @@ class VolatilityThread(QThread):
             self.plugin = (plugin.lower())
         self.pid = pid
         self.vol_path = find_volatility_file(os.getcwd())
-
 
     def run(self):
         try:
@@ -35,9 +35,12 @@ class VolatilityThread(QThread):
             self.log_signal.emit(self.format_log_message("info", f"Command to run: {command}"))
 
             output = self.run_volatility_scan(command)
+            if "Unable to validate the plugin requirements" in output:  # Detect the specific error
+                self.error_signal.emit(output)  # Emit error signal
+                return
+
             headers, data = self.parse_output(output)
             self.output_signal.emit(headers, data)
-            print("Trying to process progress emit")
             self.progress_signal.emit(100)
             self.log_signal.emit(self.format_log_message("info", "Scan completed successfully"))
 
@@ -48,8 +51,6 @@ class VolatilityThread(QThread):
             self.output_signal.emit([], [])
             self.progress_signal.emit(0)
             self.command_signal.emit("Error occurred")
-            self.loading_window.close()
-            self.log_signal.emit(self.format_log_message("error", str(e)))
 
     def run_volatility_scan(self, command):
         try:
