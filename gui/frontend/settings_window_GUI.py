@@ -1,7 +1,7 @@
 import configparser
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QFrame, \
-     QTextEdit, QFileDialog, QMessageBox
+    QTextEdit, QFileDialog, QMessageBox, QSizePolicy
 from PyQt5.QtCore import Qt
 from gui.frontend.theme import get_theme
 
@@ -190,19 +190,8 @@ class SettingsWindowGUI(QWidget):
         main_content_layout.addSpacing(20)
         main_content_layout.addStretch()
 
-<<<<<<< Updated upstream
-        # save knapp
-        """save_button = QPushButton("Save Settings", self)
-        save_button.setFixedSize(150, 50)
-        save_button.setStyleSheet("color: black; background: #F66600; border: none; font-weight: bold; font-size: 40;")
-=======
-        # save button
-        save_button = QPushButton("Save Settings", self)
-        save_button.setStyleSheet("color: black; background: #34ebdb; font-weight: bold; font-size: 20;")
->>>>>>> Stashed changes
-        main_content_layout.addWidget(save_button)
-        save_button.clicked.connect(self.save_and_close)"""
 
+        # save knapp
         self.setStyleSheet("background-color: #353535;")
         button_layout = QHBoxLayout()
         save_button = QPushButton("Save Settings", self)
@@ -262,10 +251,6 @@ class SettingsWindowGUI(QWidget):
             self.memdump_path.setText(memdump_path)
             self.file_type_combobox.setCurrentText(file_type)
 
-<<<<<<< Updated upstream
-            # Save selected settings
-=======
->>>>>>> Stashed changes
             self.save_current_settings()
 
             QMessageBox.settings_info = (
