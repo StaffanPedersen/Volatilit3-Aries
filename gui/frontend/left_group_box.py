@@ -321,8 +321,12 @@ class LeftGroupBox(QGroupBox):
             self.pluginAsideWindow.deleteLater()
             self.pluginAsideWindow = None
             for widget in self.existing_widgets:
-                if self.showing_metadata:
+                if self.metaDataWindow.isVisible():
                     self.metaDataWindow.hide()
+                    self.terminalWindow.show()
+                if self.terminalWindow.isVisible():
+                    self.terminalWindow.hide()
+                    self.metaDataWindow.show()
                 if widget is not None:
                     widget.show()
 
