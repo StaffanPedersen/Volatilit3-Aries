@@ -29,6 +29,7 @@ class LeftGroupBox(QGroupBox):
         self.existing_widgets = None
         self.pluginAsideWindow = None
         self.load_settings()
+        self.loading_window = None
 
         self.selected_file = None
         self.selected_plugin = None
@@ -360,6 +361,12 @@ class LeftGroupBox(QGroupBox):
             error_message = f"LeftGroupBox: Error running Volatility scan: {str(e)}"
             self.log_to_terminal(error_message)
             show_error_message(self, "Error", error_message)
+
+    def show_loading_image(self):
+        if not self.loading_window.isVisible():
+            self.loading_window.show()
+        else:
+            self.loading_window.hide()
 
     def show_error_incompatible_popup(self, message):
         print(f"Error popup, incompatible plugin or OS")

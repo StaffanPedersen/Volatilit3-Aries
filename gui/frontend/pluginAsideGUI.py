@@ -114,7 +114,6 @@ class PluginAsideWindow(QtWidgets.QWidget):
             plugin_data = get_all_plugins()
             self.pluginNames = []
 
-            # Prioritize Community plugins and group by folder
             plugins_by_folder = {}
             for os_name, plugins in plugin_data:
                 if os_name not in plugins_by_folder:
@@ -141,15 +140,13 @@ class PluginAsideWindow(QtWidgets.QWidget):
             print(f"Error parsing JSON: {e}")
             descriptions = {}
 
-        # Clear existing widgets in the scrollLayout
         while self.scrollLayout.count():
             child = self.scrollLayout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
 
         for os_name, plugins in plugins_by_folder.items():
-            if plugins:  # Only add header if there are plugins in the folder
-                # Add folder header
+            if plugins:
                 if os_name == 'Community':
                     header_text = "Custom Header"
                 else:
@@ -176,7 +173,7 @@ class PluginAsideWindow(QtWidgets.QWidget):
                     elementLayout.addWidget(checkbox)
                     self.scrollLayout.addWidget(element)
 
-        self.scrollLayout.addStretch()  # Add stretch to push all elements to the top
+        self.scrollLayout.addStretch()
 
     def open_file_dialog(self):
         options = QFileDialog.Options()
@@ -187,7 +184,6 @@ class PluginAsideWindow(QtWidgets.QWidget):
 
     def save_plugin_to_custom(self, file_path):
         try:
-            # Define the custom directory
             custom_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'volatility3',
                                          'framework', 'plugins', 'community')
             print(custom_dir)
