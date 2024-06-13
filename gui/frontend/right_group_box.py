@@ -1,15 +1,13 @@
 import configparser
-import subprocess
-import sys
-from PyQt5.QtWidgets import QTableWidgetItem, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, \
-    QWidget, QSpacerItem, QTableWidget, QHeaderView, QFileDialog, QLineEdit, QDialog, QCheckBox, QScrollArea, QProgressBar
+from PyQt5.QtWidgets import QTableWidgetItem, QGroupBox, QVBoxLayout, QPushButton, QTextEdit, QSizePolicy, \
+     QSpacerItem, QTableWidget, QHeaderView, QFileDialog, QLineEdit, QDialog, QCheckBox, QScrollArea, QProgressBar
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from gui.frontend.utils import create_transparent_button, setup_button_style
 import pandas as pd
 from fpdf import FPDF
 import os
 import webbrowser
-from gui.frontend.settings_window_GUI import SettingsWindowGUI  # Correct the import path
+from gui.frontend.settings_window_GUI import SettingsWindowGUI
 from gui.frontend.help_window_GUi import helpWindowGui
 from functools import partial
 import json

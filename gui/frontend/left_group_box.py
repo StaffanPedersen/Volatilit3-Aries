@@ -1,7 +1,8 @@
+from PyQt5.QtGui import QMovie
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextEdit, QSizePolicy,
-                             QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QProgressBar, QCheckBox)
+                             QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QCheckBox)
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont, QIcon, QCursor
+from PyQt5.QtGui import QFont, QCursor
 
 from gui.frontend.error_not_selected_X import ErrorNotSelected
 from gui.frontend.error_plugin_incompatible_os import ErrorIncompatible
@@ -9,33 +10,12 @@ from gui.frontend.utils import create_transparent_button, setup_button_style
 from gui.frontend.pluginAsideGUI import PluginAsideWindow
 from gui.backend.volatility_thread import VolatilityThread
 from gui.frontend.error_handler_GUI import show_error_message
-from gui.backend.file_manager import FileManager  # Import the new FileManager class
-import os  # Ensure os is imported
-from PyQt5.QtGui import QMovie
-
+from gui.backend.file_manager import FileManager
 from gui.frontend.warning_clear_all import WarningClearWSPopup
 from gui.frontend.widgets.loading_window import LoadingWindow
 
-import configparser
-
-import configparser
 import os
-from PyQt5.QtWidgets import QFileDialog, QGroupBox, QVBoxLayout, QPushButton, QTextEdit, QSizePolicy, QHBoxLayout, QSpacerItem, QWidget, QCheckBox, QLabel
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QCursor, QFont
-
 import configparser
-import os
-from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QTextEdit, QSizePolicy,
-                             QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QCheckBox, QLabel)
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QCursor, QFont
-
-# Assuming other necessary imports are already here
-from gui.frontend.utils import create_transparent_button, setup_button_style
-from gui.backend.volatility_thread import VolatilityThread
-from gui.frontend.error_handler_GUI import show_error_message
-from gui.backend.file_manager import FileManager  # Import the new FileManager class
 
 
 class LeftGroupBox(QGroupBox):
@@ -43,7 +23,6 @@ class LeftGroupBox(QGroupBox):
 
     def __init__(self, parent):
         super().__init__(parent)
-
 
         self.warning_clear_popup = None
         self.groupBox_right = None
@@ -86,29 +65,29 @@ class LeftGroupBox(QGroupBox):
 
         self.metaDataWindow = QTextEdit(self)
         self.metaDataWindow.setStyleSheet("""
-                    QTextEdit {
-                        background-color: #000000;
-                        border: 1px solid #FF8956;
-                        border-radius: 10px;
-                        padding: 5px;
-                        font: 14pt "Inter_FXH";
-                        font-weight: 200;
-                        color: white;
-                    }
-                """)
+            QTextEdit {
+                background-color: #000000;
+                border: 1px solid #FF8956;
+                border-radius: 10px;
+                padding: 5px;
+                font: 14pt "Inter_FXH";
+                font-weight: 200;
+                color: white;
+            }
+        """)
 
         self.terminalWindow = QTextEdit(self)
         self.terminalWindow.setStyleSheet("""
-                    QTextEdit {
-                        background-color: #000000;
-                        border: 1px solid #FF8956;
-                        border-radius: 10px;
-                        padding: 5px;
-                        font: 14pt "Inter_FXH";
-                        font-weight: 200;
-                        color: white;
-                    }
-                """)
+            QTextEdit {
+                background-color: #000000;
+                border: 1px solid #FF8956;
+                border-radius: 10px;
+                padding: 5px;
+                font: 14pt "Inter_FXH";
+                font-weight: 200;
+                color: white;
+            }
+        """)
         self.terminalWindow.hide()
 
         self.selectPluginButton = QPushButton(self)
@@ -173,28 +152,28 @@ class LeftGroupBox(QGroupBox):
         setup_button_style(self.clearButton, "Clear Workspace")
         self.clearButton.clicked.connect(self.clear_workspace)
         self.clearButton.setStyleSheet("""
-                QPushButton {
-                    background-color: #FF5656;
-                    border: 1px solid #000000;
-                    border-radius: 10px;
-                    padding: 5px;
-                    font: 20pt "Inter_FXH";
-                    font-weight: 500;
-                }
+            QPushButton {
+                background-color: #FF5656;
+                border: 1px solid #000000;
+                border-radius: 10px;
+                padding: 5px;
+                font: 20pt "Inter_FXH";
+                font-weight: 500;
+            }
 
-                QPushButton:hover {
-                    background-color: #FC4444;
-                }
+            QPushButton:hover {
+                background-color: #FC4444;
+            }
 
-                QPushButton:pressed {
-                    background-color: #FC5B5B; 
-                    border: 2px solid #ab1b1b;
-                }
+            QPushButton:pressed {
+                background-color: #FC5B5B; 
+                border: 2px solid #ab1b1b;
+            }
 
-                QPushButton:flat {
-                    border: none;
-                }
-                """)
+            QPushButton:flat {
+                border: none;
+            }
+        """)
 
         # Add the toggle button
         self.toggleButton = QPushButton(self)
@@ -308,8 +287,6 @@ class LeftGroupBox(QGroupBox):
         else:
             print("LeftGroupBox: No valid file selected")
 
-    # ... other methods ...
-
     def handle_unsupported_file(self):
         """Handle the use of an unsupported file type."""
         print("LeftGroupBox: Handling unsupported file type")
@@ -382,26 +359,22 @@ class LeftGroupBox(QGroupBox):
             self.volatility_thread.output_signal.connect(self.display_result)
             self.volatility_thread.log_signal.connect(self.log_to_terminal)
             self.volatility_thread.progress_signal.connect(self.update_progress_bar)
-            self.volatility_thread.progress_signal.connect(self.show_loading_image)
-            self.parent().groupBox_right.show_progress_bar()
+            self.volatility_thread.error_signal.connect(self.show_error_incompatible_popup)  # Connect error signal
             self.volatility_thread.start()
         except Exception as e:
             error_message = f"LeftGroupBox: Error running Volatility scan: {str(e)}"
             self.log_to_terminal(error_message)
             show_error_message(self, "Error", error_message)
 
-    def show_loading_image(self, value):
-        if value < 100:
-            self.loading_window.show()
+    def show_error_incompatible_popup(self, message):
+        print(f"Error popup, incompatible plugin or OS")
+        self.incompatible_popup = ErrorIncompatible()
+        self.incompatible_popup.ok_signal.connect(self.confirm_incompatible_error)
+        self.incompatible_popup.flash_background()
+        self.incompatible_popup.exec_()
 
-            print(value)
-        else:
-            print(value)
-            self.loading_window.close()
-            print("done scanning")
-
-    def update_progress_bar(self, value):
-        self.parent().groupBox_right.update_progress_bar(value)
+    def confirm_incompatible_error(self):
+        print(f"Confirmed incompatible OS popup")
 
     def run_initial_scan(self, fileName):
         """Run an initial scan with a default plugin on the selected file."""
@@ -415,7 +388,6 @@ class LeftGroupBox(QGroupBox):
             error_message = f"LeftGroupBox: Error running initial scan: {str(e)}"
             self.log_to_terminal(error_message)
             self.error_incompatible_popup()
-            print("HALLO DENNE")
             show_error_message(self, "Error", error_message)
 
     def display_initial_scan_result(self, headers, data):
@@ -499,11 +471,11 @@ class LeftGroupBox(QGroupBox):
     def error_incompatible_popup(self):
         print(f"Error popup, not selected file or plugin")
         self.incompatible_popup = ErrorIncompatible()
-        self.incompatible_popup.ok_signal.connect(self.confirm_incomatible_error)
+        self.incompatible_popup.ok_signal.connect(self.confirm_incompatible_error)
         self.incompatible_popup.flash_background()
         self.incompatible_popup.exec_()
 
-    def confirm_incomatible_error(self):
+    def confirm_incompatible_error(self):
         print(f"Confirmed incompatible os popup")
 
     def show_error_not_selected_X_popup(self):
@@ -567,5 +539,3 @@ class LeftGroupBox(QGroupBox):
             return f'<span style="color:white;">{message}</span>'
         else:
             return message
-
-# Additional methods for SettingsWindowGUI would remain unchanged.
