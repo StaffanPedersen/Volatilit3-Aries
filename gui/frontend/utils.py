@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtWidgets import QPushButton, QLabel, QSizePolicy
+from PyQt5.QtWidgets import QPushButton, QSizePolicy
 
 def create_transparent_button(parent, icon_filename, button_text):
     """Create a transparent button with an icon and text."""
