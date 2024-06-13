@@ -13,6 +13,7 @@ def create_transparent_button(parent, icon_filename, button_text):
         font: 20pt "Inter_FXH";
         color: #F5F3F1;
         font-weight: 500;
+        text-align: left;
     }
     QPushButton:pressed {
         background-color: transparent;
