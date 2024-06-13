@@ -191,6 +191,7 @@ class SettingsWindowGUI(QWidget):
 
         # save knapp
         save_button = QPushButton("Save Settings", self)
+        save_button.setStyleSheet("color: black; background: #34ebdb; font-weight: bold; font-size: 20;")
         main_content_layout.addWidget(save_button)
         save_button.clicked.connect(self.save_and_close)
 
