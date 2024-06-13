@@ -1,21 +1,21 @@
-from PyQt5.QtGui import QMovie
-from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QLabel, QTextEdit, QSizePolicy,
-                             QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QCheckBox)
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont, QCursor
+import configparser
+import os
 
-from gui.frontend.error_not_selected_X import ErrorNotSelected
-from gui.frontend.error_plugin_incompatible_os import ErrorIncompatible
-from gui.frontend.utils import create_transparent_button, setup_button_style
-from gui.frontend.pluginAsideGUI import PluginAsideWindow
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QCursor, QFont
+from PyQt5.QtGui import QMovie
+from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QTextEdit, QSizePolicy,
+                             QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QCheckBox, QLabel)
+
+from gui.backend.file_manager import FileManager
 from gui.backend.volatility_thread import VolatilityThread
 from gui.frontend.error_handler_GUI import show_error_message
-from gui.backend.file_manager import FileManager
+from gui.frontend.error_not_selected_X import ErrorNotSelected
+from gui.frontend.error_plugin_incompatible_os import ErrorIncompatible
+from gui.frontend.pluginAsideGUI import PluginAsideWindow
+from gui.frontend.utils import create_transparent_button, setup_button_style
 from gui.frontend.warning_clear_all import WarningClearWSPopup
 from gui.frontend.widgets.loading_window import LoadingWindow
-
-import os
-import configparser
 
 
 class LeftGroupBox(QGroupBox):
@@ -40,7 +40,7 @@ class LeftGroupBox(QGroupBox):
         self.warning_clear_all = WarningClearWSPopup()
 
         self.loading_window = LoadingWindow()
-        self.file_manager = FileManager(self)  # Initialize the FileManager
+        self.file_manager = FileManager(self)
         self.file_manager.unsupported_file_signal.connect(self.handle_unsupported_file)
         self.setObjectName("groupBox_left")
         self.setStyleSheet("QWidget { background-color: #353535; }")
@@ -175,7 +175,7 @@ class LeftGroupBox(QGroupBox):
             }
         """)
 
-        # Add the toggle button
+
         self.toggleButton = QPushButton(self)
         setup_button_style(self.toggleButton, "Toggle View")
         self.toggleButton.clicked.connect(self.toggle_view)
@@ -198,12 +198,10 @@ class LeftGroupBox(QGroupBox):
             }
         """)
 
-        # Define the selected plugin text box
         self.selectedPluginTextBox = QLabel(self)
         self.selectedPluginTextBox.setObjectName("selectedPluginTextBox")
         self.selectedPluginTextBox.setFixedSize(330, 30)
 
-        # Define the font
         font2 = QFont()
         font2.setFamily("Inter_FXH")
         font2.setPointSize(14)
@@ -211,8 +209,6 @@ class LeftGroupBox(QGroupBox):
         font2.setItalic(False)
         font2.setWeight(75)
         self.selectedPluginTextBox.setFont(font2)
-
-        # Apply stylesheet
         self.selectedPluginTextBox.setStyleSheet("""
             QLabel {
                 background-color: #404040;
@@ -223,7 +219,7 @@ class LeftGroupBox(QGroupBox):
                 color: green;
             }
         """)
-        self.selectedPluginTextBox.setText(">")
+        self.selectedPluginTextBox.setText(">")  # change this for new text
         self.selectedPluginTextBox.setAlignment(Qt.AlignCenter)
         self.selectedPluginTextBox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
@@ -238,7 +234,7 @@ class LeftGroupBox(QGroupBox):
         run_button_layout.addWidget(self.runButton)
         left_layout.addLayout(run_button_layout)
 
-        left_layout.addWidget(self.pidCheckBox)  # Add the PID checkbox
+        left_layout.addWidget(self.pidCheckBox)
 
         left_layout.addWidget(self.create_spacer(10, ''))
         left_layout.addWidget(self.metaDataWindow)
@@ -270,8 +266,6 @@ class LeftGroupBox(QGroupBox):
     def handle_file_selection(self):
         print("LeftGroupBox: handle_file_selection method called")
         self.load_settings()
-
-        # Set the initial directory to the value from the settings file
         initial_directory = self.default_upload_path if self.default_upload_path else os.path.expanduser('~')
 
         options = QFileDialog.Options()
@@ -358,8 +352,9 @@ class LeftGroupBox(QGroupBox):
             self.volatility_thread.command_signal.connect(self.parent().groupBox_right.update_command_info)
             self.volatility_thread.output_signal.connect(self.display_result)
             self.volatility_thread.log_signal.connect(self.log_to_terminal)
-            self.volatility_thread.progress_signal.connect(self.update_progress_bar)
+            self.volatility_thread.progress_signal.connect(self.show_loading_image)
             self.volatility_thread.error_signal.connect(self.show_error_incompatible_popup)  # Connect error signal
+
             self.volatility_thread.start()
         except Exception as e:
             error_message = f"LeftGroupBox: Error running Volatility scan: {str(e)}"
@@ -373,8 +368,10 @@ class LeftGroupBox(QGroupBox):
         self.incompatible_popup.flash_background()
         self.incompatible_popup.exec_()
 
+
     def confirm_incompatible_error(self):
         print(f"Confirmed incompatible OS popup")
+        
 
     def run_initial_scan(self, fileName):
         """Run an initial scan with a default plugin on the selected file."""

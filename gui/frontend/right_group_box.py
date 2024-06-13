@@ -14,7 +14,6 @@ import json
 from PyQt5.QtGui import QMovie, QCursor
 
 
-# Check for optional library
 try:
     from docx import Document
     DOCX_AVAILABLE = True
@@ -32,7 +31,7 @@ class CustomTableWidgetItem(QTableWidgetItem):
             return self.text() < other.text()
 
 def display_output(self, headers, data):
-    """Display the output data in the table."""
+    # display the output data in the table
     print("Displaying output in table")
     self.headers = headers
     self.data = data
@@ -44,13 +43,13 @@ def display_output(self, headers, data):
     for row_idx, row_data in enumerate(data):
         for col_idx, col_data in enumerate(row_data):
             if isinstance(col_data, QMovie):
-                # Create a QLabel to display the movie
+                # QLabel to display the loading wheel / movie
                 label = QLabel()
                 label.setAlignment(Qt.AlignCenter)
                 label.setMovie(col_data)
-                col_data.start()  # Start the movie
+                col_data.start()  # Start the loading wheel / movie
 
-                # Create a QWidget to hold the QLabel
+                # create a QWidget to hold the QLabel
                 cell_widget = QWidget()
                 layout = QHBoxLayout(cell_widget)
                 layout.addWidget(label)
@@ -61,7 +60,7 @@ def display_output(self, headers, data):
                 self.outputTable.setCellWidget(row_idx, col_idx, cell_widget)
             else:
                 item = CustomTableWidgetItem(str(col_data))
-                item.setTextAlignment(Qt.AlignCenter)  # Center the text alignment
+                item.setTextAlignment(Qt.AlignCenter)
                 self.outputTable.setItem(row_idx, col_idx, item)
 
     for col in range(len(headers)):
@@ -71,9 +70,9 @@ def display_output(self, headers, data):
 
 
 class RightGroupBox(QGroupBox):
-    back_to_home_signal = pyqtSignal()  # Signal to go back to home screen
-    row_selected_signal = pyqtSignal(list)  # Signal for row selection
-    pid_selected_signal = pyqtSignal(str)  # Signal for PID selection
+    back_to_home_signal = pyqtSignal()  # signal to go back to home screen
+    row_selected_signal = pyqtSignal(list)  # signal for row selection
+    pid_selected_signal = pyqtSignal(str)  # signal for PID selection
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -85,10 +84,10 @@ class RightGroupBox(QGroupBox):
         self.sort_orders = {}
         self.headers = []
         self.data = []
-        self.filter_settings = {"all_checked": False, "none_checked": False}  # Store filter settings
+        self.filter_settings = {"all_checked": False, "none_checked": False}  # store filter settings
 
     def initialize_ui(self):
-        """Initialize the user interface for the right group box."""
+        # initialize the user interface for the right group box
         right_layout = QVBoxLayout(self)
         right_layout.setContentsMargins(10, 10, 10, 10)
         right_layout.setSpacing(10)
@@ -103,22 +102,21 @@ class RightGroupBox(QGroupBox):
         self.helpButton.setCursor(QCursor(Qt.PointingHandCursor))
         self.settingsButton.setCursor(QCursor(Qt.PointingHandCursor))
 
-        button_size = QSize(64, 64)  # Adjust these values to get the desired size
+        button_size = QSize(64, 64)
         self.terminalButton.setFixedSize(button_size)
         self.helpButton.setFixedSize(button_size)
         self.settingsButton.setFixedSize(button_size)
 
-        self.terminalButton.clicked.connect(self.go_back_to_home)  # Connect the terminal button to go back
+        self.terminalButton.clicked.connect(self.go_back_to_home)
 
-        #self.helpButton.clicked.connect(self.show_help_window)
-        self.settingsButton.clicked.connect(self.show_settings_window)  # Connect the settings button
+        self.settingsButton.clicked.connect(self.show_settings_window)
 
         self.helpButton.clicked.connect(self.show_help_window)
 
         buttonHolder = QWidget(self)
         buttonLayout = QHBoxLayout(buttonHolder)
         buttonLayout.setContentsMargins(0, 0, 0, 0)
-        buttonLayout.setSpacing(10)  # Set the space between buttons here
+        buttonLayout.setSpacing(10)
         buttonLayout.addWidget(self.terminalButton)
         buttonLayout.addWidget(self.helpButton)
         buttonLayout.addWidget(self.settingsButton)
@@ -165,14 +163,12 @@ class RightGroupBox(QGroupBox):
         }
         """)
 
-        # Align buttons to the right side
         topLayout.addStretch()
         topLayout.addWidget(buttonHolder)
         topLayout.setAlignment(buttonHolder, Qt.AlignRight)
 
         right_layout.addLayout(topLayout)
 
-        # Create and configure the command info box
         self.commandInfoBox = QTextEdit(self)
         self.commandInfoBox.setObjectName("textEdit_3")
         self.commandInfoBox.setEnabled(True)
@@ -196,14 +192,14 @@ class RightGroupBox(QGroupBox):
         """)
         right_layout.addWidget(self.commandInfoBox)
 
-        # Create a smaller layout for the search bar and table
+        # smaller layout for the search bar and table
         search_and_table_layout = QVBoxLayout()
         search_and_table_layout.setSpacing(5)
 
-        # Create the search bar
+        # search bar
         self.searchBar = QLineEdit(self)
         self.searchBar.setPlaceholderText("Search")
-        self.searchBar.setFixedHeight(30)  # Adjust the height to prevent squishing
+        self.searchBar.setFixedHeight(30)
         self.searchBar.setStyleSheet("""
             QLineEdit {
                 background-color: #353535;
@@ -223,7 +219,7 @@ class RightGroupBox(QGroupBox):
         self.searchBar.textChanged.connect(self.filter_table)
         search_and_table_layout.addWidget(self.searchBar)
 
-        # Create and configure the output table
+        # create and configure the output table
         self.outputTable = QTableWidget(self)
         self.outputTable.setObjectName("outputTable")
         self.outputTable.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -247,11 +243,11 @@ class RightGroupBox(QGroupBox):
         self.outputTable.horizontalHeader().sectionClicked.connect(self.handle_header_click)
         self.outputTable.setSelectionBehavior(QTableWidget.SelectRows)
         self.outputTable.setSelectionMode(QTableWidget.SingleSelection)
-        self.outputTable.setEditTriggers(QTableWidget.NoEditTriggers)  # Disable editing
+        self.outputTable.setEditTriggers(QTableWidget.NoEditTriggers)
         self.outputTable.clicked.connect(self.row_clicked)
         search_and_table_layout.addWidget(self.outputTable)
 
-        # Add the progress bar for the output table
+        # progress bar for the output table
         self.outputProgressBar = QProgressBar(self)
         self.outputProgressBar.setRange(0, 100)
         self.outputProgressBar.setValue(0)
@@ -262,13 +258,12 @@ class RightGroupBox(QGroupBox):
 
         right_layout.addWidget(self.create_spacer(10, ''))
 
-        # Create and configure the export and filter buttons
+        # create and configure the export and filter buttons
         self.exportButton = QPushButton(self)
         self.exportButton.setFixedSize(330, 50)
         self.exportButton.setCursor(QCursor(Qt.PointingHandCursor))
         setup_button_style(self.exportButton, "Export to...")
         self.exportButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        #self.exportButton.clicked.connect(self.export_data)  # Connect the export button
         self.exportButton.setStyleSheet("""
             QPushButton {
                 background-color: #FF8956; 
@@ -293,7 +288,7 @@ class RightGroupBox(QGroupBox):
         self.filterButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.filterButton.setFixedSize(330, 50)
         self.filterButton.setCursor(QCursor(Qt.PointingHandCursor))
-        self.filterButton.clicked.connect(self.show_filter_window)  # Connect the filter button
+        self.filterButton.clicked.connect(self.show_filter_window)
         self.filterButton.setStyleSheet("""
             QPushButton {
                 background-color: #FF8956; 
@@ -311,7 +306,6 @@ class RightGroupBox(QGroupBox):
             }
         """)
 
-        # Wrap exportButton and filterButton in a QHBoxLayout to align them to the center
         button_layout = QHBoxLayout()
         button_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         button_layout.addWidget(self.filterButton)
@@ -328,7 +322,7 @@ class RightGroupBox(QGroupBox):
         self.setLayout(right_layout)
 
     def filter_table(self, text):
-        """Filter the table based on the search text."""
+        # filter the table based on the search text
         for i in range(self.outputTable.rowCount()):
             for j in range(self.outputTable.columnCount()):
                 item = self.outputTable.item(i, j)
@@ -339,14 +333,13 @@ class RightGroupBox(QGroupBox):
                 self.outputTable.hideRow(i)
 
     def create_spacer(self, height, color):
-        """Create a spacer widget with the specified height and color."""
         spacer = QWidget()
         spacer.setFixedHeight(height)
         spacer.setStyleSheet(f"background-color: {color};")
         return spacer
 
     def display_output(self, headers, data):
-        """Display the output data in the table."""
+        # display the output data in the table
         print("Displaying output in table")
         self.headers = headers
         self.data = data
@@ -358,27 +351,27 @@ class RightGroupBox(QGroupBox):
         for row_idx, row_data in enumerate(data):
             for col_idx, col_data in enumerate(row_data):
                 item = CustomTableWidgetItem(str(col_data))
-                item.setTextAlignment(Qt.AlignCenter)  # Center the text alignment
+                item.setTextAlignment(Qt.AlignCenter)
                 self.outputTable.setItem(row_idx, col_idx, item)
 
         for col in range(len(headers)):
             self.sort_orders[col] = Qt.DescendingOrder
 
     def handle_header_click(self, logicalIndex):
-        """Handle the click event on the table header for sorting."""
+        # sorting for the table header
         current_order = self.sort_orders.get(logicalIndex, Qt.DescendingOrder)
         self.outputTable.sortItems(logicalIndex, current_order)
         self.sort_orders[logicalIndex] = Qt.AscendingOrder if current_order == Qt.DescendingOrder else Qt.DescendingOrder
 
     def row_clicked(self, index):
-        """Emit signal with the data of the selected row and handle PID selection."""
+        # emit signal with the data of the selected row and handle PID selection
         selected_row = index.row()
         data = []
         for column in range(self.outputTable.columnCount()):
             data.append(self.outputTable.item(selected_row, column).text())
         self.row_selected_signal.emit(data)
 
-        # Handle PID selection
+        # handle PID selection
         if 'PID' in self.headers:
             pid_index = self.headers.index('PID')
             selected_pid = self.outputTable.item(selected_row, pid_index).text()
@@ -386,7 +379,7 @@ class RightGroupBox(QGroupBox):
             print(f"Selected PID: {selected_pid}")  # Print selected PID to the console
 
     def update_command_info(self, command):
-        """Update the command info box with the executed command."""
+        # update the command info box on top with the executed command
         self.commandInfoBox.setHtml(f"""
         <div style='text-align: center;'>
             <span style='color: #FF8956;'>Executing command:</span>
@@ -395,7 +388,7 @@ class RightGroupBox(QGroupBox):
         """)
 
     def clear_output(self):
-        """Clear the output table and command info box."""
+        # clear button for clearing the output table and command info box
         print("Clearing output")
         self.commandInfoBox.setHtml("""
         <div style='text-align: center;'>
@@ -407,8 +400,9 @@ class RightGroupBox(QGroupBox):
         self.outputProgressBar.setVisible(False)
         self.outputProgressBar.setValue(0)
 
+    # Un-Used?
     def open_help(self):
-        """Open the help URL in the web browser."""
+        # open the help URL in the web browser
         webbrowser.open("https://github.com/volatilityfoundation/volatility/wiki/Command-Reference")
     '''def get_settings_values(self):
         try:
@@ -468,7 +462,7 @@ class RightGroupBox(QGroupBox):
 
 
     def eksport_to_file(self):
-        """Export the displayed data to a file."""
+        # export the displayed data to a file
         try:
             print("Starting export process")
 
