@@ -49,7 +49,7 @@ class SettingsWindowGUI(QWidget):
             "font-size: 30px; color: white; margin-top: 20px; border: none; background-color: transparent;")
         main_content_layout.addWidget(header_theme_settings)
 
-        # Theme Section
+        # theme section
         theme_layout = QHBoxLayout()
         theme_label = QLabel("Theme", main_content)
         theme_label.setStyleSheet("font-size: 20px; color: black; background-color: #ff8956;")
@@ -63,7 +63,6 @@ class SettingsWindowGUI(QWidget):
         theme_layout.addWidget(self.theme_combobox)
         main_content_layout.addLayout(theme_layout)
 
-        # Text Size Section
         text_size_layout = QHBoxLayout()
         text_size_label = QLabel("Text size", main_content)
         text_size_label.setStyleSheet("font-size: 20px; color: black; background-color: #ff8956;")
@@ -76,7 +75,6 @@ class SettingsWindowGUI(QWidget):
         text_size_layout.addWidget(self.text_size_combobox)
         main_content_layout.addLayout(text_size_layout)
 
-        # Text Style Section
         text_style_layout = QHBoxLayout()
         text_style_label = QLabel("Text style", main_content)
         text_style_label.setStyleSheet("font-size: 20px; color: black; background-color: #ff8956;")
@@ -93,7 +91,6 @@ class SettingsWindowGUI(QWidget):
             "font-size: 30px; color: white; border: none; margin-top: 20px; background-color: transparent;")
         main_content_layout.addWidget(header_directory_settings)
 
-        # Default Upload Folder Section
         upload_layout = QVBoxLayout()
 
         upload_horizontal_layout = QHBoxLayout()
@@ -124,7 +121,6 @@ class SettingsWindowGUI(QWidget):
 
         main_content_layout.addLayout(upload_layout)
 
-        # Default Export Folder Section
         export_layout = QVBoxLayout()
 
         export_horizontal_layout = QHBoxLayout()
@@ -163,7 +159,7 @@ class SettingsWindowGUI(QWidget):
 
         self.file_type_combobox = QComboBox(main_content)
         self.file_type_combobox.addItems([
-            "none", ".doc", ".pdf", ".csv", ".xls", ".txt", ".cls", ".json",  # Common document types
+            "none", ".doc", ".pdf", ".csv", ".xls", ".txt", ".cls", ".json",  # supported document types
             ".dmp", ".img", ".bin", ".vmem", ".raw", ".elf", ".hpak",  # Volatility 3 supported types
             ".lime", ".vhd", ".vhdx", ".vmdk", ".vmsn", ".vmss", ".hsv", ".hpa", ".hpak", ".vmem",
             ".core", ".crash", ".hiberfil.sys", ".pagefile.sys", ".swapfile.sys"
@@ -194,10 +190,16 @@ class SettingsWindowGUI(QWidget):
         main_content_layout.addSpacing(20)
         main_content_layout.addStretch()
 
+<<<<<<< Updated upstream
         # save knapp
         """save_button = QPushButton("Save Settings", self)
         save_button.setFixedSize(150, 50)
         save_button.setStyleSheet("color: black; background: #F66600; border: none; font-weight: bold; font-size: 40;")
+=======
+        # save button
+        save_button = QPushButton("Save Settings", self)
+        save_button.setStyleSheet("color: black; background: #34ebdb; font-weight: bold; font-size: 20;")
+>>>>>>> Stashed changes
         main_content_layout.addWidget(save_button)
         save_button.clicked.connect(self.save_and_close)"""
 
@@ -260,7 +262,10 @@ class SettingsWindowGUI(QWidget):
             self.memdump_path.setText(memdump_path)
             self.file_type_combobox.setCurrentText(file_type)
 
+<<<<<<< Updated upstream
             # Save selected settings
+=======
+>>>>>>> Stashed changes
             self.save_current_settings()
 
             QMessageBox.settings_info = (

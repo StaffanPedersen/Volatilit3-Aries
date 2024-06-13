@@ -3,7 +3,7 @@ from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtWidgets import QPushButton, QSizePolicy
 
 def create_transparent_button(parent, icon_filename, button_text):
-    """Create a transparent button with an icon and text."""
+    # creates a transparent button - Browse Icon + Select file
     button = QPushButton(parent)
     button.setText(button_text)
     button.setStyleSheet("""
@@ -28,7 +28,6 @@ def create_transparent_button(parent, icon_filename, button_text):
     return button
 
 def setup_button_style(button, text, is_label=False):
-    """Set up the style for a button or label."""
     font1 = QFont()
     font1.setFamily("Inter_FXH")
     font1.setPointSize(20)

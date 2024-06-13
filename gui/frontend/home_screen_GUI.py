@@ -35,13 +35,13 @@ class HomeScreen(QWidget):
         main_button_layout = QHBoxLayout()
         main_button_layout.setSpacing(20)
 
-        # Determine the directory of the current script
+        # determine the directory of the current script
         script_dir = os.path.abspath(os.path.dirname(__file__))
         project_root_dir = os.path.abspath(os.path.join(script_dir, os.pardir, os.pardir))
         print(f"Script directory: {script_dir}")
         print(f"Project root directory: {project_root_dir}")
 
-        # Construct dynamic paths for the images
+        # dynamic pathing for images
         start_pixmap_path = os.path.join(project_root_dir, 'gui', 'frontend', 'images', 'ariesLogoHomeScreen.png')
         help_pixmap_path = os.path.join(project_root_dir, 'gui', 'frontend', 'images', 'helpHomeScreen.png')
         settings_pixmap_path = os.path.join(project_root_dir, 'gui', 'frontend', 'images', 'settingsHomeScreen.png')
@@ -58,7 +58,7 @@ class HomeScreen(QWidget):
         if not os.path.exists(settings_pixmap_path):
             print(f"Failed to find {settings_pixmap_path}")
 
-        # Adjust start button
+        # home screen "Start" button
         start_button = QPushButton('', self)
         start_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         start_button.setFixedSize(260, 260)
@@ -84,9 +84,6 @@ class HomeScreen(QWidget):
             }
         
         """)
-        #start_button.setStyleSheet(
-        #    'background-color: #FF8956; border: 4px solid black; border-radius: 15px; color: black;'
-        #)
         start_button_layout = QVBoxLayout()
         start_button_layout.setAlignment(Qt.AlignCenter)
         start_icon = QLabel(self)
@@ -113,13 +110,10 @@ class HomeScreen(QWidget):
         smaller_buttons_layout = QVBoxLayout()
         smaller_buttons_layout.setSpacing(10)
 
-        # Adjust help button
+        # home screen "Help" button
         help_button = QPushButton('', self)
         help_button.setFixedSize(125, 125)
         help_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        #help_button.setStyleSheet(
-        #    'background-color: #FF8956; border: 4px solid black; border-radius: 10px; color: black; font-size: 18px; font-weight: bold;'
-        #)
         shadow = QGraphicsDropShadowEffect(self)
         shadow.setBlurRadius(8)
         shadow.setOffset(1, 1)
@@ -160,13 +154,10 @@ class HomeScreen(QWidget):
         smaller_buttons_layout.addWidget(help_button)
 
 
-
+        # home screen "Settings"
         settings_button = QPushButton('', self)
         settings_button.setFixedSize(125, 125)
         settings_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        #settings_button.setStyleSheet(
-        #    'background-color: #FF8956; border: 4px solid black; border-radius: 10px; color: black; font-size: 18px; font-weight: bold;'
-        #)
         shadow = QGraphicsDropShadowEffect(self)
         shadow.setBlurRadius(8)
         shadow.setOffset(1, 1)
@@ -224,7 +215,6 @@ class HomeScreen(QWidget):
         self.settings_window = SettingsWindowGUI()
         self.settings_window.show()
 
-# Testing the HomeScreen widget
 if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication
