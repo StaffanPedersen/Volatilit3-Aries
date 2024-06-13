@@ -30,7 +30,7 @@ def get_all_plugins(filepath=None, os_name=None):
                            os.path.isfile(os.path.join(dir_path, f)) and f.endswith('.py')]
                 plugin_list.append(('Community', plugins))
 
-        # get plugins for specified OS or all OSes excluding
+        # get plugins for specified OS or all OSes excluding 'Community'
         for current_os_name, dir_path in plugin_directories.items():
             if current_os_name != 'Community' and (os_name is None or current_os_name == os_name):
                 if dir_path and os.path.exists(dir_path) and os.path.isdir(dir_path):

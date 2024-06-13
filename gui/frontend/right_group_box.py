@@ -400,23 +400,10 @@ class RightGroupBox(QGroupBox):
         self.outputProgressBar.setVisible(False)
         self.outputProgressBar.setValue(0)
 
-    # Un-Used?
     def open_help(self):
         # open the help URL in the web browser
         webbrowser.open("https://github.com/volatilityfoundation/volatility/wiki/Command-Reference")
-    '''def get_settings_values(self):
-        try:
-            config = configparser.ConfigParser()
-            config.read('settings.ini')
 
-            theme = config['DEFAULT'].get('Theme', 'Light')
-            text_size = config['DEFAULT'].get('TextSize', '12')
-            text_style = config['DEFAULT'].get('TextStyle', 'Normal')
-            memdump_path = config['DEFAULT'].get('MemdumpPath', '')  # Read file path
-
-            return theme, text_size, text_style, memdump_path
-        except Exception as e:
-            print(f"Error loading settings: {e}")'''
 
     def get_settings_values(self):
         try:
@@ -434,35 +421,21 @@ class RightGroupBox(QGroupBox):
         except Exception as e:
             print(f"Error loading settings: {e}")
 
-    '''def get_settings_values(self):
-        try:
-            config = configparser.ConfigParser()
-            config.read('settings.ini')
 
-            theme = config['DEFAULT'].get('Theme', 'Light')
-            text_size = config['DEFAULT'].get('TextSize', '12')
-            text_style = config['DEFAULT'].get('TextStyle', 'Normal')
-            memdump_path = config['DEFAULT'].get('MemdumpPath', '')  # Read file path
-            file_type = config['DEFAULT'].get('FileType', 'none')  # Read file type
-
-            return theme, text_size, text_style, memdump_path, file_type
-        except Exception as e:
-            print(f"Error loading settings: {e}")'''
 
 
     def check_memdump_path(self):
         try:
             theme, text_size, text_style, memdump_path, file_type, upload = self.get_settings_values()
-            if memdump_path:  # If memdump_path is not empty
+            if memdump_path:
                 self.eksport_to_file()
-            else:  # If memdump_path is empty
+            else:
                 self.export_data()
         except Exception as e:
             print(f"Error while checking memdump path: {e}")
 
 
     def eksport_to_file(self):
-        # export the displayed data to a file
         try:
             print("Starting export process")
 
@@ -471,42 +444,36 @@ class RightGroupBox(QGroupBox):
             print(f"Memdump path from settings: {memdump_path}")
             print(f"File type from settings: {file_type}")
 
-            # If no saved file path, return
             if not memdump_path:
                 print("Error: Memdump path is missing in settings.")
                 return
 
-            # Check if the directory exists
             if not os.path.isdir(memdump_path):
                 print("Error: Memdump path does not exist or is not a directory.")
                 return
 
-            # Check if the directory is writable
             if not os.access(memdump_path, os.W_OK):
                 print("Error: No write access to the specified directory.")
                 return
 
-            saved_path = memdump_path  # Get saved file path
+            saved_path = memdump_path
             print(f"Saved file path: {saved_path}")
 
             options = QFileDialog.Options()
 
-            # If file_type is None, allow all file types in the dialog
             if file_type == "none":
                 filePath, _ = QFileDialog.getSaveFileName(
                     self, "Save File", saved_path,
                     "PDF Files (*.pdf);;CSV Files (*.csv);;Excel Files (*.xls);;Text Files (*.txt);;Word Files (*.doc);;JSON Files (*.json)",
                     options=options)
             else:
-                options |= QFileDialog.DontConfirmOverwrite  # Don't ask for confirmation if file exists
+                options |= QFileDialog.DontConfirmOverwrite
                 filePath, _ = QFileDialog.getSaveFileName(
                     self, "Save File", saved_path,
                     f"{file_type.capitalize()} Files (*{file_type});;",
-                    # Set file_type as default filter
                     options=options)
             print(f"File path selected: {filePath}")
 
-            # Pre-select the export function based on the file type
             export_function = None
             if file_type == ".pdf":
                 export_function = self.export_to_pdf
@@ -526,7 +493,6 @@ class RightGroupBox(QGroupBox):
             else:
                 print(f"Error: Unsupported file type: {file_type}")
 
-            # If a valid export function is found, directly call it with the saved path
             if export_function is not None:
                 export_function(filePath)
             else:
@@ -535,8 +501,8 @@ class RightGroupBox(QGroupBox):
         except Exception as e:
             print(f"Unexpected error: {e}")
 
+    # Export the displayed data to a file
     def export_data(self):
-        """Export the displayed data to a file."""
         print("Starting export process")
         options = QFileDialog.Options()
         filePath, _ = QFileDialog.getSaveFileName(self, "Save File", "",
@@ -569,13 +535,12 @@ class RightGroupBox(QGroupBox):
 
 
     def export_to_pdf(self, filePath):
-        """Export the data to a PDF file."""
         print(f"Exporting to PDF: {filePath}")
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
         line_height = pdf.font_size * 2
-        page_width = pdf.w - 2 * pdf.l_margin  # Correct way to get the page width
+        page_width = pdf.w - 2 * pdf.l_margin
 
         col_width = page_width / len(self.headers)
 
@@ -591,19 +556,16 @@ class RightGroupBox(QGroupBox):
         pdf.output(filePath)
 
     def export_to_csv(self, filePath):
-        """Export the data to a CSV file."""
         print(f"Exporting to CSV: {filePath}")
         df = pd.DataFrame(self.data, columns=self.headers)
         df.to_csv(filePath, index=False)
 
     def export_to_excel(self, filePath):
-        """Export the data to an Excel file."""
         print(f"Exporting to Excel: {filePath}")
         df = pd.DataFrame(self.data, columns=self.headers)
         df.to_excel(filePath, index=False)
 
     def export_to_txt(self, filePath):
-        """Export the data to a text file."""
         print(f"Exporting to TXT: {filePath}")
         with open(filePath, 'w') as file:
             file.write("\t".join(self.headers) + "\n")
@@ -611,10 +573,9 @@ class RightGroupBox(QGroupBox):
                 file.write("\t".join(map(str, row)) + "\n")
 
     def export_to_doc(self, filePath):
-        """Export the data to a Word document."""
         print(f"Exporting to DOC: {filePath}")
         try:
-            from docx import Document  # Import here to avoid unnecessary dependencies if not used
+            from docx import Document
             doc = Document()
             table = doc.add_table(rows=1, cols=len(self.headers))
             hdr_cells = table.rows[0].cells
@@ -633,13 +594,11 @@ class RightGroupBox(QGroupBox):
             print(f"Error exporting to DOC: {e}")
 
     def export_to_json(self, filePath):
-        """Export the data to a JSON file."""
         print(f"Exporting to JSON: {filePath}")
         df = pd.DataFrame(self.data, columns=self.headers)
         df.to_json(filePath, orient='records', lines=True)
 
     def show_help_window(self):
-        """Show the help window."""
         self.settings_window = SettingsWindowGUI()
         self.settings_window.show()
 
@@ -652,11 +611,9 @@ class RightGroupBox(QGroupBox):
         self.help_window_GUi.show()
 
     def go_back_to_home(self):
-        """Emit signal to go back to home screen."""
         self.back_to_home_signal.emit()
 
     def apply_filter(self):
-        """Apply filter logic based on user input and close the filter window."""
         try:
             filter_criteria = self.searchBar.text().strip().lower()
             for i in range(self.outputTable.rowCount()):
@@ -673,11 +630,9 @@ class RightGroupBox(QGroupBox):
             print(f"Error applying filter: {e}")
 
     def toggle_column(self, column_index, checkbox):
-        """Toggle the visibility of a column based on checkbox state."""
         self.outputTable.setColumnHidden(column_index, not checkbox.isChecked())
 
     def save_filter_settings(self):
-        """Save the state of the filter checkboxes to JSON."""
         item_vars = {header: self.filter_dialog.findChild(QCheckBox, header) for header in self.headers}
         self.filter_settings["columns"] = {header: checkbox.isChecked() for header, checkbox in item_vars.items()}
         self.filter_settings["all_checked"] = self.filter_dialog.findChild(QCheckBox, "All").isChecked()
@@ -687,7 +642,6 @@ class RightGroupBox(QGroupBox):
             json.dump(self.filter_settings, f)
 
     def show_filter_window(self):
-        """Show the filter window with dynamic headers."""
         self.filter_dialog = QDialog(self)  # Store a reference to the filter dialog
         self.filter_dialog.setWindowTitle("Filter")
         self.filter_dialog.setStyleSheet("background-color: black; color: white; border: 1px solid #FF8956;")
@@ -721,12 +675,14 @@ class RightGroupBox(QGroupBox):
         scroll_layout.addWidget(none_checkbox)
 
         item_vars = {}
-        # Get stored filter settings or default to all True
+
+        # get stored filter settings or default to all True
         filter_settings = self.filter_settings.get("columns", {header: True for header in self.headers})
         for idx, header in enumerate(self.headers):
             checkbox = QCheckBox(header)
             checkbox.setObjectName(header)  # Set object name for the checkbox
             checkbox.setStyleSheet("color: white; border: none;")
+
             # Set checkbox state based on stored settings
             checkbox.setChecked(filter_settings.get(header, True))
             checkbox.stateChanged.connect(partial(self.toggle_column, idx, checkbox))  # Use partial to capture idx
@@ -749,7 +705,6 @@ class RightGroupBox(QGroupBox):
         self.filter_dialog.exec_()
 
     def toggle_all_checkboxes(self, parent_widget, check_state, source_checkbox, other_checkbox):
-        """Toggle all checkboxes to the given state and update 'All' and 'None' checkboxes."""
         other_checkbox.blockSignals(True)
         other_checkbox.setChecked(False)
         other_checkbox.blockSignals(False)
@@ -758,9 +713,7 @@ class RightGroupBox(QGroupBox):
                 checkbox.setChecked(check_state)
 
     def show_progress_bar(self):
-        """Show the progress bar for the table view."""
         self.outputProgressBar.setVisible(True)
 
     def update_progress_bar(self, value):
-        """Update the progress bar value for the table view."""
         self.outputProgressBar.setValue(value)
