@@ -1,7 +1,8 @@
 import os
 
+
+# find vol.py to run Volatility
 def find_volatility_file(start_path, max_attempts=5):
-    """Find the vol.py file used to run Volatility."""
     current_path = start_path
     attempts = 0
 
