@@ -49,7 +49,7 @@ class VolatilityThread(QThread):
             self.log_signal.emit(self.format_log_message("error", error_message))
             traceback.print_exc()
             self.output_signal.emit([], [])
-            self.progress_signal.emit(0)
+            self.progress_signal.emit(100)
             self.command_signal.emit("Error occurred")
 
     def run_volatility_scan(self, command):

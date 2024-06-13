@@ -354,6 +354,7 @@ class LeftGroupBox(QGroupBox):
 
             self.volatility_thread.start()
         except Exception as e:
+            self.volatility_thread.progress_signal.connect(self.show_loading_image)
             error_message = f"LeftGroupBox: Error running Volatility scan: {str(e)}"
             self.log_to_terminal(error_message)
             show_error_message(self, "Error", error_message)
@@ -367,6 +368,7 @@ class LeftGroupBox(QGroupBox):
     def show_error_incompatible_popup(self, message):
         print(f"Error popup, incompatible plugin or OS")
         self.incompatible_popup = ErrorIncompatible()
+        self.show_loading_image()
         self.incompatible_popup.ok_signal.connect(self.confirm_incompatible_error)
         self.incompatible_popup.flash_background()
         self.incompatible_popup.exec_()
