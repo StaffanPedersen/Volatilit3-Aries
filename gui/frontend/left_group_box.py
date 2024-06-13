@@ -60,7 +60,7 @@ class LeftGroupBox(QGroupBox):
         self.warning_clear_all = WarningClearWSPopup()
 
         self.loading_window = LoadingWindow()
-        self.file_manager = FileManager(self)  # Initialize the FileManager
+        self.file_manager = FileManager(self)
         self.file_manager.unsupported_file_signal.connect(self.handle_unsupported_file)
         self.setObjectName("groupBox_left")
         self.setStyleSheet("QWidget { background-color: #353535; }")
@@ -195,7 +195,7 @@ class LeftGroupBox(QGroupBox):
                 }
                 """)
 
-        # Add the toggle button
+        # toggle button
         self.toggleButton = QPushButton(self)
         setup_button_style(self.toggleButton, "Toggle View")
         self.toggleButton.clicked.connect(self.toggle_view)
@@ -218,12 +218,12 @@ class LeftGroupBox(QGroupBox):
             }
         """)
 
-        # Define the selected plugin text box
+        # define the selected plugin text box
         self.selectedPluginTextBox = QLabel(self)
         self.selectedPluginTextBox.setObjectName("selectedPluginTextBox")
         self.selectedPluginTextBox.setFixedSize(330, 30)
 
-        # Define the font
+        # define the font
         font2 = QFont()
         font2.setFamily("Inter_FXH")
         font2.setPointSize(14)
@@ -290,8 +290,6 @@ class LeftGroupBox(QGroupBox):
     def handle_file_selection(self):
         print("LeftGroupBox: handle_file_selection method called")
         self.load_settings()
-
-        # Set the initial directory to the value from the settings file
         initial_directory = self.default_upload_path if self.default_upload_path else os.path.expanduser('~')
 
         options = QFileDialog.Options()
