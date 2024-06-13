@@ -41,7 +41,7 @@ themes = {
 
 
 def get_theme(theme_name=None):
-    """Return the theme dictionary for the given theme name."""
+    # returns the theme dictionary for the given theme name
     if theme_name is None:
         return themes
     return themes.get(theme_name)

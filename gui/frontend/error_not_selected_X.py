@@ -16,7 +16,6 @@ class ErrorNotSelected(QDialog):
         self.is_flashing_red = False
 
     def initUI(self):
-        # Set window properties
         self.setWindowTitle('Error')
         self.setGeometry(100, 100, 800, 300)
         self.setWindowFlags(Qt.FramelessWindowHint)

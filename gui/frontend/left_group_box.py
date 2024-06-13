@@ -11,11 +11,30 @@ from gui.frontend.pluginAsideGUI import PluginAsideWindow
 from gui.backend.volatility_thread import VolatilityThread
 from gui.frontend.error_handler_GUI import show_error_message
 from gui.backend.file_manager import FileManager
+<<<<<<< Updated upstream
+=======
+import os
+from PyQt5.QtGui import QMovie
+
+>>>>>>> Stashed changes
 from gui.frontend.warning_clear_all import WarningClearWSPopup
 from gui.frontend.widgets.loading_window import LoadingWindow
 
 import os
 import configparser
+<<<<<<< Updated upstream
+=======
+import os
+from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QPushButton, QTextEdit, QSizePolicy,
+                             QHBoxLayout, QSpacerItem, QWidget, QFileDialog, QCheckBox, QLabel)
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QCursor, QFont
+
+from gui.frontend.utils import create_transparent_button, setup_button_style
+from gui.backend.volatility_thread import VolatilityThread
+from gui.frontend.error_handler_GUI import show_error_message
+from gui.backend.file_manager import FileManager
+>>>>>>> Stashed changes
 
 
 class LeftGroupBox(QGroupBox):
@@ -175,7 +194,11 @@ class LeftGroupBox(QGroupBox):
             }
         """)
 
+<<<<<<< Updated upstream
         # toggle button
+=======
+        # Toggle View button - left group box
+>>>>>>> Stashed changes
         self.toggleButton = QPushButton(self)
         setup_button_style(self.toggleButton, "Toggle View")
         self.toggleButton.clicked.connect(self.toggle_view)
@@ -198,12 +221,19 @@ class LeftGroupBox(QGroupBox):
             }
         """)
 
+<<<<<<< Updated upstream
         # define the selected plugin text box
+=======
+        # text box to show selected plugin marked with green ">"
+>>>>>>> Stashed changes
         self.selectedPluginTextBox = QLabel(self)
         self.selectedPluginTextBox.setObjectName("selectedPluginTextBox")
         self.selectedPluginTextBox.setFixedSize(330, 30)
 
+<<<<<<< Updated upstream
         # define the font
+=======
+>>>>>>> Stashed changes
         font2 = QFont()
         font2.setFamily("Inter_FXH")
         font2.setPointSize(14)
@@ -211,8 +241,6 @@ class LeftGroupBox(QGroupBox):
         font2.setItalic(False)
         font2.setWeight(75)
         self.selectedPluginTextBox.setFont(font2)
-
-        # Apply stylesheet
         self.selectedPluginTextBox.setStyleSheet("""
             QLabel {
                 background-color: #404040;
@@ -223,7 +251,7 @@ class LeftGroupBox(QGroupBox):
                 color: green;
             }
         """)
-        self.selectedPluginTextBox.setText(">")
+        self.selectedPluginTextBox.setText(">")  # change this for new text
         self.selectedPluginTextBox.setAlignment(Qt.AlignCenter)
         self.selectedPluginTextBox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
@@ -238,7 +266,7 @@ class LeftGroupBox(QGroupBox):
         run_button_layout.addWidget(self.runButton)
         left_layout.addLayout(run_button_layout)
 
-        left_layout.addWidget(self.pidCheckBox)  # Add the PID checkbox
+        left_layout.addWidget(self.pidCheckBox)
 
         left_layout.addWidget(self.create_spacer(10, ''))
         left_layout.addWidget(self.metaDataWindow)

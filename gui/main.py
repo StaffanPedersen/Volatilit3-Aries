@@ -15,24 +15,22 @@ class Main(QMainWindow):
         self.setWindowIcon(QtGui.QIcon("../gui/frontend/images/ariesLogoHomeScreen.png"))
         self.setFixedSize(1600, 900)
 
-
-
-        # Create a stacked widget
+        # stacked widget to create a user interface
         self.stack = QStackedWidget(self)
         self.setCentralWidget(self.stack)
 
-        # Initialize home screen and scan screen
+        # home screen and scan screen initialize
         self.home_screen = HomeScreen(self.show_scan_screen)
         self.scan_screen = ScanScreen()
 
-        # Add widgets to the stacked widget
+        # add widgets to the user interface - stacked widget
         self.stack.addWidget(self.home_screen)
         self.stack.addWidget(self.scan_screen)
 
-        # Show home screen initially
+        # initial screen - home_screen
         self.stack.setCurrentWidget(self.home_screen)
 
-        # Connect the back_to_home_signal from scan screen's right group box to the show_home_screen method
+        # connect the back_to_home_signal from scan screen's right group box to the show_home_screen method
         self.scan_screen.groupBox_right.back_to_home_signal.connect(self.show_home_screen)
 
     def show_scan_screen(self):
