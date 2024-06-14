@@ -413,9 +413,9 @@ class RightGroupBox(QGroupBox):
             theme = config['DEFAULT'].get('Theme', 'Light')
             text_size = config['DEFAULT'].get('TextSize', '12')
             text_style = config['DEFAULT'].get('TextStyle', 'Normal')
-            memdump_path = config['DEFAULT'].get('MemdumpPath', '')  # Read file path
-            file_type = config['DEFAULT'].get('FileType', 'none')  # Read file type
-            upload = config['DEFAULT'].get('Upload', 'none')  # Read upload value
+            memdump_path = config['DEFAULT'].get('MemdumpPath', '')
+            file_type = config['DEFAULT'].get('FileType', 'none')
+            upload = config['DEFAULT'].get('Upload', 'none')
 
             return theme, text_size, text_style, memdump_path, file_type, upload
         except Exception as e:
