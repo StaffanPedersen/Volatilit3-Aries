@@ -437,27 +437,13 @@ class RightGroupBox(QGroupBox):
 
     def eksport_to_file(self):
         try:
-            print("Starting export process")
+
 
             # Get settings values
             theme, text_size, text_style, memdump_path, file_type, upload = self.get_settings_values()
-            print(f"Memdump path from settings: {memdump_path}")
-            print(f"File type from settings: {file_type}")
-
-            if not memdump_path:
-                print("Error: Memdump path is missing in settings.")
-                return
-
-            if not os.path.isdir(memdump_path):
-                print("Error: Memdump path does not exist or is not a directory.")
-                return
-
-            if not os.access(memdump_path, os.W_OK):
-                print("Error: No write access to the specified directory.")
-                return
 
             saved_path = memdump_path
-            print(f"Saved file path: {saved_path}")
+
 
             options = QFileDialog.Options()
 
@@ -472,7 +458,7 @@ class RightGroupBox(QGroupBox):
                     self, "Save File", saved_path,
                     f"{file_type.capitalize()} Files (*{file_type});;",
                     options=options)
-            print(f"File path selected: {filePath}")
+
 
             export_function = None
             if file_type == ".pdf":
@@ -486,32 +472,29 @@ class RightGroupBox(QGroupBox):
             elif file_type == ".doc":
                 if DOCX_AVAILABLE:
                     export_function = self.export_to_doc
-                else:
-                    print("DOCX export not available. Please install python-docx.")
+
             elif file_type == ".json":
                 export_function = self.export_to_json
-            else:
-                print(f"Error: Unsupported file type: {file_type}")
+
 
             if export_function is not None:
                 export_function(filePath)
-            else:
-                print("Error: No export function found for the specified file type.")
+
 
         except Exception as e:
             print(f"Unexpected error: {e}")
 
     # Export the displayed data to a file
     def export_data(self):
-        print("Starting export process")
+
         options = QFileDialog.Options()
         filePath, _ = QFileDialog.getSaveFileName(self, "Save File", "",
                                                   "PDF Files (*.pdf);;CSV Files (*.csv);;Excel Files (*.xls);;Text Files (*.txt);;Word Files (*.doc);;JSON Files (*.json)",
                                                   options=options)
-        print(f"File path selected: {filePath}")
+
         if filePath:
             ext = os.path.splitext(filePath)[1].lower()
-            print(f"File extension: {ext}")
+
             try:
                 if ext == ".pdf":
                     self.export_to_pdf(filePath)
@@ -524,8 +507,7 @@ class RightGroupBox(QGroupBox):
                 elif ext == ".doc":
                     if DOCX_AVAILABLE:
                         self.export_to_doc(filePath)
-                    else:
-                        print("DOCX export not available. Please install python-docx.")
+
                 elif ext == ".json":
                     self.export_to_json(filePath)
             except Exception as e:
@@ -535,7 +517,7 @@ class RightGroupBox(QGroupBox):
 
 
     def export_to_pdf(self, filePath):
-        print(f"Exporting to PDF: {filePath}")
+
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
@@ -556,24 +538,24 @@ class RightGroupBox(QGroupBox):
         pdf.output(filePath)
 
     def export_to_csv(self, filePath):
-        print(f"Exporting to CSV: {filePath}")
+
         df = pd.DataFrame(self.data, columns=self.headers)
         df.to_csv(filePath, index=False)
 
     def export_to_excel(self, filePath):
-        print(f"Exporting to Excel: {filePath}")
+
         df = pd.DataFrame(self.data, columns=self.headers)
         df.to_excel(filePath, index=False)
 
     def export_to_txt(self, filePath):
-        print(f"Exporting to TXT: {filePath}")
+
         with open(filePath, 'w') as file:
             file.write("\t".join(self.headers) + "\n")
             for row in self.data:
                 file.write("\t".join(map(str, row)) + "\n")
 
     def export_to_doc(self, filePath):
-        print(f"Exporting to DOC: {filePath}")
+
         try:
             from docx import Document
             doc = Document()
@@ -594,7 +576,7 @@ class RightGroupBox(QGroupBox):
             print(f"Error exporting to DOC: {e}")
 
     def export_to_json(self, filePath):
-        print(f"Exporting to JSON: {filePath}")
+
         df = pd.DataFrame(self.data, columns=self.headers)
         df.to_json(filePath, orient='records', lines=True)
 

@@ -66,7 +66,7 @@ class ErrorIncompatible(QDialog):
         self.setLayout(layout)
 
     def okAction(self):
-        print('Confirmed error message os not compatible')
+
         self.ok_signal.emit()
         self.close()
 

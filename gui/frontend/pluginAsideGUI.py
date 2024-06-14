@@ -120,25 +120,24 @@ class PluginAsideWindow(QtWidgets.QWidget):
                     plugins_by_folder[os_name] = []
                 plugins_by_folder[os_name].extend(plugins)
 
-            print("Plugin data loaded successfully:", self.pluginNames)
         except Exception as e:
-            print(f"Error getting plugins: {e}")
+
             self.pluginNames = []
 
         # plugins tooltip descriptions logic
         current_dir = os.path.dirname(os.path.abspath(__file__))
         plugin_desc_path = os.path.join(current_dir, '..', 'frontend', 'plugin_desc.json')
-        print(f"Checking for plugin description file at: {plugin_desc_path}")
+
 
         try:
             with open(plugin_desc_path) as f:
                 descriptions = json.load(f)
-            print("Plugin descriptions loaded successfully:", descriptions)
+
         except FileNotFoundError:
-            print("Error: plugin_desc.json not found at", plugin_desc_path)
+
             descriptions = {}
         except json.JSONDecodeError as e:
-            print(f"Error parsing JSON: {e}")
+
             descriptions = {}
 
         while self.scrollLayout.count():
@@ -186,7 +185,7 @@ class PluginAsideWindow(QtWidgets.QWidget):
         try:
             custom_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'volatility3',
                                       'framework', 'plugins', 'community')
-            print(custom_dir)
+
             if not os.path.exists(custom_dir):
                 os.makedirs(custom_dir)
             base_name = os.path.basename(file_path)
@@ -194,18 +193,15 @@ class PluginAsideWindow(QtWidgets.QWidget):
             with open(file_path, 'rb') as fsrc:
                 with open(dest_path, 'wb') as fdst:
                     fdst.write(fsrc.read())
-            print(f"Plugin {base_name} saved to custom directory.")
+
             self.load_plugins()
         except Exception as e:
             print(f"Error saving plugin: {e}")
 
     def store_selected_plugin(self):
         if self.selected_plugin is not None:
-            print(f"Selected plugin '{self.selected_plugin}' has been stored.")
             self.plugin_stored.emit(self.selected_plugin)
             self.close()
-        else:
-            print("No plugin selected.")
 
     def update_checked_plugins(self, state):
         checkbox = self.sender()
@@ -213,7 +209,6 @@ class PluginAsideWindow(QtWidgets.QWidget):
             self.selected_plugin = checkbox.text()
         else:
             self.checked_plugins = None
-        print(f"Checked plugin: {self.checked_plugins}")
 
     def get_selected_plugin(self):
         if self.selected_plugin is None:

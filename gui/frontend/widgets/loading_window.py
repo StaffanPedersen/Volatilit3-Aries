@@ -23,15 +23,11 @@ class LoadingWindow(QDialog):
 
 
         gif_path = os.path.join(os.path.dirname(__file__), '..', 'images', 'aries_logo.gif')
-        if not os.path.exists(gif_path):
-            print(f"Error: GIF file not found at path: {gif_path}")
-        else:
-            print(f"Loading GIF from: {gif_path}")
+
 
         # Load the spinning GIF
         self.movie = QMovie(gif_path)
-        if not self.movie.isValid():
-            print(f"Error: Failed to load GIF from path: {gif_path}")
+
 
         self.movie_label.setMovie(self.movie)
 
@@ -43,8 +39,7 @@ class LoadingWindow(QDialog):
     def showEvent(self, event):
         if self.movie.isValid():
             self.movie.start()
-        else:
-            print("Error: Movie is not valid.")
+
         super().showEvent(event)
 
     def closeEvent(self, event):
@@ -52,8 +47,3 @@ class LoadingWindow(QDialog):
             self.movie.stop()
         super().closeEvent(event)
 
-'''if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    loading_window = LoadingWindow()
-    loading_window.show()
-    sys.exit(app.exec_())'''

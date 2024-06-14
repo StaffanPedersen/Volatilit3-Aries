@@ -21,18 +21,14 @@ class helpWindowGui(QWidget):
 
         script_dir = os.path.abspath(os.path.dirname(__file__))
         project_root_dir = os.path.abspath(os.path.join(script_dir, os.pardir, os.pardir))
-        print(f"Script directory: {script_dir}")
-        print(f"Project root directory: {project_root_dir}")
+
 
         help_image_pixmap_path = os.path.join(project_root_dir, 'gui', 'frontend', 'images', 'HelpWindow.png')
-        print(f"help pixmap path: {help_image_pixmap_path}")
-        if not os.path.exists(help_image_pixmap_path):
-            print(f"Failed to find {help_image_pixmap_path}")
+
 
         settings_icon = QLabel(self)
         settings_pixmap = QPixmap(help_image_pixmap_path)
-        if settings_pixmap.isNull():
-            print("Failed to load settingsHomeScreen.png")
+
         settings_icon.setPixmap(settings_pixmap.scaled(1600, 900, Qt.KeepAspectRatio))
         settings_icon.setStyleSheet('border: none;')
         settings_icon.setAlignment(Qt.AlignCenter)

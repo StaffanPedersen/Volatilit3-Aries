@@ -20,7 +20,6 @@ def create_transparent_button(parent, icon_filename, button_text):
     }
     """)
     icon_path = parent.parent().backend.create_transparent_button(icon_filename)
-    print(f"Using icon path: {icon_path}")
     icon = QIcon()
     icon.addFile(icon_path, QSize(), QIcon.Normal, QIcon.Off)
     button.setIcon(icon)

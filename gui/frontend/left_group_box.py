@@ -53,7 +53,7 @@ class LeftGroupBox(QGroupBox):
         self.load_settings()
 
     def initialize_ui(self):
-        print("LeftGroupBox: Initializing UI")
+
         left_layout = QVBoxLayout(self)
         left_layout.setContentsMargins(10, 0, 10, 10)
         left_layout.setSpacing(10)
@@ -262,7 +262,7 @@ class LeftGroupBox(QGroupBox):
             print(f"Error loading settings: {e}")
 
     def handle_file_selection(self):
-        print("LeftGroupBox: handle_file_selection method called")
+
         self.load_settings()
         initial_directory = self.default_upload_path if self.default_upload_path else os.path.expanduser('~')
 
@@ -276,24 +276,25 @@ class LeftGroupBox(QGroupBox):
             self.selectFileButton.setText(os.path.basename(file_name))
             self.metaDataWindow.setText(f'Selected file: {file_name}')
             self.run_initial_scan(file_name)
-        else:
-            print("LeftGroupBox: No valid file selected")
+
 
     def handle_unsupported_file(self):
-        print("LeftGroupBox: Handling unsupported file type")
+        #Handle the use of an unsupported file type.
+
         if self.file_manager.selected_file:
             self.selected_file = self.file_manager.selected_file
             self.selectFileButton.setText(f"{os.path.basename(self.selected_file)}")
             self.metaDataWindow.setText(f'Selected file: {self.selected_file}')
             self.run_initial_scan(self.selected_file)
-        else:
-            print("LeftGroupBox: No valid file to handle")
+
 
     def set_selected_data(self, data):
+        #Set the selected data for a new scan
         self.selected_data = data
         self.metaDataWindow.setText(f'Selected data: {data}')
 
     def set_selected_pid(self, pid):
+        #Set the selected PID for a new scan
         self.selected_pid = pid
         self.metaDataWindow.append(f'Selected PID: {pid}')
 
@@ -318,21 +319,19 @@ class LeftGroupBox(QGroupBox):
             self.pluginAsideWindow.deleteLater()
             self.pluginAsideWindow = None
             for widget in self.existing_widgets:
-                if self.metaDataWindow.isVisible():
+                if self.showing_metadata:
                     self.metaDataWindow.hide()
-                    self.terminalWindow.show()
-                if self.terminalWindow.isVisible():
-                    self.terminalWindow.hide()
-                    self.metaDataWindow.show()
                 if widget is not None:
                     widget.show()
 
     def update_selected_plugin_text(self, plugin_name):
-        print(f"LeftGroupBox: Selected plugin: {plugin_name}")
+        #Update the selected plugin text box
+
         self.selected_plugin = plugin_name
         self.selectedPluginTextBox.setText("> " + plugin_name)
 
     def run_volatility_scan(self):
+        #Run the Volatility scan with the selected file and plugin
         if not self.selected_file or not self.selected_plugin:
             self.log_to_terminal("LeftGroupBox: File or plugin not selected")
             self.show_error_not_selected_X_popup()
@@ -365,18 +364,17 @@ class LeftGroupBox(QGroupBox):
             self.loading_window.hide()
 
     def show_error_incompatible_popup(self, message):
-        print(f"Error popup, incompatible plugin or OS")
+
         self.incompatible_popup = ErrorIncompatible()
         self.show_loading_image()
         self.incompatible_popup.ok_signal.connect(self.confirm_incompatible_error)
         self.incompatible_popup.flash_background()
         self.incompatible_popup.exec_()
 
-    def confirm_incompatible_error(self):
-        print(f"Confirmed incompatible OS popup")
 
-    # Run initial scan with default plugin on the selected file
+
     def run_initial_scan(self, fileName):
+        #Run an initial scan with a default plugin on the selected file
         try:
             self.log_to_terminal(f"Running initial scan with windows.info on {fileName}\n")
             self.volatility_thread = VolatilityThread(fileName, "windows.info", parent=self)
@@ -390,6 +388,7 @@ class LeftGroupBox(QGroupBox):
             show_error_message(self, "Error", error_message)
 
     def display_initial_scan_result(self, headers, data):
+        #Display the initial scan result in the metadata window
         try:
             print("LeftGroupBox: Displaying initial scan result in metaDataWindow")
 
@@ -407,10 +406,10 @@ class LeftGroupBox(QGroupBox):
             formatted_rows = []
             for row in data:
                 if not isinstance(row, (list, tuple)) or len(row) < 2:
-                    print(f"Skipping invalid row: {row}")
+
                     continue
 
-                print(f"Processing row: {row}")
+
 
                 # Update os_info if applicable
                 if row[0] == "NTBuildLab":
@@ -434,6 +433,7 @@ class LeftGroupBox(QGroupBox):
 
             result_text = f"{os_details}\n\n" + "\n\n".join(["> " + "\n".join(row) for row in formatted_rows])
 
+            # Displays the result in the metadata window
             if not hasattr(self, 'metaDataWindow') or not callable(getattr(self.metaDataWindow, 'setText', None)):
                 raise AttributeError("metaDataWindow is not properly set up or lacks the setText method.")
 
@@ -443,7 +443,8 @@ class LeftGroupBox(QGroupBox):
             print(f"An error occurred: {e}")
 
     def display_result(self, headers, data):
-        print("LeftGroupBox: Displaying result in RightGroupBox output table")
+        #Display the scan result in the right group box output table.
+
 
         modified_data = []
         for row in data:
@@ -459,31 +460,29 @@ class LeftGroupBox(QGroupBox):
         self.parent().groupBox_right.display_output(headers, modified_data)
 
     def error_incompatible_popup(self):
-        print(f"Error popup, not selected file or plugin")
+
         self.incompatible_popup = ErrorIncompatible()
         self.incompatible_popup.ok_signal.connect(self.confirm_incompatible_error)
         self.incompatible_popup.flash_background()
         self.incompatible_popup.exec_()
 
-    def confirm_incompatible_error(self):
-        print(f"Confirmed incompatible os popup")
+
 
     def show_error_not_selected_X_popup(self):
-        print(f"Error popup, not selected file or plugin")
+
         self.error_not_selected_popup = ErrorNotSelected()
         self.error_not_selected_popup.ok_signal.connect(self.confirm_not_selected_error)
         self.error_not_selected_popup.flash_background()
         self.error_not_selected_popup.exec_()
 
-    def confirm_not_selected_error(self):
-        print(f"Confirmed error message workspace")
+
 
     def clear_workspace(self):
-        print(f"Calling warning for clearing workspace")
+
         self.show_warning_popup()
 
     def show_warning_popup(self):
-        print(f"Warning popup")
+
         self.warning_clear_popup = WarningClearWSPopup()
         self.warning_clear_popup.confirm_signal.connect(self.confirm_clear)
         self.warning_clear_popup.exit_signal.connect(self.exit_clear)
@@ -491,14 +490,14 @@ class LeftGroupBox(QGroupBox):
         self.warning_clear_popup.exec_()
 
     def confirm_clear(self):
-        print(f"Confirmed clearing workspace")
+
         self.execute_clear_workspace()
 
     def exit_clear(self):
         print(f"Exited warning popup")
 
     def execute_clear_workspace(self):
-        print("Clearing workspace")
+
         self.selected_file = None
         self.selected_plugin = None
         self.selected_pid = None

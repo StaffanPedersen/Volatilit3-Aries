@@ -38,25 +38,14 @@ class HomeScreen(QWidget):
         # determine the directory of the current script
         script_dir = os.path.abspath(os.path.dirname(__file__))
         project_root_dir = os.path.abspath(os.path.join(script_dir, os.pardir, os.pardir))
-        print(f"Script directory: {script_dir}")
-        print(f"Project root directory: {project_root_dir}")
+
 
         # dynamic pathing for images
         start_pixmap_path = os.path.join(project_root_dir, 'gui', 'frontend', 'images', 'ariesLogoHomeScreen.png')
         help_pixmap_path = os.path.join(project_root_dir, 'gui', 'frontend', 'images', 'helpHomeScreen.png')
         settings_pixmap_path = os.path.join(project_root_dir, 'gui', 'frontend', 'images', 'settingsHomeScreen.png')
 
-        print(f"Start pixmap path: {start_pixmap_path}")
-        print(f"Help pixmap path: {help_pixmap_path}")
-        print(f"Settings pixmap path: {settings_pixmap_path}")
 
-        # check if paths exist
-        if not os.path.exists(start_pixmap_path):
-            print(f"Failed to find {start_pixmap_path}")
-        if not os.path.exists(help_pixmap_path):
-            print(f"Failed to find {help_pixmap_path}")
-        if not os.path.exists(settings_pixmap_path):
-            print(f"Failed to find {settings_pixmap_path}")
 
         start_button = QPushButton('', self)
         start_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
@@ -88,8 +77,7 @@ class HomeScreen(QWidget):
         start_icon = QLabel(self)
 
         start_pixmap = QPixmap(start_pixmap_path)
-        if start_pixmap.isNull():
-            print("Failed to load ariesLogoHomeScreen.png")
+
         start_icon.setPixmap(start_pixmap.scaled(180, 180, Qt.KeepAspectRatio))
         start_icon.setAlignment(Qt.AlignCenter)
         start_icon.setStyleSheet('border: none;')
@@ -141,8 +129,7 @@ class HomeScreen(QWidget):
         help_icon = QLabel(self)
 
         help_pixmap = QPixmap(help_pixmap_path)
-        if help_pixmap.isNull():
-            print("Failed to load helpHomeScreen.png")
+
         help_icon.setPixmap(help_pixmap.scaled(80, 80, Qt.KeepAspectRatio))
         help_icon.setAlignment(Qt.AlignCenter)
         help_icon.setStyleSheet('border: none;')
@@ -184,8 +171,7 @@ class HomeScreen(QWidget):
         settings_button.clicked.connect(self.show_settings_window)
 
         settings_pixmap = QPixmap(settings_pixmap_path)
-        if settings_pixmap.isNull():
-            print("Failed to load settingsHomeScreen.png")
+
         settings_icon.setPixmap(settings_pixmap.scaled(80, 80, Qt.KeepAspectRatio))
         settings_icon.setStyleSheet('border: none;')
         settings_icon.setAlignment(Qt.AlignCenter)
@@ -212,14 +198,4 @@ class HomeScreen(QWidget):
         self.settings_window = SettingsWindowGUI()
         self.settings_window.show()
 
-if __name__ == '__main__':
-    import sys
-    from PyQt5.QtWidgets import QApplication
 
-    def switch_screen():
-        print("Switch screen callback invoked")
-
-    app = QApplication(sys.argv)
-    window = HomeScreen(switch_screen)
-    window.show()
-    sys.exit(app.exec_())

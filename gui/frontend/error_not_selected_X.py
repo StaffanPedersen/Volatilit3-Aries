@@ -66,7 +66,7 @@ class ErrorNotSelected(QDialog):
         self.setLayout(layout)
 
     def okAction(self):
-        print('Confirmed error message')
+
         self.ok_signal.emit()
         self.close()
 

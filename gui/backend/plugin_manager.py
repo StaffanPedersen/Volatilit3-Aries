@@ -7,7 +7,7 @@ def get_all_plugins(filepath=None, os_name=None):
         volatility_file = find_volatility_file(start_path) if filepath is None else filepath
 
         if volatility_file is None:
-            print("Volatility file not found.")
+
             return []
 
         base_dir = os.path.dirname(volatility_file)
@@ -39,7 +39,7 @@ def get_all_plugins(filepath=None, os_name=None):
         return plugin_list
 
     except Exception as e:
-        print("Exception occurred while fetching plugins:", str(e))
+
         return []
 
 
