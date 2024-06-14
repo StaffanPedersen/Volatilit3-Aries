@@ -17,8 +17,8 @@ class WarningPopup(QDialog):
         self.flash_timer.timeout.connect(self.toggle_flash)
         self.is_flashing_red = False
 
+    # Window properties
     def initUI(self):
-        # Window properties
         self.setWindowTitle('Warning')
         self.setGeometry(100, 100, 800, 300)
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -27,6 +27,7 @@ class WarningPopup(QDialog):
 
         layout = QVBoxLayout()
 
+        # close button
         close_button_layout = QHBoxLayout()
         close_button_layout.addSpacerItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
         close_button = QPushButton('X', self)
@@ -38,6 +39,7 @@ class WarningPopup(QDialog):
         close_button_layout.addWidget(close_button, alignment=Qt.AlignRight)
         layout.addLayout(close_button_layout)
 
+        # warning label
         warning_label = QLabel('WARNING:', self)
         warning_label.setFont(QFont('Arial', 14, QFont.Bold))
         warning_label.setStyleSheet('color: #FF5656')
@@ -57,6 +59,7 @@ class WarningPopup(QDialog):
         button_layout = QHBoxLayout()
         button_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
+        # confirm button
         confirm_button = QPushButton('Confirm', self)
         confirm_button.setFont(QFont('Arial', 12))
         confirm_button.setStyleSheet('background-color: #FF8956; border: none; color: black')
@@ -65,6 +68,7 @@ class WarningPopup(QDialog):
         confirm_button.clicked.connect(self.on_confirm)
         button_layout.addWidget(confirm_button)
 
+        # exit button
         exit_button = QPushButton('EXIT', self)
         exit_button.setFont(QFont('Arial', 12))
         exit_button.setStyleSheet('background-color: #FF5656; border: none; color: black')
