@@ -33,7 +33,7 @@ class ScanScreen(QWidget):
         self.groupBox_left.selectFileButton.clicked.connect(self.handle_file_selection)
 
     def handle_file_selection(self):
-        #print("ScanScreen: handle_file_selection method called")
+        print("ScanScreen: handle_file_selection method called")
         fileName = self.groupBox_left.selected_file
         if fileName:
             print(f"ScanScreen: File selected - {fileName}")

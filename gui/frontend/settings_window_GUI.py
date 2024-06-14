@@ -151,7 +151,6 @@ class SettingsWindowGUI(QWidget):
 
         main_content_layout.addLayout(export_layout)
 
-        # Default Export Filetype Section
         file_type_layout = QHBoxLayout()
         file_type_label = QLabel("Default Export Filetype", main_content)
         file_type_label.setStyleSheet("font-size: 20px; color: black; background-color: #ff8956;")
@@ -159,8 +158,8 @@ class SettingsWindowGUI(QWidget):
 
         self.file_type_combobox = QComboBox(main_content)
         self.file_type_combobox.addItems([
-            "none", ".doc", ".pdf", ".csv", ".xls", ".txt", ".cls", ".json",  # supported document types
-            ".dmp", ".img", ".bin", ".vmem", ".raw", ".elf", ".hpak",  # Volatility 3 supported types
+            "none", ".doc", ".pdf", ".csv", ".xls", ".txt", ".cls", ".json",
+            ".dmp", ".img", ".bin", ".vmem", ".raw", ".elf", ".hpak",
             ".lime", ".vhd", ".vhdx", ".vmdk", ".vmsn", ".vmss", ".hsv", ".hpa", ".hpak", ".vmem",
             ".core", ".crash", ".hiberfil.sys", ".pagefile.sys", ".swapfile.sys"
         ])
@@ -168,7 +167,6 @@ class SettingsWindowGUI(QWidget):
         file_type_layout.addWidget(self.file_type_combobox)
         main_content_layout.addLayout(file_type_layout)
 
-        # ABOUT
         header_about = QLabel("About", main_content)
         header_about.setStyleSheet(
             "font-size: 30px; color: white; border: none; margin-top: 20px; background-color: transparent;")
@@ -223,8 +221,8 @@ class SettingsWindowGUI(QWidget):
                 'TextSize': text_size,
                 'TextStyle': text_style,
                 'Upload': upload_path,
-                'MemdumpPath': memdump_path,  # Lagrer filstien til mappen
-                'FileType': file_type  # Legg til filtypen
+                'MemdumpPath': memdump_path,
+                'FileType': file_type
             }
 
             with open('settings.ini', 'w') as configfile:
