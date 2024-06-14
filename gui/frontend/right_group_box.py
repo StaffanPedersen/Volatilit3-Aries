@@ -32,7 +32,7 @@ class CustomTableWidgetItem(QTableWidgetItem):
 
 def display_output(self, headers, data):
     # display the output data in the table
-    print("Displaying output in table")
+
     self.headers = headers
     self.data = data
 
@@ -340,7 +340,7 @@ class RightGroupBox(QGroupBox):
 
     def display_output(self, headers, data):
         # display the output data in the table
-        print("Displaying output in table")
+
         self.headers = headers
         self.data = data
 
@@ -376,7 +376,7 @@ class RightGroupBox(QGroupBox):
             pid_index = self.headers.index('PID')
             selected_pid = self.outputTable.item(selected_row, pid_index).text()
             self.pid_selected_signal.emit(selected_pid)
-            print(f"Selected PID: {selected_pid}")  # Print selected PID to the console
+
 
     def update_command_info(self, command):
         # update the command info box on top with the executed command
@@ -389,7 +389,7 @@ class RightGroupBox(QGroupBox):
 
     def clear_output(self):
         # clear button for clearing the output table and command info box
-        print("Clearing output")
+
         self.commandInfoBox.setHtml("""
         <div style='text-align: center;'>
             <span style='color: #FF8956;'></span>
