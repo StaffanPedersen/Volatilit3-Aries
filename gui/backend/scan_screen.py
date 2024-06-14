@@ -4,7 +4,6 @@ class ScanScreenBackend:
     def __init__(self):
         self.memory_dump = ""
 
-    #  create path for the button icon
     def create_transparent_button(self, icon_filename):
         script_dir = os.path.dirname(os.path.abspath(__file__))
         project_root = os.path.abspath(os.path.join(script_dir, '..', '..'))

@@ -280,7 +280,6 @@ class LeftGroupBox(QGroupBox):
             print("LeftGroupBox: No valid file selected")
 
     def handle_unsupported_file(self):
-        """Handle the use of an unsupported file type."""
         print("LeftGroupBox: Handling unsupported file type")
         if self.file_manager.selected_file:
             self.selected_file = self.file_manager.selected_file
@@ -290,13 +289,13 @@ class LeftGroupBox(QGroupBox):
         else:
             print("LeftGroupBox: No valid file to handle")
 
+    # set selected data for new scan
     def set_selected_data(self, data):
-        """Set the selected data for a new scan."""
         self.selected_data = data
         self.metaDataWindow.setText(f'Selected data: {data}')
 
+    # set selected PID for new scan
     def set_selected_pid(self, pid):
-        """Set the selected PID for a new scan."""
         self.selected_pid = pid
         self.metaDataWindow.append(f'Selected PID: {pid}')
 
@@ -330,14 +329,13 @@ class LeftGroupBox(QGroupBox):
                 if widget is not None:
                     widget.show()
 
+    # Update selected plugin box
     def update_selected_plugin_text(self, plugin_name):
-        """Update the selected plugin text box."""
         print(f"LeftGroupBox: Selected plugin: {plugin_name}")
         self.selected_plugin = plugin_name
         self.selectedPluginTextBox.setText("> " + plugin_name)
 
     def run_volatility_scan(self):
-        """Run the Volatility scan with the selected file and plugin."""
         if not self.selected_file or not self.selected_plugin:
             self.log_to_terminal("LeftGroupBox: File or plugin not selected")
             self.show_error_not_selected_X_popup()
@@ -380,8 +378,8 @@ class LeftGroupBox(QGroupBox):
     def confirm_incompatible_error(self):
         print(f"Confirmed incompatible OS popup")
 
+    # Run initial scan with default plugin on the selected file
     def run_initial_scan(self, fileName):
-        """Run an initial scan with a default plugin on the selected file."""
         try:
             self.log_to_terminal(f"Running initial scan with windows.info on {fileName}\n")
             self.volatility_thread = VolatilityThread(fileName, "windows.info", parent=self)
@@ -394,8 +392,8 @@ class LeftGroupBox(QGroupBox):
             self.error_incompatible_popup()
             show_error_message(self, "Error", error_message)
 
+    # Display scan result in the metadata window
     def display_initial_scan_result(self, headers, data):
-        """Display the initial scan result in the metadata window."""
         try:
             print("LeftGroupBox: Displaying initial scan result in metaDataWindow")
 
