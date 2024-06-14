@@ -84,7 +84,7 @@ class PluginAsideWindow(QtWidgets.QWidget):
                                      " border: 1px solid #000000\n;"
                                      " border-radius: 5px")
         self.addButton.setFixedSize(30, 30)
-        self.addButton.clicked.connect(self.open_file_dialog)  # Connect to the new method
+        self.addButton.clicked.connect(self.open_file_dialog)
 
         self.cancelButton = QtWidgets.QPushButton("Cancel", self)
         self.cancelButton.setStyleSheet("background-color: #262626\n;"
@@ -125,6 +125,7 @@ class PluginAsideWindow(QtWidgets.QWidget):
             print(f"Error getting plugins: {e}")
             self.pluginNames = []
 
+        # plugins tooltip descriptions logic
         current_dir = os.path.dirname(os.path.abspath(__file__))
         plugin_desc_path = os.path.join(current_dir, '..', 'frontend', 'plugin_desc.json')
         print(f"Checking for plugin description file at: {plugin_desc_path}")
@@ -166,7 +167,6 @@ class PluginAsideWindow(QtWidgets.QWidget):
                     checkbox.setMaximumSize(280, 20)
                     self.buttonGroup.addButton(checkbox)
                     checkbox.stateChanged.connect(self.update_checked_plugins)
-
                     tooltip_text = descriptions.get(plugin, "Description for " + plugin)
                     checkbox.setToolTip(tooltip_text)
 
@@ -185,18 +185,17 @@ class PluginAsideWindow(QtWidgets.QWidget):
     def save_plugin_to_custom(self, file_path):
         try:
             custom_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'volatility3',
-                                         'framework', 'plugins', 'community')
+                                      'framework', 'plugins', 'community')
             print(custom_dir)
             if not os.path.exists(custom_dir):
                 os.makedirs(custom_dir)
             base_name = os.path.basename(file_path)
             dest_path = os.path.join(custom_dir, base_name)
-            # Copy the file to the custom directory
             with open(file_path, 'rb') as fsrc:
                 with open(dest_path, 'wb') as fdst:
                     fdst.write(fsrc.read())
             print(f"Plugin {base_name} saved to custom directory.")
-            self.load_plugins()  # Refresh the plugin list
+            self.load_plugins()
         except Exception as e:
             print(f"Error saving plugin: {e}")
 
