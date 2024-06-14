@@ -10,16 +10,13 @@ class ScanScreen(QWidget):
         self.initialize_ui()
 
     def initialize_ui(self):
-        """Initialize the user interface for the scan screen."""
         self.setObjectName("ScanScreen")
         self.resize(1920, 1080)
 
-        # main layout + margins and spacing
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # add the left and right group boxes
         self.groupBox_left = LeftGroupBox(self)
         self.groupBox_right = RightGroupBox(self)
 
@@ -30,16 +27,13 @@ class ScanScreen(QWidget):
 
         self.setLayout(main_layout)
 
-        # connect signals between group boxes
         self.groupBox_right.row_selected_signal.connect(self.groupBox_left.set_selected_data)
         self.groupBox_right.pid_selected_signal.connect(self.groupBox_left.set_selected_pid)
 
-        # connect the select file button to handle the result only
         self.groupBox_left.selectFileButton.clicked.connect(self.handle_file_selection)
 
     def handle_file_selection(self):
-        # handle the file selection from the left group box
-        print("ScanScreen: handle_file_selection method called")
+        #print("ScanScreen: handle_file_selection method called")
         fileName = self.groupBox_left.selected_file
         if fileName:
             print(f"ScanScreen: File selected - {fileName}")
