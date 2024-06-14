@@ -50,7 +50,7 @@ class HomeScreen(QWidget):
         print(f"Help pixmap path: {help_pixmap_path}")
         print(f"Settings pixmap path: {settings_pixmap_path}")
 
-        # Debugging: check if paths exist
+        # check if paths exist
         if not os.path.exists(start_pixmap_path):
             print(f"Failed to find {start_pixmap_path}")
         if not os.path.exists(help_pixmap_path):
@@ -110,10 +110,10 @@ class HomeScreen(QWidget):
         smaller_buttons_layout = QVBoxLayout()
         smaller_buttons_layout.setSpacing(10)
 
-        # home screen "Help" button
         help_button = QPushButton('', self)
         help_button.setFixedSize(125, 125)
         help_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+
         shadow = QGraphicsDropShadowEffect(self)
         shadow.setBlurRadius(8)
         shadow.setOffset(1, 1)
@@ -153,8 +153,6 @@ class HomeScreen(QWidget):
         help_button.setLayout(help_button_layout)
         smaller_buttons_layout.addWidget(help_button)
 
-
-        # home screen "Settings"
         settings_button = QPushButton('', self)
         settings_button.setFixedSize(125, 125)
         settings_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))

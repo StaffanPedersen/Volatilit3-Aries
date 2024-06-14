@@ -148,7 +148,7 @@ class PluginAsideWindow(QtWidgets.QWidget):
         for os_name, plugins in plugins_by_folder.items():
             if plugins:
                 if os_name == 'Community':
-                    header_text = "Custom Header"
+                    header_text = "Community Plugins"
                 else:
                     header_text = f"{os_name} Plugins"
 
