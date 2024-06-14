@@ -447,8 +447,8 @@ class LeftGroupBox(QGroupBox):
         except Exception as e:
             print(f"An error occurred: {e}")
 
+# Display the scan result in output table
     def display_result(self, headers, data):
-        """Display the scan result in the right group box output table."""
         print("LeftGroupBox: Displaying result in RightGroupBox output table")
 
         modified_data = []
