@@ -43,11 +43,11 @@ def display_output(self, headers, data):
     for row_idx, row_data in enumerate(data):
         for col_idx, col_data in enumerate(row_data):
             if isinstance(col_data, QMovie):
-                # QLabel to display the loading wheel / movie
+                # QLabel to display the loading wheel
                 label = QLabel()
                 label.setAlignment(Qt.AlignCenter)
                 label.setMovie(col_data)
-                col_data.start()  # Start the loading wheel / movie
+                col_data.start()  # Start the loading wheel
 
                 # create a QWidget to hold the QLabel
                 cell_widget = QWidget()
@@ -70,9 +70,9 @@ def display_output(self, headers, data):
 
 
 class RightGroupBox(QGroupBox):
-    back_to_home_signal = pyqtSignal()  # signal to go back to home screen
-    row_selected_signal = pyqtSignal(list)  # signal for row selection
-    pid_selected_signal = pyqtSignal(str)  # signal for PID selection
+    back_to_home_signal = pyqtSignal()
+    row_selected_signal = pyqtSignal(list)
+    pid_selected_signal = pyqtSignal(str)
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -84,7 +84,7 @@ class RightGroupBox(QGroupBox):
         self.sort_orders = {}
         self.headers = []
         self.data = []
-        self.filter_settings = {"all_checked": False, "none_checked": False}  # store filter settings
+        self.filter_settings = {"all_checked": False, "none_checked": False}
 
     def initialize_ui(self):
         # initialize the user interface for the right group box
@@ -192,7 +192,7 @@ class RightGroupBox(QGroupBox):
         """)
         right_layout.addWidget(self.commandInfoBox)
 
-        # smaller layout for the search bar and table
+
         search_and_table_layout = QVBoxLayout()
         search_and_table_layout.setSpacing(5)
 
@@ -624,8 +624,8 @@ class RightGroupBox(QGroupBox):
                         row_match = True
                         break
                 self.outputTable.setRowHidden(i, not row_match)
-            self.save_filter_settings()  # Save the filter settings before closing the filter window
-            self.filter_dialog.close()  # Close the filter window
+            self.save_filter_settings()
+            self.filter_dialog.close()
         except Exception as e:
             print(f"Error applying filter: {e}")
 
@@ -642,7 +642,7 @@ class RightGroupBox(QGroupBox):
             json.dump(self.filter_settings, f)
 
     def show_filter_window(self):
-        self.filter_dialog = QDialog(self)  # Store a reference to the filter dialog
+        self.filter_dialog = QDialog(self)
         self.filter_dialog.setWindowTitle("Filter")
         self.filter_dialog.setStyleSheet("background-color: black; color: white; border: 1px solid #FF8956;")
         self.filter_dialog.setFixedSize(300, 400)
@@ -680,12 +680,12 @@ class RightGroupBox(QGroupBox):
         filter_settings = self.filter_settings.get("columns", {header: True for header in self.headers})
         for idx, header in enumerate(self.headers):
             checkbox = QCheckBox(header)
-            checkbox.setObjectName(header)  # Set object name for the checkbox
+            checkbox.setObjectName(header)
             checkbox.setStyleSheet("color: white; border: none;")
 
             # Set checkbox state based on stored settings
             checkbox.setChecked(filter_settings.get(header, True))
-            checkbox.stateChanged.connect(partial(self.toggle_column, idx, checkbox))  # Use partial to capture idx
+            checkbox.stateChanged.connect(partial(self.toggle_column, idx, checkbox))
             scroll_layout.addWidget(checkbox)
             item_vars[header] = checkbox
 
@@ -696,7 +696,7 @@ class RightGroupBox(QGroupBox):
         button_layout = QHBoxLayout()
         apply_button = QPushButton("Apply")
         apply_button.setStyleSheet("background-color: #FF8956; color: black;")
-        apply_button.clicked.connect(self.apply_filter)  # Connect the apply button to apply_filter()
+        apply_button.clicked.connect(self.apply_filter)
         button_layout.addWidget(apply_button)
 
         layout.addLayout(button_layout)
