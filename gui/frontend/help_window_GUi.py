@@ -19,8 +19,6 @@ class helpWindowGui(QWidget):
 
         layout = QVBoxLayout()
 
-
-        # DIR
         script_dir = os.path.abspath(os.path.dirname(__file__))
         project_root_dir = os.path.abspath(os.path.join(script_dir, os.pardir, os.pardir))
         print(f"Script directory: {script_dir}")
@@ -31,8 +29,6 @@ class helpWindowGui(QWidget):
         if not os.path.exists(help_image_pixmap_path):
             print(f"Failed to find {help_image_pixmap_path}")
 
-
-        # HER ER BILDET..
         settings_icon = QLabel(self)
         settings_pixmap = QPixmap(help_image_pixmap_path)
         if settings_pixmap.isNull():
@@ -41,10 +37,8 @@ class helpWindowGui(QWidget):
         settings_icon.setStyleSheet('border: none;')
         settings_icon.setAlignment(Qt.AlignCenter)
 
-        # add image label to the layout
         layout.addWidget(settings_icon)
 
-        # create exit button
         exit_button = QPushButton('Exit', self)
         exit_button.setFixedSize(330, 50)
         exit_button.setCursor(QCursor(Qt.PointingHandCursor))
@@ -68,15 +62,7 @@ class helpWindowGui(QWidget):
         """)
         exit_button.clicked.connect(self.close)
 
-        # add exit button to the layout
         layout.addWidget(exit_button)
 
         self.setLayout(layout)
 
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = helpWindowGui()
-    ex.show()
-    sys.exit(app.exec_())

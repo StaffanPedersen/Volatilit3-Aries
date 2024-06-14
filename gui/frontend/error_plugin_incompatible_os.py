@@ -70,22 +70,6 @@ class ErrorIncompatible(QDialog):
         self.ok_signal.emit()
         self.close()
 
-    def mousePressEvent(self, event: QMouseEvent):
-        if event.button() == Qt.LeftButton:
-            self.dragging = True
-            self.drag_start_position = event.globalPos() - self.frameGeometry().topLeft()
-            event.accept()
-
-    def mouseMoveEvent(self, event: QMouseEvent):
-        if self.dragging:
-            self.move(event.globalPos() - self.drag_start_position)
-            event.accept()
-
-    def mouseReleaseEvent(self, event: QMouseEvent):
-        if event.button() == Qt.LeftButton:
-            self.dragging = False
-            event.accept()
-
     def flash_background(self):
         self.flash_timer.start(500)
 

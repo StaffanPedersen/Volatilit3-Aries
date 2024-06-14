@@ -24,6 +24,7 @@ class VolatilityThread(QThread):
         self.pid = pid
         self.vol_path = find_volatility_file(os.getcwd())
 
+    # Runs Volatility3 command in terminal on run button
     def run(self):
         try:
             command = f"python \"{self.vol_path}\" -f \"{self.memory_dump}\" -r csv {self.plugin}"
@@ -52,6 +53,7 @@ class VolatilityThread(QThread):
             self.progress_signal.emit(100)
             self.command_signal.emit("Error occurred")
 
+    # Entry point for running the Volatility scan
     def run_volatility_scan(self, command):
         try:
             process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -96,6 +98,3 @@ class VolatilityThread(QThread):
             return f"[ERROR] [{timestamp}] {message}"
         else:
             return f"[{level.upper()}] [{timestamp}] {message}"
-
-    def handle_progress(self, progress):
-        print("Progress signal received:", progress)

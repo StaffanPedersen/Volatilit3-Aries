@@ -289,12 +289,10 @@ class LeftGroupBox(QGroupBox):
         else:
             print("LeftGroupBox: No valid file to handle")
 
-    # set selected data for new scan
     def set_selected_data(self, data):
         self.selected_data = data
         self.metaDataWindow.setText(f'Selected data: {data}')
 
-    # set selected PID for new scan
     def set_selected_pid(self, pid):
         self.selected_pid = pid
         self.metaDataWindow.append(f'Selected PID: {pid}')
@@ -329,7 +327,6 @@ class LeftGroupBox(QGroupBox):
                 if widget is not None:
                     widget.show()
 
-    # Update selected plugin box
     def update_selected_plugin_text(self, plugin_name):
         print(f"LeftGroupBox: Selected plugin: {plugin_name}")
         self.selected_plugin = plugin_name
@@ -392,7 +389,6 @@ class LeftGroupBox(QGroupBox):
             self.error_incompatible_popup()
             show_error_message(self, "Error", error_message)
 
-    # Display scan result in the metadata window
     def display_initial_scan_result(self, headers, data):
         try:
             print("LeftGroupBox: Displaying initial scan result in metaDataWindow")
@@ -438,7 +434,6 @@ class LeftGroupBox(QGroupBox):
 
             result_text = f"{os_details}\n\n" + "\n\n".join(["> " + "\n".join(row) for row in formatted_rows])
 
-            # Displays the result in the metadata window
             if not hasattr(self, 'metaDataWindow') or not callable(getattr(self.metaDataWindow, 'setText', None)):
                 raise AttributeError("metaDataWindow is not properly set up or lacks the setText method.")
 
@@ -447,7 +442,6 @@ class LeftGroupBox(QGroupBox):
         except Exception as e:
             print(f"An error occurred: {e}")
 
-# Display the scan result in output table
     def display_result(self, headers, data):
         print("LeftGroupBox: Displaying result in RightGroupBox output table")
 

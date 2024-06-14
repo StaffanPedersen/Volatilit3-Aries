@@ -58,7 +58,6 @@ class HomeScreen(QWidget):
         if not os.path.exists(settings_pixmap_path):
             print(f"Failed to find {settings_pixmap_path}")
 
-        # home screen "Start" button
         start_button = QPushButton('', self)
         start_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         start_button.setFixedSize(260, 260)

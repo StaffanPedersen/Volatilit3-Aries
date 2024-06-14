@@ -1,7 +1,6 @@
 import os
 from .volatility_finder import find_volatility_file
 
- #  get all available plugins for the specified OS or all if OS is not specified
 def get_all_plugins(filepath=None, os_name=None):
     try:
         start_path = os.path.dirname(os.path.realpath(__file__))
